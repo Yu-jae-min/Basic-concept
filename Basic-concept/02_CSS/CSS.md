@@ -454,7 +454,9 @@
 
 <br>
 
-- Image Replacement 기법은 스크린 리더 사용자들을 위한, 이미지를 대신하는 대체 텍스트를 제공하는 기법으로 웹 접근성 준수하기 위해 사용하는 기법이다. text-indent를 활용한 방법, 추가 태그와 z-index를 활용한 방법, clip-path를 활용한 방법등이 있다. 주의할 점은 display none, 요소 크기 0, opacity 0 등의 방법은 스크린 리더가 읽을 수 없으므로 사용하지 않아야한다.
+- Image Replacement 기법이란?
+
+  Image Replacement 기법은 스크린 리더 사용자들을 위한, 이미지를 대신하는 대체 텍스트를 제공하는 기법으로 웹 접근성 준수하기 위해 사용하는 기법이다. text-indent를 활용한 방법, 추가 태그와 z-index를 활용한 방법, clip-path를 활용한 방법등이 있다. 주의할 점은 display none, 요소 크기 0, opacity 0 등의 방법은 스크린 리더가 읽을 수 없으므로 사용하지 않아야한다.
 
 <br>
 

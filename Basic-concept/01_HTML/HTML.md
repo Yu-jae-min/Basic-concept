@@ -122,6 +122,8 @@
 
 ### # **attribute와 property의 차이점이 무엇인가?**
 
+<br>
+
 - attribute
 
   HTML 문서에서의 정적인 속성, 초기 속성이라고 보면 된다.
