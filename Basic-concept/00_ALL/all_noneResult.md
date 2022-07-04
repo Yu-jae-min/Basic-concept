@@ -312,6 +312,10 @@
 
 ### # **css 그리드 사용해보았는가?**
 
+<br>
+
+### # 다크모드 구현 방법
+
 <br><br><br>
 
 ## # Javascript
@@ -347,6 +351,26 @@
 <br>
 
 - 자바스크립트는 컴파일러일까 인터프리터일까?
+
+<br>
+
+- V8엔진의 AJITC(Adaptive Just In Time Compiler) 동작 원리
+
+<br>
+
+### # 바이너리 코드, 기계어, 바이트 코드
+
+<br>
+
+- 바이너리 코드
+
+<br>
+
+- 기계어
+
+<br>
+
+- 바이트 코드
 
 <br>
 
@@ -822,42 +846,6 @@
 
 <br>
 
-### # **window 객체란 무엇인가요?**
-
-<br>
-
-### # **getElementById vs querySelector 차이**
-
-<br>
-
-- getElementById
-
-<br>
-
-- querySelector
-
-<br>
-
-### # **HTMLCollection vs NodeList 차이**
-
-<br>
-
-- Element
-
-<br>
-
-- Node
-
-<br>
-
-- HTMLCollection
-
-<br>
-
-- NodeList
-
-<br>
-
 ### # **직렬화 / 역직렬화란?**
 
 <br>
@@ -1326,6 +1314,10 @@
 
 <br>
 
+### # Link, NavLink, useNavigate 차이
+
+<br>
+
 ### # **비즈니스 로직을 리액트를 사용 시 어떻게 모듈화시키는게 좋은지?**
 
 <br>
@@ -1603,6 +1595,10 @@
 <br>
 
 - 웹 태스크 매니저
+
+<br>
+
+### # 안티 패턴 알고 있는 것?
 
 <br><br><br>
 
