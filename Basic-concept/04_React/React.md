@@ -330,6 +330,34 @@
 
 <br>
 
+### # **hook을 사용할 때의 가장 큰 장점은?**
+
+<br>
+
+- 로직의 재사용 가능, 관리가 쉽다
+
+  Hook은 함수형 컴포넌트 이므로 함수 안에서 다른 함수를 호출하는 것으로 새로운 Hook을 만들어 볼 수 있기 때문이다. 따라서 리액트의 내장되어있는 Hook과 다른 사람들이 만든 여러 custom Hook을 레고처럼 조립해서 쉽게 custom Hook을 만들 수 있다.
+
+<br>
+
+- 로직을 한 곳으로 모을수 있어서 가독성이 좋다
+
+  클래스형 컴포넌트의 라이프사이클 API는 서로 다른 로직이 하나의 메서드에 섞여 있어서 가독성이 좋지 않다. Hook은 같은 로직을 한 곳으로 모을 수 있다.
+
+<br>
+
+- Wrapper 컴포넌트양 감소
+
+  고차 컴포넌트를 커스텀 훅으로 대체하면, Wrapper 컴포넌트를 사용하지 않아도 간단하게 구현할 수 있다.
+
+<br>
+
+- 정적 타입 언어로 타입을 정의하기 쉽다
+
+  고차 컴포넌트의 타입 정의에 비해 정적 타입 언어로 타입을 정의 하기 쉬워졌다고 한다.
+
+<br>
+
 ### # **Immutability**
 
 <br>
@@ -361,26 +389,86 @@
   (1) 액션 생성 : 액션은 state의 액션을 정의한다. 리듀서는 이 액션을 참고하여 state를 어떻게 변화시킬 지 결정하게 된다.
 
   액션을 생성하기 위해 첫번째로 액션 타입을 정의하기 위한 액션 타입 변수를 생성한다. 변수의 자료형은 문자열을 사용한다.
-  두번째로 액션 크리에이터를 생성한다. 액션 크리에이터는 타입, 페이로드 등을 포함하는 객체를 반환하는 함수이며
+  두번째로 액션 크리에이터를 생성한다. 액션 크리에이터는 타입, 페이로드(액션에 필요한 추가 데이터) 등을 포함하는 객체를 반환하는 함수이며
   타입에는 액션 타입을 정의하기 위해 생성한 액션 타입 변수를 할당한다. 또한 액션 크리에이터 함수는 디스패치를 통해 리듀서에 전달되는 함수이다.
+
+  ```js
+  // Actions
+  const INCREMENT = "INCREMENT";
+  const DECREMENT = "DECREMENT";
+
+  // Action Creator
+  export const increment = () => {
+    return {
+      type: INCREMENT,
+    };
+  };
+  export const decrement = () => {
+    return {
+      type: DECREMENT,
+    };
+  };
+  ```
 
   (2) 리듀서 생성 : 리듀서는 액션의 결과를 보고 state를 업데이트시켜 반환한다.
 
   리듀서를 생성하기 위해 첫번째로 state의 초기 값을 정의하기 위한 initialState 변수를 생성한다.
   두번째로 리듀서를 생성하는데 리듀서는 함수로 생성되고 첫번째 인자로 state, 두번쨰 인자로 액션 크리에이터 함수를 전달받는다.
   이 때 첫번째 인자인 state는 미리 생성해놓은 initialState 변수를 할당하여 초기화시키고 리듀서는 컴바인리듀서에서 사용되야하므로 익스포트하여 내보낸다.
+  state를 변경은 switch 문을 사용한다. 이 때 case에서 미리 생성해놓은 액션 타입 변수를 사용해서 실행되는 액션을 구분한다.
+
+  ```js
+  // 초기값 설정
+  const initialState = {
+    number: 0,
+  };
+
+  // counterReducer
+  export default function counter(state = initialState, action) {
+    switch (action.type) {
+      case INCREMENT:
+        return {
+          number: state.number + 1,
+        };
+      case DECREMENT:
+        return {
+          number: state.number - 1,
+        };
+      default:
+        return state;
+    }
+  }
+  ```
 
   (3) 컴바인리듀서 생성 : 컴바인리듀서는 모든 리듀서를 하나로 합쳐준다.
 
   컴바인 리듀서 생성을 위해 필요한 컴바인리듀서 함수, 생성해놓은 리듀서 함수를 임포트한다.
   그 후 컴바인리듀서 함수에 인자로 리듀서 함수를 객체로 전달하고 스토어 생성 시 사용해야하므로 익스포트하여 내보낸다.
 
+  ```js
+  export default combineReducers({
+    // 리듀서 이름: import한 리듀서
+    counterData: counter,
+  });
+  ```
+
   (4) 스토어 생성 : 스토어는 state가 저장되는 저장소이다.
 
   스토어가 가지고 있는 state를 전체 컴포넌트에서 공유하기 위해서 최상위 컴포넌트에 스토어를 연결해야한다.
-  스토어 연결을 위해 필요한 크리에이터스토어 함수, 프로바이더 컴포넌트, 컴바인리듀서 함수를 임포트한다.
+  스토어 연결을 위해 필요한 크리에이터스토어 함수, 프로바이더 컴포넌트, 컴바인리듀서 함수(네이밍은 rootReducer를 많이 사용)를 임포트한다.
   그 후 store 변수를 생성하여 크리에이터스토어 함수를 할당하는데 인자로 컴바인리듀서 함수를 전달하고
   프로바이더 컴포넌트로 최상위 컴포넌트를 감싸고 프로바이더 컴포넌트 store 프롭스에 store 변수를 할당하여 스토어를 연결할 수 있다.
+
+  ```jsx
+  const store = createStore(rootReducer);
+
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.getElementById("root")
+  );
+  ```
 
   (5) 디스패처 생성 : 디스패치는 리듀서에 액션을 전달한다.
 
@@ -390,12 +478,37 @@
   특정 이벤트 리스너가 실행될 때 dispatch 변수에 액션 크리에이터 콜백함수를 인자로 전달하여 state를 업데이트할 수 있다.
   리듀서가 dispatch 변수를 통해 액션을 전달받아 state를 업데이트하게 되는 것이다.
 
+  ```jsx
+  export default function Counter() {
+    const dispatch = useDispatch();
+
+    return (
+      <div>
+        <button onClick={() => dispatch(increment())}> + </button>
+        <button onClick={() => dispatch(decrement())}> - </button>
+      </div>
+    );
+  }
+  ```
+
   (6) 셀렉터 생성 : 셀렉터는 스토어에 state를 가져온다.
 
   즉, state값을 사용할 때는 useSelector hook을 사용한다.
   useSelector hook을 사용하기 위해 필요한 useSelector hook을 임포트한다.
   그 후 새로운 변수를 생성하여 변수에 useSelector 함수를 할당하는데 인자로 화살표 함수를 전달한다.
   전달되는 화살표 함수에 파라미터는 state가 되고 리턴 값은 state.리듀서 이름.리듀서 리턴 객체 키 값이 된다.
+
+  ```jsx
+  export default function Counter() {
+    const count = useSelector((state) => state.counter.number);
+
+    return (
+      <div>
+        <h4>{count}</h4>
+      </div>
+    );
+  }
+  ```
 
 <br>
 
@@ -407,9 +520,73 @@
 
 - redux-thunk, redux-saga 설명
 
-  (1) redux-thunk : 특정 작업을 나중에 할 수 있도록 미루기 위해 객체가 아닌 함수 형태의 액션을 디스패치할 수 있게 해준다.
+  (1) redux-thunk : 특정 작업을 나중에 할 수 있도록 미루기 위해 객체가 아닌 함수 형태의 액션을 디스패치할 수 있게 해준다. 보통 thunk 함수를 사용하여 비동기 처리 시 사용한다.
+
+  ```js
+  // 1. 스토어 연결 시 미들웨어 적용
+  const store = createStore(
+    rootReducer,
+    composeWithDevTools(applyMiddleware(ReduxThunk, logger))
+  );
+
+  // 액션 생성 함수
+  export const increase = () => ({ type: INCREASE });
+  export const decrease = () => ({ type: DECREASE });
+
+  // thunk 함수 생성 -> async/await 사용해도 된다.
+  export const increaseAsync = () => (dispatch) => {
+    setTimeout(() => dispatch(increase()), 1000);
+  };
+  export const decreaseAsync = () => (dispatch) => {
+    setTimeout(() => dispatch(decrease()), 1000);
+  };
+  ```
 
   (2) redux-saga : 액션을 모니터링하고 있다가, 특정 액션이 발생하면 이에 따라 특정 작업을 실행할 수 있게 해준다. 제너레이터 문법을 사용한다.
+
+  ```js
+  // 참고 : https://react.vlpt.us/redux-middleware/10-redux-saga.html
+  // 1. 액션 생성 함수
+  export const increaseAsync = () => ({ type: INCREASE_ASYNC });
+  export const decreaseAsync = () => ({ type: DECREASE_ASYNC });
+
+  // 2. 사가 생성
+  function* increaseSaga() {
+    yield delay(1000);
+    yield put(increase()); // put은 특정 액션을 디스패치 해준다.
+  }
+
+  function* decreaseSaga() {
+    yield delay(1000);
+    yield put(decrease()); // put은 특정 액션을 디스패치 해준다.
+  }
+
+  // 3. 사가의 액션을 모니터링하는 함수 생성
+  export function* counterSaga() {
+    yield takeEvery(INCREASE_ASYNC, increaseSaga); // 모든 INCREASE_ASYNC 액션을 처리
+    yield takeLatest(DECREASE_ASYNC, decreaseSaga); // 가장 마지막으로 디스패치된 DECREASE_ASYNC 액션만을 처리
+  }
+
+  // 4. 루트 사가 생성
+  export function* rootSaga() {
+    yield all([counterSaga()]); // all 은 배열 안의 여러 사가를 동시에 실행시켜준다.
+  }
+
+  // 5. 스토어 연결 시 미들웨어 적용
+  const sagaMiddleware = createSagaMiddleware(); // 사가 미들웨어를 생성
+
+  const store = createStore(
+    rootReducer,
+    composeWithDevTools(
+      applyMiddleware(
+        ReduxThunk.withExtraArgument({ history: customHistory }),
+        sagaMiddleware
+      )
+    )
+  );
+
+  sagaMiddleware.run(rootSaga); // 6. 루트 사가를 실행, 이 떄 먼저 연결되어있어야 함
+  ```
 
 <br>
 
@@ -421,7 +598,7 @@
 
   (3) Context API : Context API는 리액트가 자체적으로 가지고 있다. 정적인 데이터 위주로 처리하거나 업데이트가 빈번하지 않을 때 적합하다. 빈번하고 복잡한 업데이트를 처리 시에는 비효율적이다.
 
-  (4) Recoil : 리코일은 아톰과 셀렉터로 이루어져 있습니다. 아톰은 상태의 단위로, 유니크한 키값으로 구분된다. 해당 아톰을 구독하고 있으면 해당 컴포넌트들만 선택적으로 리렌더링 된다. 아톰의 상태변화는 순수함수를 통해 일어나는데, 이를 셀렉터라고 한다. 셀렉터에서는 비동기처리 뿐만 아니라 데이터 캐싱 기능도 제공하기 때문에 비동기 데이터를 다루기에도 용이하다. 하지만 상대적으로 최근에 나온 라이브러리이기 때문에 안정성 측면에서는 좋지 못할 수도 있다.
+  (4) Recoil : 리코일은 아톰과 셀렉터로 이루어져 있다. 아톰은 상태의 단위로, 유니크한 키값으로 구분된다. 해당 아톰을 구독하고 있으면 해당 컴포넌트들만 선택적으로 리렌더링 된다. 아톰의 상태변화는 순수함수를 통해 일어나는데, 이를 셀렉터라고 한다. 셀렉터에서는 비동기처리 뿐만 아니라 데이터 캐싱 기능도 제공하기 때문에 비동기 데이터를 다루기에도 용이하다. 하지만 상대적으로 최근에 나온 라이브러리이기 때문에 안정성 측면에서는 좋지 못할 수도 있다.
 
   (5) Redux toolkit : 나는 리덕스 대신 리덕스 툴킷을 사용한다. 리덕스는 큰 보일러 플레이트 코드를 가지고 있어 상태의 개수가 적어도 작성해야 할 코드가 많다. 또 비동기 데이터 처리를 하기 위해 별도의 라이브러리를 추가로 사용해야한다는 단점이 있다. 리덕스 툴킷은 리덕스가 공식적으로 만든 라이브러리로 다양한 내장 기능을 제공하고 있어 패키지 의존성이 적고 보일러 플레이트 코드가 적다는 장점이 있다.
 
@@ -431,11 +608,65 @@
 
   (1) store파일을 생성한다. 파일명은 store로 한다. store는 전역 상태 관리가 되는 모든 createSlice를 관리하는 곳이다. store에 reducer에 만들어진 createSlice name을 import해서 넣어줘야한다. 또한 store를 만든 뒤 루트 디렉토리 컴포넌트(ex App컴포넌트)를 Provider 컴포넌트로 감싸 Provider prop를 store={store}로 지정해야한다. 또한 store는 프로젝트에 하나만 존재해야한다.
 
+  ```js
+  // store.js
+  export const store = configureStore({
+    reducer: {
+      recommendIndex,
+      searchValue,
+    },
+    devTools: process.env.NODE_ENV !== 'production',
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
+  });
+
+  // index.js
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { refetchOnMount: false, refetchOnWindowFocus: false } },
+  });
+
+  const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+  root.render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <Routes />
+        </Provider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+  ```
+
   (2) createSlice파일을 생성한다. 파일명은 상관없다. 전역 state와 전역 state를 조작하는 함수를 저장할 createSlice를 만들어야한다. 이 createSlice는 프로젝트에 여러 개가 존재할 수 있다. 전역으로 관리 할 state당 하나가 생성되는 것이다.
 
   (3) createSlice에 initialState는 그냥 state라고 생각하면 된다. 또한 reducers는 이 initialState를 조작할 액션(state값을 조작하는 함수 혹은 state값 재할당 등등 state를 변화시킬 행동)이라고 생각하면 된다.
 
-  (4) createSlice에 저장 된 state인 initialState와 action인 reducers를 사용하기 위해서는 useAppDispatch와 useAppSelector파일을 만들어줘야한다. reducers를 사용할 때는 useAppDispatch() 키워드로 가져와 사용한다. 디스패치라는 이름에서 알 수 있듯이 파라미터를 담아 보내는 역할을 한다. 파라미터를 보내면 createSlice 내부에 reducers에 전달되어 state를 업데이트 시키는 것이다. 또한 initialState를 사용할 때는 useAppSelector() 키워드로 가져와 사용한다
+  ```js
+  const recommendIndexSlice = createSlice({
+    name: "recommendIndex",
+    initialState,
+    reducers: {
+      increaseIndex(state: INIT_STATE, action: PayloadAction<number>) {
+        if (state.index >= action.payload - 1) {
+          state.index = 0;
+        } else {
+          state.index += 1;
+        }
+      },
+      decreaseIndex(state: INIT_STATE, action: PayloadAction<number>) {
+        if (state.index < 0) {
+          state.index = action.payload - 1;
+        } else {
+          state.index -= 1;
+        }
+      },
+      resetIndex(state: INIT_STATE) {
+        state.index = -1;
+      },
+    },
+  });
+  ```
+
+  (4) createSlice에 저장 된 action인 reducers로 state를 업데이트하기 위해서는 useDispatch hook을 사용한다. 디스패치라는 이름에서 알 수 있듯이 파라미터를 담아 보내는 역할을 한다. 파라미터를 보내면 createSlice 내부에 reducers에 전달되어 state를 업데이트 시키는 것이다. 또한 initialState나 업데이트 된 state를 사용할 때는 useSelector hook으로 가져와 사용한다.
 
   (5) store에 devTools : 환경변수를 이용해서 현재 서버가 개발자모드인지 프로덕션모드인지를 구분해준다. 보통 boolean타입으로 활용하여 구분한다. devTools: process.env.NODE_ENV !== 'production' 과 같이 사용하는데 이 뜻은 로컬에 있는 환경 변수를 사용하면 true가 되면서 개발 모드가 활성화 된다.
 
@@ -503,9 +734,48 @@
 
   (1) dynamic import 문법 사용 : 자바스크립트 함수 비동기 로딩 시 import() 함수 형태로 메서드 안에서 사용하게 되면 필요할 때 해당 스크립트를 불러와서 사용할 수 있다. import를 함수로 사용하면 Promise를 반환한다.
 
-  (2) React.lazy와 Suspense를 통한 컴포넌트 코드 스플리팅 : React.lazy는 컴포넌트를 렌더링하는 시점에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수이다. 또한 lazy로 코드 스플리팅 된 컴포넌트는 Suspense를 통해 나타낼 수 있다. Suspense는 리액트 내장 컴포넌트로 코드 스플리팅 된 컴포넌트를 로딩하도록 발동시킬 수 있고, 로딩이 끝나지 않았을 때 fallback 이라는 props를 통해 로딩 중에 보여줄 요소를 지정할 수 있다. 또한 페이스북에서는 SSR까지 커버 가능하고 사용방법이 거의 동일한 react-loadable 라이브러리의 Ladable Components를 사용하는 방법도 있다.
+  ```js
+  const onClick = () => {
+    import("./subPage").then((result) => result.default());
+  };
+  ```
+
+  (2) React.lazy와 Suspense를 통한 컴포넌트 코드 스플리팅 : React.lazy는 컴포넌트를 렌더링하는 시점에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수이다. 또한 lazy로 코드 스플리팅 된 컴포넌트는 Suspense를 통해 나타낼 수 있다. Suspense는 리액트 내장 컴포넌트로 코드 스플리팅 된 컴포넌트를 로딩하도록 발동시킬 수 있고, 로딩이 끝나지 않았을 때 fallback 이라는 props를 통해 로딩 중에 보여줄 요소를 지정할 수 있다. 또한 react-loadable 라이브러리의 Lodable Components를 사용하는 방법도 있다.
+
+  ```jsx
+  const Home = lazy(() => import("./routes/Home"));
+  const About = lazy(() => import("./routes/About"));
+
+  const App = () => (
+    <Router>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route path="/about" component={About} />
+        </Switch>
+      </Suspense>
+    </Router>
+  );
+  ```
 
   (3) Webpack에 Entry Point 설정 : Entry Point는 웹팩이 앱에서 번들링하려는 모듈의 진입 파일이다. 리액트 앱이 여러 엔트리 포인트를 설정한다면 각각의 엔트리 포인트 마다 코드 스플리팅이 가능하다. webpack.config.js에 entry 프로퍼티를 작성하면 웹팩에서 자동으로 entry 프로퍼티 내부에 엔트리 포인트를 다른 chunk로 관리하여 로딩한다.
+
+  ```js
+  // webpack.config.js
+  const path = require("path");
+
+  module.exports = {
+    mode: "development",
+    entry: {
+      index: "./src/index.js",
+      another: "./src/another-module.js",
+    },
+    output: {
+      filename: "[name].bundle.js",
+      path: path.resolve(__dirname, "dist"),
+    },
+  };
+  ```
 
 <br>
 
@@ -543,35 +813,7 @@
 
 <br>
 
-- JSX는 Javascript에 XML을 추가한 확장한 문법이다. 공식적인 자바스크립트 문법은 아니며 브라우저에서 실행하기 전 번들링 과정 중 바벨을 사용하여 일반 자바스크립트로 변환된다. JSX문법의 사용은 react의 특징 중 하나이다.
-
-<br>
-
-### # **hook을 사용할 때의 가장 큰 장점은?**
-
-<br>
-
-- 로직의 재사용 가능, 관리가 쉽다
-
-  Hook은 함수형 컴포넌트 이므로 함수 안에서 다른 함수를 호출하는 것으로 새로운 Hook을 만들어 볼 수 있기 때문이다. 따라서 리액트의 내장되어있는 Hook과 다른 사람들이 만든 여러 custom Hook을 레고처럼 조립해서 쉽게 custom Hook을 만들 수 있다.
-
-<br>
-
-- 로직을 한 곳으로 모을수 있어서 가독성이 좋다
-
-  클래스형 컴포넌트의 라이프사이클 API는 서로 다른 로직이 하나의 메서드에 섞여 있어서 가독성이 좋지 않다. Hook은 같은 로직을 한 곳으로 모을 수 있다.
-
-<br>
-
-- Wrapper 컴포넌트양 감소
-
-  고차 컴포넌트를 커스텀 훅으로 대체하면, Wrapper 컴포넌트를 사용하지 않아도 간단하게 구현할 수 있다.
-
-<br>
-
-- 정적 타입 언어로 타입을 정의하기 쉽다
-
-  고차 컴포넌트의 타입 정의에 비해 정적 타입 언어로 타입을 정의 하기 쉬워졌다고 한다.
+- JSX는 Javascript에 XML을 추가하여 확장한 문법이다. 공식적인 자바스크립트 문법은 아니며 브라우저에서 실행하기 전 번들링 과정 중 바벨을 사용하여 일반 자바스크립트로 변환된다. JSX문법의 사용은 react의 특징 중 하나이다.
 
 <br>
 
@@ -612,13 +854,13 @@
 
 - 함수 성능 측정
 
-  perpomance api, console.time api
+  perpomance.now, console.time
 
 <br>
 
 - 컴포넌트 렌더링 속도 및 리렌더링 측정
 
-  react developer tools 익스텐션 설치 후 개발자 도구에 profiler탭 활용
+  react developer tools 크롬 익스텐션 설치 후 개발자 도구에 profiler탭 활용 (ms 단위)
 
 <br>
 
@@ -652,11 +894,22 @@
 
 <br>
 
-### # **HOC가 무엇인지 아는지?**
+### # **HOC(High Order Component)가 무엇인지 아는지?**
 
 <br>
 
-- HOC는 고차 컴포넌트이며 다른 컴포넌트를 감싸는 리액트 컴포넌트다. 리액트 컴포넌트를 인자로 받아서 새로운 리액트 컴포넌트를 반환하는 함수로 볼 수 있다. 비지니스 로직을 담당하는 컨테이너 컴포넌트와 뷰를 담당하는 프레젠테이셔널 컴포넌트를 분리하여 사용 할 때, 컨테이너 컴포넌트를 고차 컴포넌트로 만들어서 사용한다.
+- HOC(High Order Component)는 고차 컴포넌트이며 다른 컴포넌트를 감싸는 리액트 컴포넌트다. 리액트 컴포넌트를 인자로 받아서 새로운 리액트 컴포넌트를 반환하는 함수로 볼 수 있다. 비지니스 로직을 담당하는 컨테이너 컴포넌트와 뷰를 담당하는 프레젠테이셔널 컴포넌트를 분리하여 사용 할 때, 컨테이너 컴포넌트를 고차 컴포넌트로 만들어서 사용한다.
+
+  ```jsx
+  const withHOC = (WrappedComponent) => {
+    const newProps = {
+      loading: false,
+    };
+    return (props) => {
+      return <WrappedComponent {...props} {...newProps} />;
+    };
+  };
+  ```
 
 <br>
 
@@ -711,11 +964,50 @@
 
   useReducer는 useState와 같이 state를 관리하고 업데이트할 수 있는 hook이다. useState와의 차이는 예를 들어 컴포넌트에서 관리하는 값이 딱 하나고, 그 값이 단순한 숫자, 문자열 또는 boolean 값이라면 확실히 useState 로 관리하는게 편할 수 있고 만약에 컴포넌트에서 관리하는 값이 여러개가 되어서 상태의 구조가 복잡해진다면 useReducer로 관리하는 것이 편할 수 있다.
 
+  ```jsx
+  import { useReducer } from "react";
+
+  function reducer(state, action) {
+    switch (action.type) {
+      case "INCREMENT":
+        return state + 1;
+      case "DECREMENT":
+        return state - 1;
+      default:
+        return state;
+    }
+  }
+
+  function App() {
+    const [number, dispatch] = useReducer(reducer, 0);
+
+    const onIncrease = () => {
+      dispatch({ type: "INCREMENT" });
+    };
+
+    const onDecrease = () => {
+      dispatch({ type: "DECREMENT" });
+    };
+
+    return (
+      <div>
+        <h1>{number}</h1>
+        <button type="button" onClick={onIncrease}>
+          +1
+        </button>
+        <button type="button" onClick={onDecrease}>
+          -1
+        </button>
+      </div>
+    );
+  }
+  ```
+
 <br>
 
 - useReducer의 장점
 
-  useReducer의 장점으로는 한 컴포넌트 내에서 State를 업데이트하는 로직 부분을 그 컴포넌트로부터 분리시키는 것을 가능하게 해준다는 것이다. 그렇게 useReducer는 State 업데이트 로직을 분리하여 컴포넌트의 외부에 작성하는 것을 가능하게 함으로써, 코드의 최적화를 이루게 해준다는 장점이 있다.
+  useReducer는 로직을 분리하여 재사용성을 높이고 setState를 여러번 사용하지 않아도 된다는 장점이 있다.
 
 <br>
 
@@ -795,11 +1087,44 @@
 
   컴포넌트의 state나 props로 입력 폼 값이 제어되는 컴포넌트이다. 예시로 input의 value 값을 useState로 값을 업데이트 시키는 것이 대표적인 제어 컴포넌트의 예시이다. 데이터와 UI가 항상 동기화되어 입력 값 발생 시 계속 리렌더링 되어 최신화가 유지된다. 유효성 검사나 조건부 버튼 활성화에 사용한다.
 
+  ```jsx
+  export default function App() {
+    const [input, setInput] = useState("");
+    const onChange = (e) => {
+      setInput(e.target.value);
+    };
+
+    return (
+      <div className="App">
+        <input onChange={onChange} />
+      </div>
+    );
+  }
+  ```
+
 <br>
 
 - 비제어 컴포넌트
 
   DOM 자체에서 입력 폼 데이터를 다루는 컴포넌트이다. 예시로 input에 ref 속성을 할당하여 입력 폼을 제출할 때 값을 업데이트 시키는 것이 대표적인 비제어 컴포넌트의 예시이다. 데이터와 UI가 동기화되어 있지 않아 입력 값 발생 시 리렌더링 되지 않고 입력 폼을 제출할 때 렌더링된다. 일회성 정보 검색이나 제출 시 값 검증에 사용한다.
+
+  ```jsx
+  export default function App() {
+    const inputRef = useRef();
+    const onClick = () => {
+      console.log(inputRef.current.value);
+    };
+
+    return (
+      <div className="App">
+        <input ref={inputRef} />
+        <button type="submit" onClick={onClick}>
+          전송
+        </button>
+      </div>
+    );
+  }
+  ```
 
 <br>
 
@@ -813,7 +1138,7 @@
 
 (3) 코드 스플리팅 : Lazy와 Suspense를 사용하여 코드 스플리팅하고 번들의 크기를 줄여 당장 필요한 컴포넌트만 우선적으로 렌더링하도록 한다.
 
-(4) 이미지 사이즈 최적화 : 이미지를 압축율이 좋은 이미지 포맷으로 변경하거나 사용자에게 보여지는 크기를 고려하여 사이즈를 줄인다.
+(4) 이미지 사이즈 최적화 : 이미지를 압축율이 좋은 이미지 포맷으로 변경하거나 사용자에게 보여지는 크기를 고려하여 사이즈를 줄인다. 또한 고정 사이즈를 사용하여 리플로우를 최소화할 수 있다.
 
 (5) 이미지 레이지 로딩 : IntersectionObserver API와 같이 뷰포트를 감지하는 API를 활용하여 해당 이미지 보여져야 할 때 서버에 요청을 보내 이미지를 가져온다.
 
@@ -825,7 +1150,7 @@
 
 (9) 프롭시 드릴링(props drilling) 피하기 : 부모 컴포넌트에서 자식 컴포넌트로 전달하는 프롭스의 깊이가 깊어질수록 성능에 좋지 않다. 부모의 state가 변경되면 자식 컴포넌트 모두 리렌더링되기 때문이다. 개인적으로 2번 이상 넘겨주지 않도록 기준을 정해서 작업하고 있다. 넘어가는 경우 전역 상태 관리 라이브러리를 사용하여 해결할 수 있다.
 
-(10) state의 분할 : 한 컴포넌트에 state를 몰아서 사용하는 경우 state 변화가 빈번하게 발생할 수 있기 때문에 state를 사용하는 컴포넌트 내부에 작성할 수 있도록 한다.
+(10) state의 분할 : 한 컴포넌트에 state를 몰아서 사용하는 경우 state 변화가 빈번하게 발생할 수 있기 때문에 state를 사용하는 컴포넌트 내부에 작성할 수 있도록 한다. 또한 객체 형태의 state의 경우 객체 프로퍼티 중 하나만 사용하는 컴포넌트가 있거나 하는 경우 분리해서 사용하는 것이 좋다.
 
 <br>
 
@@ -833,7 +1158,7 @@
 
 <br>
 
-- index값은 사용하지 않는다. 만약 배열의 순서가 수정될 경우 중복되는 key값이 발생할 수 있기 때문이다. 그렇기 때문에 유니크한 값을 사용하기 위해 map 메소드를 사용한 배열 요소가 id값을 가지고 있다면 id값을 사용하도록 하고 있다. id값이 존재하지 않다면 가지고 있는 다른 유니크한 값을 사용하거나 배열 요소 자체를 문자열로 변환하여 사용하기도 한다.
+- index값은 사용하지 않는다. 만약 배열의 순서가 수정될 경우 중복되는 key값이 발생할 수 있기 때문이다. 그렇기 때문에 유니크한 값을 사용하기 위해 map 메소드를 사용한 배열 요소가 id값을 가지고 있다면 id값을 사용하도록 하고 있다. id값이 존재하지 않다면 가지고 있는 다른 유니크한 값을 사용하거나 배열 요소 자체를 문자열로 변환 후 조합하여 사용하기도 한다.
 
 <br>
 
@@ -889,7 +1214,7 @@
 
 - react-query란?
 
-  react-query 라이브러리의 useQuery는 데이터를 받아오고 캐싱하여 사용하기 위해 사용하였다. react-query를 통해 받아온 데이터는 캐싱되며 캐싱 된 데이터는 재요청하지 않고 key값을 통해 컴포넌트 간 공유할 수 있고, retry와 같은 옵션을 사용하여 요청 실패 시 재요청 횟수를 지정하여 재요청을 시도할 수 있고, enable과 같은 옵션을 활용하여 삼항연산자나 조건을 할당하여 조건에 맞는 시기에 api를 호출할 수 있다는 장점이 있다. 또한 기본적으로 제공하는 data, isLoad, isError 등을 통해 데이터나 예외 처리를 쉽게 할 수 있으며 이 외에도 많은 옵션을 제공하여 편리하게 api 호출을 최적화 할 수 있다는 장점이 있다.
+  react-query 라이브러리는 비동기 통신을 위한 라이브러리이다. react-query를 통해 받아온 데이터는 캐싱할 수 있고 캐싱 된 데이터는 재요청하지 않고 key값을 통해 컴포넌트 간 공유할 수 있고, retry와 같은 옵션을 사용하여 요청 실패 시 재요청 횟수를 지정하여 재요청을 시도할 수 있고, enable과 같은 옵션을 활용하여 삼항연산자나 조건을 할당하여 조건에 맞는 시기에 api를 호출할 수 있다는 장점이 있다. 또한 기본적으로 제공하는 data, isLoad, isError 등을 통해 데이터나 예외 처리를 쉽게 할 수 있으며 이 외에도 많은 옵션을 제공하여 편리하게 api 호출을 최적화 할 수 있다는 장점이 있다.
 
 <br>
 
@@ -915,6 +1240,29 @@
 
   useQuery가 데이터를 조회할 때 사용한다면 useMutation은 데이터를 생성, 업데이트, 삭제 할 때 사용 된다. onSuccess(성공 시), onError(실패 시), onSettled(성공실패 상관없이) 속성을 활용하여 데이터 처리 후 액션을 처리할 수 있다.
 
+  ```js
+  const queryClient = useQueryClient(); // 등록된 quieryClient 가져오기
+
+  const savePerson = useMutation(
+    (person: Iperson) => axios.post("http://localhost:8080/savePerson", person),
+    {
+      onSuccess: () => {
+        // 요청이 성공한 경우
+        console.log("onSuccess");
+        queryClient.invalidateQueries("persons"); // queryKey 유효성 제거
+      },
+      onError: (error) => {
+        // 요청에 에러가 발생된 경우
+        console.log("onError");
+      },
+      onSettled: () => {
+        // 요청이 성공하든, 에러가 발생되든 실행하고 싶은 경우
+        console.log("onSettled");
+      },
+    }
+  ); // useMutate 정의
+  ```
+
 <br>
 
 ### # **React batch update**
@@ -930,6 +1278,16 @@
 <br>
 
 - react-router-dom에 Route 컴포넌트에 path 경로를 콜론 뒤에 변수로 지정하고 아이템 리스트에서 리스트 클릭 시 해당 아이템에 유니크한 id값을 path 경로로 지정해주어 동적 라우팅을 구현하였다.
+
+  ```jsx
+  // Router.js
+  <Route path="/productDetail/:id" element={<ProductDetail />} />;
+
+  // ProductList.js
+  const goToDetail = (productId) => {
+    navigate(`/productDetail/${productId}`);
+  };
+  ```
 
 <br>
 
@@ -957,6 +1315,8 @@
 
   - 동작
 
+    ![mvc](https://user-images.githubusercontent.com/85284246/178215067-a4f2ddbe-0f4a-41be-9683-e22f62d37771.png)
+
     (1) 사용자의 액션들은 컨트롤러에 들어오게 된다.
 
     (2) 컨트롤러는 사용자의 액션을 확인하고, 모델을 업데이트한다.
@@ -982,6 +1342,8 @@
     (3) 프레젠터 : 뷰와 모델 사이에 자료 전달 역할
 
   - 동작
+
+    ![mvp](https://user-images.githubusercontent.com/85284246/178215069-6c1d8fb3-201e-4d31-b138-b4b1457cca66.png)
 
     (1) 사용자의 액션들은 뷰를 통해 들어오게 된다.
 
@@ -1013,6 +1375,8 @@
 
   - 동작
 
+    ![mvvm](https://user-images.githubusercontent.com/85284246/178215072-2a197512-1d58-458d-8bef-3893678a5bef.png)
+
     (1) 사용자의 액션들은 뷰를 통해 들어오게 된다.
 
     (2) 뷰는 데이터를 뷰모델에 요청한다.
@@ -1032,6 +1396,8 @@
 - FLUX 패턴 : MVC 패턴의 양방향 데이터 흐름은 애플리케이션의 규모가 커질수록 데이터 흐름을 파악하기가 어렵고 복잡도가 증가한다는 문제가 발생한다. 그래서 나온 것이 단방향 데이터 흐름의 FLUX 패턴이고 FLUX 패턴의 일부분을 적용시킨 것이 리덕스와 몹엑스이다.
 
   - 구조와 동작순서 : 액션, 디스패처, 스토어, 뷰(컨트롤러 뷰)
+
+    ![flux](https://user-images.githubusercontent.com/85284246/178215058-06245ee4-fa91-46ce-9497-c21dc423131b.png)
 
     (1) 액션 : 액션 생성자를 통해 디스패처에게 액션 객체를 전달한다.
 
@@ -1067,11 +1433,11 @@
 
 <br>
 
-- 트래픽이란 서버와 스위치 등 네트워크 장치에서 일정 시간 내에 흐르는 데이터의 양을 말한다. 이미지 최적화, 이미지 혹은 컴포넌트 레이지 로딩, api 호출 최적화 등을 통해 응답 속도를 개선할 수 있을 것 같다.
+- 트래픽이란 서버와 스위치 등 네트워크 장치에서 일정 시간 내에 흐르는 데이터의 양을 말한다. 트래픽을 여러 서버로 분산하는 로드 밸런싱이나 분산된 서버에서 데이터를 받아오는 CDN 시스템, 또 요청 데이터의 크기를 줄이기 위한 모듈 번들링, 코드 스플리팅, 레이지 로딩 기법, api 호출 최적화 등을 통해 응답 속도를 개선할 수 있을 것 같다.
 
 <br>
 
-### # **프로젝트를 하면서 메모리 leak 이슈가 있었는지?**
+### # **프로젝트를 하면서 메모리 누수(leak) 이슈가 있었는지?**
 
 <br>
 
@@ -1091,7 +1457,7 @@
 
   (3) 디바운싱 적용: 검색 기능 중 검색어 입력 시 디바운싱을 적용하여 api 호출 최적화 작업을 하였다.
 
-  (4) 컴포넌트 레이지 로딩 : 라우트를 기반으로 한 컴포넌트 레이지 로딩을 통해 초기 렌더링을 속도를 향상시켰다. --> 실제 프로젝트에 적용시키기 (참고 : https://devowen.com/342)
+  (4) 컴포넌트 레이지 로딩 : 라우트를 기반으로 한 컴포넌트 레이지 로딩을 통해 초기 렌더링을 속도를 향상시켰다. (참고 : https://devowen.com/342)
 
   (5) 모달 사용 : 경고창 사용 시 직접 모달을 만들어서 사용했다. 만약 내장되어 있는 alert, comfirm 등을 사용하게 되면 alert, comfirm은 동기적으로 실행되기 때문에 다음 코드가 실행되지 않을 수 있다. 그렇기 때문에 모달을 직접 만들어서 사용하였다.
 
@@ -1103,7 +1469,7 @@
 
 - 웹팩
 
-  최신 프런트엔드 프레임워크에서 가장 많이 사용되는 모듈 번들러이다. 모듈 번들러란 웹 애플리케이션을 구성하는 자원(HTML, CSS, Javscript, Images 등)을 모두 각각의 모듈로 보고 이를 조합해서 병합된 번들 파일을 만드는 도구를 의미한다.
+  최신 프론트엔드 프레임워크에서 가장 많이 사용되는 모듈 번들러이다. 모듈 번들러란 웹 애플리케이션을 구성하는 자원(HTML, CSS, Javscript, Images 등)을 모두 각각의 모듈로 보고 이를 압축하고 병합해서 하나의 번들 파일을 만드는 도구를 의미한다.
 
 <br>
 
@@ -1153,7 +1519,7 @@
 
 - 폴리필
 
-  바벨은 ES6 이후 버전을 ES5 버전으로 변환할 수 있는 코드만 변환한다. 만약 최신 기능을 사용하였는데 이 기능이 ES5 버전에는 존재하지 않아 빌드가 누락 된 부분을 폴리필을 통해 변환할 수 있다. babel.config.js 파일에 유즈빌트인(useBuiltIns) 속성과 코어제이에스(corejs) 속성을 추가하여 폴리필 패키지 중 코어제이에스(corejs)를 모듈로 불러와 누락 된 코드를 변환할 수 있다.
+  바벨은 ES6 이후 버전을 ES5 버전으로 변환할 수 있는 코드만 변환한다. 만약 최신 기능을 사용하였는데 이 기능이 ES5 버전에는 존재하지 않아 빌드가 누락 된 부분을 폴리필을 통해 변환할 수 있다. 코어제이에스(corejs), 폴리필아이오(polyfill.io) 등이 대표적인 폴리필 패키지이다.
 
 <br>
 
@@ -1161,9 +1527,15 @@
 
 <br>
 
-- prettier, eslint란?
+- eslint란?
 
-  eslint는 코드 구현 방식을 지정하여 코드 퀄리티를 보장하도록 도와주고 prettier는 코드 스타일을 통일되도록 도와주기 때문에 사용한다. 즉 클린 코드를 작성할 수 있도록 도움을 주기 때문에 사용한다.
+  eslint는 코드 구현 방식을 지정하여 에러를 사전에 방지하고 코드 퀄리티를 보장하도록 도와준다. 또한 코드 스타일과 관련 된 코드 포멧팅도 지원한다.
+
+<br>
+
+- prettier란?
+
+  prettier는 코드 스타일을 통일되도록 도와주는 코드 포멧터이다. eslint와 같이 코드 구현 방식이 아닌, 줄 바꿈, 공백, 들여 쓰기 등 에디터에서 '텍스트'를 일관되게 작성되도록 도와준다.
 
 <br>
 
