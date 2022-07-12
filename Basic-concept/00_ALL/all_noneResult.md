@@ -1670,11 +1670,19 @@
 
 <br>
 
-- 토큰 방식을 사용하는 이유
+- 토큰 기반 인증을 사용하는 이유
 
 <br>
 
 - JWT 토큰을 사용하는 이유는?
+
+<br>
+
+- JWT 토큰 구조
+
+<br>
+
+- JWT 동작 방식
 
 <br>
 
@@ -1706,11 +1714,11 @@
 
 <br>
 
-- XSS는 무엇인가요?
+- XSS(Cross Site Scripting)는 무엇인가요?
 
 <br>
 
-- CSRF는 무엇인가요?
+- CSRF(Cross site request forgery)는 무엇인가요?
 
 <br>
 
