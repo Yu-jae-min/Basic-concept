@@ -406,19 +406,19 @@
 
 <br>
 
-- Element
+- Node 객체
 
 <br>
 
-- Node
+- Element 객체
 
 <br>
 
-- HTMLCollection
+- HTMLCollection 객체
 
 <br>
 
-- NodeList
+- NodeList 객체
 
 <br>
 
@@ -435,10 +435,6 @@
 <br>
 
 ### # **브라우저 렌더링 원리**
-
-<br>
-
-### # **웹 최적화 기법에는 무엇이 있나요?**
 
 <br>
 
@@ -518,15 +514,15 @@
 
 <br>
 
-### # **function 과 arrow function 의 차이**
+### # **일반 함수와 화살표 함수의 차이**
 
 <br>
 
-- 일반 function 과 arrow function 의 차이
+- 일반 함수와 화살표 함수의 차이
 
 <br>
 
-- arrow function 사용 이유
+- 화살표 함수 사용 이유
 
 <br>
 
