@@ -1338,7 +1338,11 @@
 
 <br>
 
-### # **HOC가 무엇인지 아는지?**
+### # **HOC(High Order Component)가 무엇인지 아는지?**
+
+<br>
+
+### # **고차함수(Higher order function)란?**
 
 <br>
 
@@ -1570,6 +1574,10 @@
 
 <br>
 
+- stylelint란?
+
+<br>
+
 - 옵션을 알고 사용하는가?
 
 <br>
@@ -1634,11 +1642,11 @@
 
 <br>
 
-- 네트워크
+- 노드
 
 <br>
 
-- 노드
+- 네트워크
 
 <br>
 
@@ -2463,6 +2471,10 @@
 <br>
 
 - git merge, git rebase, git squash 차이
+
+<br>
+
+- 커밋 메시지 종류
 
 <br><br><br>
 
