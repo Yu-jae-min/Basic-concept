@@ -4065,14 +4065,14 @@ function infiniteAnimate(): never {
 
 - 타입스크립트에서는 함수의 인자를 모두 필수 값으로 간주한다. 따라서, 함수의 매개변수를 설정하면 undefined나 null이라도 인자로 넘겨야하며 컴파일러에서 정의된 매개변수 값이 넘어 왔는지 확인한다. 달리 말하면 정의된 매개변수 값만 받을 수 있고 추가로 인자를 받을 수 없다는 의미이다.
 
-```ts
-function sum(a: number, b: number): number {
-  return a + b;
-}
-sum(10, 20); // 30
-sum(10, 20, 30); // error, too many parameters
-sum(10); // error, too few parameters
-```
+  ```ts
+  function sum(a: number, b: number): number {
+    return a + b;
+  }
+  sum(10, 20); // 30
+  sum(10, 20, 30); // error, too many parameters
+  sum(10); // error, too few parameters
+  ```
 
 <br>
 
@@ -4082,69 +4082,69 @@ sum(10); // error, too few parameters
 
 - 여러타입을 합쳐서 사용하는 타입, AND연산자와 같이 인터페이스 타입을 활용하는 경우 모든 타입을 만족해야한다. 하지만 옵션 속성(?)을 이용하여 해결할 수 있다. 또한 확장도 가능하다.
 
-```ts
-// 예제1: 기본 사용
-interface Example {
-  name: string;
-}
-
-// 예제2: 옵션 속성 활용
-interface Example {
-  name: string;
-  hop?: number;
-}
-
-// 예제3: 읽기 전용 속성 활용
-interface Example {
-  readonly name: string;
-}
-
-let myBeer: Example = {
-  brand: "Belgian Monk",
-};
-myBeer.brand = "Korean Carpenter"; // error!
-
-// 비슷한 활용 : 읽기 전용 배열
-let arr: ReadonlyArray<number> = [1, 2, 3];
-arr.splice(0, 1); // error
-arr.push(4); // error
-arr[0] = 100; // error
-
-// 예제4: 정의되지 않은 속성 활용
-interface Example {
-  brand?: string;
-  [propName: string]: any;
-}
-
-// 예제5: 클래스 타입 활용
-interface Example {
-  beerName: string;
-  nameBeer(beer: string): void;
-}
-
-class myBeer implements Example {
-  beerName: string = "Baby Guinness";
-  nameBeer(b: string) {
-    this.beerName = b;
+  ```ts
+  // 예제1: 기본 사용
+  interface Example {
+    name: string;
   }
-  constructor() {}
-}
 
-// 예제6: 인터페이스 확장
-interface Person {
-  name: string;
-}
-interface Drinker {
-  drink: string;
-}
-interface Developer extends Person, Drinker {
-  skill: string;
-}
-let fe = {} as Developer;
-fe.name = "josh";
-fe.skill = "TypeScript";
-fe.drink = "Beer";
-```
+  // 예제2: 옵션 속성 활용
+  interface Example {
+    name: string;
+    hop?: number;
+  }
+
+  // 예제3: 읽기 전용 속성 활용
+  interface Example {
+    readonly name: string;
+  }
+
+  let myBeer: Example = {
+    brand: "Belgian Monk",
+  };
+  myBeer.brand = "Korean Carpenter"; // error!
+
+  // 비슷한 활용 : 읽기 전용 배열
+  let arr: ReadonlyArray<number> = [1, 2, 3];
+  arr.splice(0, 1); // error
+  arr.push(4); // error
+  arr[0] = 100; // error
+
+  // 예제4: 정의되지 않은 속성 활용
+  interface Example {
+    brand?: string;
+    [propName: string]: any;
+  }
+
+  // 예제5: 클래스 타입 활용
+  interface Example {
+    beerName: string;
+    nameBeer(beer: string): void;
+  }
+
+  class myBeer implements Example {
+    beerName: string = "Baby Guinness";
+    nameBeer(b: string) {
+      this.beerName = b;
+    }
+    constructor() {}
+  }
+
+  // 예제6: 인터페이스 확장
+  interface Person {
+    name: string;
+  }
+  interface Drinker {
+    drink: string;
+  }
+  interface Developer extends Person, Drinker {
+    skill: string;
+  }
+  let fe = {} as Developer;
+  fe.name = "josh";
+  fe.skill = "TypeScript";
+  fe.drink = "Beer";
+  ```
 
 <br>
 
