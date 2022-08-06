@@ -12,3 +12,6 @@
 - useTransition
 - 구글어낼리틱스 구현 방법
 - 스켈레톤 UI 구현 방법
+- 초기세팅
+  1. yarn create react-app my-app --template typescript
+  2.

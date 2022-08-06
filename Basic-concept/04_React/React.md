@@ -520,7 +520,7 @@
 
 - redux-thunk, redux-saga 설명
 
-  (1) redux-thunk : 특정 작업을 나중에 할 수 있도록 미루기 위해 객체가 아닌 함수 형태의 액션을 디스패치할 수 있게 해준다. 보통 thunk 함수를 사용하여 비동기 처리 시 사용한다.
+  (1) redux-thunk : 특정 작업을 나중에 할 수 있도록 미루기 위해 객체가 아닌 함수 형태의 액션을 디스패치할 수 있게 해준다. 보통 thunk 함수를 사용하여 비동기 api 사용 시 사용한다. redux toolkit에서는 비동기 api 사용 시 createAsyncThunk 사용한다.
 
   ```js
   // 1. 스토어 연결 시 미들웨어 적용
