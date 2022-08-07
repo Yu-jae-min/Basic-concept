@@ -506,7 +506,7 @@ function infiniteAnimate(): never {
 
 - 자주 사용되는 유틸리티 타입
 
-  (1) 파셜(Partial) : 파셜(Partial) 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의할 수 있습니다.
+  (1) 파셜(Partial) : 파셜(Partial) 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의할 수 있다. 파셜을 사용하면 옵션 속성의 남발을 막을 수 있다.
 
   ```ts
   interface Address {
@@ -607,7 +607,7 @@ function infiniteAnimate(): never {
 
 <br>
 
-- 유니온 타입 : 유니온 타입(Union Type)이란 자바스크립트의 OR 연산자(||)와 같이 'A' 이거나 'B'이다 라는 의미의 타입이다. 유니온 타입(Union Type)이란 자바스크립트의 OR 연산자(||)와 같이 'A' 이거나 'B'이다 라는 의미의 타입이다. 유니온 타입으로 인터페이스 두 개를 연결할 경우 함수 내부에서 공통 된 속성만 접근할 수 있다.
+- 유니온 타입 : 유니온 타입(Union Type)이란 자바스크립트의 OR 연산자(||)와 같이 'A' 이거나 'B'이다 라는 의미의 타입이다. 유니온 타입으로 인터페이스 두 개를 연결할 경우 함수 내부에서 공통 된 속성만 접근할 수 있다.
 
 <br>
 
@@ -617,7 +617,7 @@ function infiniteAnimate(): never {
 
 - 유니온 타입과 인터섹션 타입 차이
 
-  공통점은 타입을 결합하여 다중 타입을 지정할 수 있으며 차이점은 유니온 타입은 결합한 타입의 공통 된 속성만 접근 가능하고 인터섹션 타입은 결합한 타입의 모든 타입에 접근 가능하다. 즉 유니온타입과 인터섹션 타입의 차이점은 유니온 타입은 다중 타입 중 하나를 선택하여 사용하는 개념이고, 인터섹션 타입은 다중 타입을 조합하여 새로운 타입을 만든다는 개념이다.
+  유니온 타입은 다중 타입 중 하나를 선택하여 사용하는 개념이고, 인터섹션 타입은 다중 타입을 조합하여 새로운 타입을 만든다는 개념이다. 또한 유니온 타입으로 인터페이스 타입을 결합하는 경우 공통 된 속성만 접근 가능하고 인터섹션 타입은 모든 타입에 접근 가능하다.
 
 <br>
 
@@ -653,68 +653,79 @@ function infiniteAnimate(): never {
 
 <br>
 
-- 메소드에서의 데코레이터
+- 메소드 데코레이터 : 메서드의 기능을 확장하는 역할을 한다.
 
   ```js
-  function todo(target: any, prop: string, desc: PropertyDescriptor) {
-    let originMethod = desc.value;
-    desc.value = function (...args: any[]) {
-      console.log("2. 함수 동작전 : " + prop);
-      let result = originMethod.apply(this, args);
-      console.log("4. 함수 동작후 : " + prop);
-      return result;
+  function hello(constructFn: Function) {
+    constructFn.prototype.hello = function () {
+      console.log("hello");
     };
   }
 
-  class Task {
-    @todo
-    runTask(arg: any): any {
-      console.log("3.함수 동작 : " + arg);
-      return "끝";
-    }
-  }
+  // 클래스 데코레이터
+  @hello
+  class Person {}
 
-  let task = new Task();
-  console.log("1. 클래스 생성 후 함수 호출 시작 ");
-  let result = task.runTask("param");
-  console.log("5. 결과 : " + result);
-
-  // 결과는 1-> 2-> 3-> 4-> 5 순으로 콘솔에 찍힌다.
+  const person = new Person();
+  person.hello();
   ```
 
 <br>
 
-- 변수에서의 데코레이터
+- 프로퍼티 데코레이터 : 클래스의 프로퍼티 선언에 사용되는 프로퍼티 데코레이터는 두 개의 인자를 받는다. 그리고 프로퍼티 데코레이터에서 Property Descriptor 형식으로 객체를 반환할 때는, 프로퍼티에 적용이 된다.
+
+  (1) static 프로퍼티라면 클래스의 생성자 함수, 인스턴스 프로퍼티라면 클래스의 prototype 객체
+
+  (2) 프로퍼티 이름
 
   ```js
-  function SetDefaultValue(numberA: number, numberB: number) {
-    return (target: any, propertyKey: string | symbol) => {
-      const addNumber = numberA * numberB;
-      let value = 0;
-      Object.defineProperty(target, propertyKey, {
-        //PropertyDescriptor에 대한 재 정의
-        get() {
-          return value + addNumber;
-        },
-        set(newValue: any) {
-          value = newValue;
-        },
-      });
+  const writable =
+    (canBeWritable: boolean) =>
+    (target: any, propName: string): any => {
+      return {
+        writable: canBeWritable,
+      };
     };
+
+  class Person {
+    @writable(false)
+    name: string = "moaikang";
+    constructor() {}
   }
 
-  class DataDefaultType {
-    @SetDefaultValue(10, 20)
-    num: number;
+  const person = new Person();
+  person.name = "zz";
+  console.log(person.name);
+  ```
+
+<br>
+
+- 파라미터 데코레이터 : 파라미터 안에 들어가는 파라미터 데코레이터는 3개의 인자를 받는다.
+
+  (1) static 메서드의 파라미터 데코레이터라면 클래스의 생성자 함수, 인스턴스의 메서드라면 prototype 객체
+
+  (2) 파라미터 데코레이터가 적용된 메서드의 이름
+
+  (3) 메서드 파라미터 목록에서의 index
+
+  ```js
+  const writable =
+    (canBeWritable: boolean) =>
+    (target: any, propName: string): any => {
+      return {
+        writable: canBeWritable,
+      };
+    };
+
+  class Person {
+    @writable(false)
+    name: string = "moaikang";
+    constructor() {}
   }
 
-  const test = new DataDefaultType();
-  test.num = 30;
-  console.log(`num is 30, 결과 : ${test.num}`);
-  test.num = 130;
-  console.log(`num is 130, 결과 : ${test.num}`);
-
-  // 결과는 num is 30, 결과 : 230 -> num is 130, 결과 : 330 순으로 콘솔에 찍힌다.
+  const person = new Person();
+  person.name = "zz";
+  console.log(person.name);
   ```
 
 <br>
@@ -723,7 +734,7 @@ function infiniteAnimate(): never {
 
 <br>
 
-- 2~4번은 TSC가 수행, 5~7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
+- 2-4번은 TSC가 수행, 5-7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
 
   (1) 소스 코드 작성 by 프로그래머
 
@@ -833,7 +844,7 @@ function AnyReturnFunc(arg: any): any {
   return arg.length; // 에러가 발생하지 않는다.
 }
 
-function GenericReturnFunc<Type>(arg: Type): Type {
+function GenericReturnFunc<T>(arg: T): T {
   return arg.length; // 제네릭 함수는 무슨 타입이 올지 모르기 때문에 length 프로퍼티를 사용할 수 없다는 에러 메시지를 노출한다.
 }
 ```
