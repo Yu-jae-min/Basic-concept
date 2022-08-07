@@ -971,7 +971,39 @@
 
 - async/await
 
-  function 앞에 async를 붙여 사용하며 async를 붙이면 해당 함수는 항상 프로미스를 반환한다. await는 async 함수 내부에서만 사용되며 프로미스가 처리(settled)될 때까지 함수 실행을 기다리게 만든다. 메인 작업들은 멈추지 않고 await을 포함하고 있는 async 함수만 일시정지된다. 그 후 promise가 처리되면 그 결과와 함께 실행이 재개된다. promise가 처리되길 기다리는 동안엔 엔진이 다른 일(다른 스크립트를 실행, 이벤트 처리 등)을 할 수 있기 때문에, CPU 리소스가 낭비되지 않는다.
+  function 앞에 async를 붙여 사용하며 async를 붙이면 해당 함수는 항상 프로미스를 반환한다. await는 async 함수 내부에서만 사용되며 프로미스가 처리(settled)될 때까지 함수 실행을 기다리게 만든다. 메인 작업들은 멈추지 않고 await을 포함하고 있는 async 함수만 일시정지된다. 그 후 promise가 처리되면 그 결과와 함께 실행이 재개된다. promise가 처리되길 기다리는 동안엔 엔진이 다른 일(다른 스크립트를 실행, 이벤트 처리 등)을 할 수 있기 때문에, CPU 리소스가 낭비되지 않는다. async/await의 사용을 통해 then/catch 메소드 사용을 억제하여 가독성을 향상 시킬 수 있다.
+
+  ```js
+  // 예제1 : 일반 비동기 통신
+  const TestOne = () => {
+    fetch("https://jsonplaceholder.typicode.com/posts/1").then((response) =>
+      console.log("1")
+    );
+
+    console.log("2");
+  };
+
+  console.log("3");
+
+  TestOne(); // 3 -> 2 -> 1
+
+  // 예제2 : async를 사용한 비동기 통신
+  const TestTwo = async () => {
+    await fetch("https://jsonplaceholder.typicode.com/posts/1").then(
+      (response) => console.log("1")
+    );
+
+    console.log("2");
+  };
+
+  console.log("3");
+
+  TestTwo(); // 3 -> 1 -> 2
+  ```
+
+  TestOne에서 3이 먼저 출력되는 이유는 메인 스레드 동작은 멈추지 않기 때문이고 TestOne함수 내부에서 비동기 api는 다른 작업의 실행을 블로킹하지 않으므로 2가 먼저 출력된다. 그 후 마지막으로 1이 출력된다.
+
+  반면 async/await를 활용한 TestTwo에서는 순서가 다르다. 3이 먼저 출력되는 이유는 동일하고 TestTwo함수 내부에서 1이 먼저 출력되는 이유는 비동기 api의 처리 시 다음 작업의 수행을 블로킹하기 때문에 비동기 처리가 완료된 후 1을 출력하고 그 후 다음 작업을 수행하기 때문에 2를 출력한다.
 
 <br>
 
