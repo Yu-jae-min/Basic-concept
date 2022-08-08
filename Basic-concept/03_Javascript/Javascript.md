@@ -188,11 +188,45 @@
 
   Element들의 컬렉션, Live 객체(노드 변경 반영 O, 동적 상태), 예를 들어 3개의 li를 생성해놓고 이 li를 HTMLCollection를 반환하는 getElementsByClassName로 선택 후 for 반복문을 통해 색상을 변경하려고 할 때 첫번째, 세번째 li만 색상이 바뀐다. 이유는 첫번째 루프에서 index 0의 li가 색상이 변하고 실시간으로 노드 변경이 반영되어 HTMLCollection은 두 개의 li만 남게 된다. 이 때 반복문은 두번째 루프로 index 1의 li 색상이 변경되는 것이다. 그렇기 때문에 최종적으로 첫번째, 세번째 li만 색상이 바뀐다.
 
+  ```html
+  <body>
+    <ul id="fruits">
+      <li class="red">Apple</li>
+      <li class="red">Banana</li>
+      <li class="red">Orange</li>
+    </ul>
+    <script>
+      const $fruits = document.getElementsByClassName("red");
+      for (let i = 0; i < $fruits.length; i++) {
+        // li 요소들의 클래스명을 blue로 변경, 첫번째 세번째 li의 클래스가 blue로 변경된다.
+        $fruits[i].className = "blue";
+      }
+    </script>
+  </body>
+  ```
+
 <br>
 
 - NodeList 객체
 
   Node들의 컬렉션, 대부분 Non-Live 객체(노드 변경 반영 X, 정적 상태), 예를 들어 3개의 li를 생성해놓고 이 li를 NodeList를 반환하는 querySelectorAll로 선택 후 for 반복문을 통해 색상을 변경하려고 할 때 전체 li 색상이 바뀐다. 이유는 HTMLCollection과 달리 정적 상태를 유지하므로 중간에 요소의 상태가 바뀌어도 실시간으로 반영되지 않기 때문이다. 하지만 childNodes 프로퍼티가 반환하는 NodeList 객체는 HTMLCollection 객체와 같이 실시간으로 노드 객체의 상태 변경을 반영하는 live 객체로 동작하므로 주의해야한다.
+
+  ```html
+  <body>
+    <ul id="fruits">
+      <li class="red">Apple</li>
+      <li class="red">Banana</li>
+      <li class="red">Orange</li>
+    </ul>
+    <script>
+      const $fruits = document.querySelectorAll(".red");
+      // li 요소들의 클래스명을 blue로 변경, 전체 li의 클래스가 blue로 변경된다.
+      for (let i = 0; i < $fruits.length; i++) {
+        $fruits[i].className = "blue";
+      }
+    </script>
+  </body>
+  ```
 
 <br>
 
