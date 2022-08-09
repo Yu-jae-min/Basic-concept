@@ -36,3 +36,86 @@
   console.log(b); // [200, [100, 2, 3]]
   console.log(c); // [100, [100, 2, 3]]
   ```
+
+- 클래스의 접근자 프로퍼티인 게터와 세터
+
+접근자 프로퍼티(게터, 세터)
+나머지는 데이터 프로퍼티
+
+1. 바깥 코드에선 접근자 프로퍼티를 일반 프로퍼티처럼 사용할 수 있습니다. 접근자 프로퍼티는 이런 아이디어에서 출발했습니다. 접근자 프로퍼티를 사용하면 함수처럼 호출 하지 않고, 일반 프로퍼티에서 값에 접근하는 것처럼 평범하게 user.fullName을 사용해 프로퍼티 값을 얻을 수 있습니다.
+
+```js
+let user = {
+  name: "John",
+  surname: "Smith",
+
+  get fullName() {
+    return `${this.name} ${this.surname}`;
+  },
+  fullName2() {
+    return `${this.name} ${this.surname}`;
+  },
+};
+
+alert(user.fullName); // John Smith
+alert(user.fullName2()); // John Smith
+```
+
+2. 비공개로 설정할 필요가 있는 속성을 private로 설정한 후, 이 속성에 접근하여 값을 읽거나, 쓰기 위한 Getter, Setter 함수를 사용하여 속성을 정의할 수 있습니다.
+
+```js
+class Plant {
+
+  // 비공개 속성 '종(Species)'
+  private _species:string|null = null;
+
+  // getter 함수
+  get species(): string {
+    return this._species;
+  }
+
+  // setter 함수
+  set species(value:string) {
+    if ( value.length > 3 ) { this._species = value; }
+  }
+
+}
+
+
+/* 인스턴스 생성 ------------------------------------------------ */
+
+let plant = new Plant();
+
+console.log(plant.species); // null
+
+plant.species = '줄기';
+
+console.log(plant.species); // null
+
+plant.species = '푸른 식물';
+```
+
+3. getter와 setter를 ‘실제’ 프로퍼티 값을 감싸는 래퍼(wrapper)처럼 사용하면, 프로퍼티 값을 원하는 대로 통제할 수 있습니다.
+
+```js
+let user = {
+  get name() {
+    return this._name;
+  },
+
+  set name(value) {
+    if (value.length < 4) {
+      alert(
+        "입력하신 값이 너무 짧습니다. 네 글자 이상으로 구성된 이름을 입력하세요."
+      );
+      return;
+    }
+    this._name = value;
+  },
+};
+
+user.name = "Pete";
+alert(user.name); // Pete
+
+user.name = ""; // 너무 짧은 이름을 할당하려 함
+```
