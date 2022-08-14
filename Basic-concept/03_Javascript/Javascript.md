@@ -1683,6 +1683,77 @@
 
 <br>
 
+- 테스트 케이스 예시 (참고 : https://lumiloves.github.io/2018/08/21/my-first-frontend-test-code-experience)
+
+  아래는 React Testing Library을 활용한 커스텀 훅 테스트 케이스 예시이다.
+
+  ```jsx
+  // 예시 코드
+  import { useCallback, useState } from "react";
+
+  export default function useToggle(initialState = false) {
+    const [state, setState] = useState(initialState);
+    const onToggle = useCallback(() => setState(!state), [state]);
+
+    return [state, onToggle, setState] as const;
+  }
+  ```
+
+  (1) useToggle은 길이가 3인 배열을 리턴한다. [state, onToggle, setState]
+
+  (2) 매개변수로 initialState 값을 입력하지 않으면 기본 state 값은 false로 설정된다.
+
+  (3) 매개변수로 initialState 값을 입력하면 state에 그 값이 설정된다.
+
+  (4) onToggle 함수를 이용해서 state 값을 toggle 할 수 있다.
+
+  (5) setState 함수를 이용해서 직접 state 값을 변경할 수 있다.
+
+  ```jsx
+  // 테스트 코드 작성 예시
+  import { act, renderHook } from "@testing-library/react-hooks";
+  import useToggle from "../useToggle";
+
+  describe("useToggle", () => {
+    test("useToggle은 길이가 3인 배열을 리턴한다. (state, onToggle, setState)", () => {
+      const { result } = renderHook(() => useToggle(false));
+      expect(result.current).toHaveLength(3);
+    });
+
+    test("매개변수로 initialState 값을 입력하지 않으면 기본 state 값은 false로 설정된다.", () => {
+      const { result } = renderHook(() => useToggle());
+      expect(result.current[0]).toBe(false);
+    });
+
+    test("매개변수로 initialState 값을 입력하면 state에 그 값이 설정 된다.", () => {
+      const { result } = renderHook(() => useToggle(true));
+      expect(result.current[0]).toBe(true);
+    });
+
+    test("onToggle 함수를 이용해서 state 값을 toggle 시킬 수 있다.", () => {
+      const { result } = renderHook(() => useToggle(false));
+
+      act(() => {
+        result.current[1]();
+      });
+
+      expect(result.current[0]).toBe(true);
+    });
+
+    test("setState 함수를 이용해서 직접 state 값을 변경할 수 있다.", () => {
+      const { result } = renderHook(() => useToggle(false));
+
+      act(() => {
+        result.current[2](true);
+      });
+
+      expect(result.current[0]).toBe(true);
+    });
+  });
+  ```
+
+<br>
+
 ### # **DRY원칙**
 
 <br>

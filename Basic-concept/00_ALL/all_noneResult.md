@@ -1038,6 +1038,10 @@
 
 <br>
 
+- 테스트 케이스 예시
+
+<br>
+
 ### # **DRY원칙**
 
 <br>
@@ -1606,6 +1610,10 @@
 
 <br>
 
+- package-lock.json 이란? (참고: https://hyunjun19.github.io/2018/03/23/package-lock-why-need/)
+
+<br>
+
 ### # **웹 태스크 매니저란?**
 
 <br>
@@ -1879,6 +1887,10 @@
 <br>
 
 - JSON 사용 이유
+
+<br>
+
+- JWT 안전하게 사용하는 방법
 
 <br>
 

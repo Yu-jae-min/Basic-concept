@@ -2369,6 +2369,77 @@
 
 <br>
 
+- 테스트 케이스 예시 (참고 : https://lumiloves.github.io/2018/08/21/my-first-frontend-test-code-experience)
+
+  아래는 React Testing Library을 활용한 커스텀 훅 테스트 케이스 예시이다.
+
+  ```jsx
+  // 예시 코드
+  import { useCallback, useState } from "react";
+
+  export default function useToggle(initialState = false) {
+    const [state, setState] = useState(initialState);
+    const onToggle = useCallback(() => setState(!state), [state]);
+
+    return [state, onToggle, setState] as const;
+  }
+  ```
+
+  (1) useToggle은 길이가 3인 배열을 리턴한다. [state, onToggle, setState]
+
+  (2) 매개변수로 initialState 값을 입력하지 않으면 기본 state 값은 false로 설정된다.
+
+  (3) 매개변수로 initialState 값을 입력하면 state에 그 값이 설정된다.
+
+  (4) onToggle 함수를 이용해서 state 값을 toggle 할 수 있다.
+
+  (5) setState 함수를 이용해서 직접 state 값을 변경할 수 있다.
+
+  ```jsx
+  // 테스트 코드 작성 예시
+  import { act, renderHook } from "@testing-library/react-hooks";
+  import useToggle from "../useToggle";
+
+  describe("useToggle", () => {
+    test("useToggle은 길이가 3인 배열을 리턴한다. (state, onToggle, setState)", () => {
+      const { result } = renderHook(() => useToggle(false));
+      expect(result.current).toHaveLength(3);
+    });
+
+    test("매개변수로 initialState 값을 입력하지 않으면 기본 state 값은 false로 설정된다.", () => {
+      const { result } = renderHook(() => useToggle());
+      expect(result.current[0]).toBe(false);
+    });
+
+    test("매개변수로 initialState 값을 입력하면 state에 그 값이 설정 된다.", () => {
+      const { result } = renderHook(() => useToggle(true));
+      expect(result.current[0]).toBe(true);
+    });
+
+    test("onToggle 함수를 이용해서 state 값을 toggle 시킬 수 있다.", () => {
+      const { result } = renderHook(() => useToggle(false));
+
+      act(() => {
+        result.current[1]();
+      });
+
+      expect(result.current[0]).toBe(true);
+    });
+
+    test("setState 함수를 이용해서 직접 state 값을 변경할 수 있다.", () => {
+      const { result } = renderHook(() => useToggle(false));
+
+      act(() => {
+        result.current[2](true);
+      });
+
+      expect(result.current[0]).toBe(true);
+    });
+  });
+  ```
+
+<br>
+
 ### # **DRY원칙**
 
 <br>
@@ -4226,6 +4297,19 @@
 
 <br>
 
+- package-lock.json 이란? (참고: https://hyunjun19.github.io/2018/03/23/package-lock-why-need/)
+
+  package-lock.json 파일은 npm을 사용해서 node_modules 트리나 package.json 파일을 수정하게 되면 자동으로 생성되는 파일이다.
+  이 파일은 파일이 생성되는 시점의 의존성 트리에 대한 정확한 정보를 가지고 있다. package.json 파일의 의존성 선언에는 version range가 사용됩니다. version range란 특정 버전이 아니라 버전의 범위를 의미한다. 가장 흔한 예로 npm install express를 실행하게 되면 package.json 파일에는 “^4.16.3”(Caret Ranges)로 버전 범위가 추가된다. 저 package.json 파일로 npm install을 실행하면 현재는 4.16.3 버전이 설치되지만 express의 새로운 minor, patch가 publish 되면 동일한 package.json 파일로 npm install을 실행해도 4.17.3, 이나 4.16.4 같은 업데이트된 버전이 설치된다. 물론 대부분의 경우에는 문제가 없지만 간혹 업데이트된 버전이 오류를 발생시키는 경우가 있다. package-lock.json 파일은 의존성 트리에 대한 정보를 가지고 있으며 package-lock.json 파일이 작성된 시점의 의존성 트리가 다시 생성될 수 있도록 보장한다. package-lock.json 파일은 npm에 의해서 프로젝트의 node_modules나 package.json이 수정되는 경우 생성되거나 업데이트되며 당시 의존성에 대한 정보를 모두 가지고 있다. 따라서 생성된 package-lock.json 파일은 소스 저장소에 커밋해야 한다.
+
+  (1) 의존성 트리에 대한 정보를 모두 가지고 있다.
+
+  (2) 저장소에 꼭 같이 커밋해야 한다. 반드시 커밋할 필요는 없지만 협업 시 저장소에 커밋하는 것이 좋다. 없는 경우 협업 시 pull 받은 대상자가 npm install로 패키지 설치 시 의존성 트리의 일부 버전이 간혹 다르게 설치되어 오류를 발생시킬 수 있다.
+
+  (3) node_modules 없이 배포하는 경우 반드시 필요하다.
+
+<br>
+
 ### # **웹 태스크 매니저란?**
 
 <br>
@@ -5284,6 +5368,35 @@ function GenericReturnFunc<T>(arg: T): T {
 - JSON 사용 이유
 
   서버와 클라이언트 또는 애플리케이션 처리할 데이터를 주고받을 때 자료 형식 중 대표적인 것이 XML과 JSON이 있다. 이 중 XML은 데이터 포맷 중 하나로 HTML과 유사한 마크업 언어이다. 데이터를 저장하고, 전달할 목적으로 고안되었다. 불필요한 태그들이 들어가 파일의 사이즈가 커질 뿐만 아니라 가독성도 좋지 않아 XML대신 JSON이 사용된다. JSON은 데이터 포맷 중 하나로 key와 value가 한 쌍을 이루는 구조의 객체로 구성되어 있으며 XML의 대안으로서 고안되었고 XML 대비 더 직관적이며, 작성하기 편리하다는 특징이 있다. 또 배열을 파싱할 수 없는 XML과 달리 JSON은 배열을 사용할 수 있다. 또한 프로그래밍 언어나 플랫폼에 상관없이 사용할 수 있다.
+
+<br>
+
+- JWT 안전하게 사용하는 방법
+
+  (1) 사용자 로그인 시 서버에서 사용자 확인 후 액세스 토큰, 리프레쉬 토큰 발급, 이 때 실제 리프레쉬 토큰 값은 DB에 저장
+
+  > 토큰 유효 시간 설정 : 이 때 액세스 토큰의 시간 유효기간은 짧게, 리프레쉬 토큰의 시간 유효기간은 길게 설정
+
+  (2) 서버에서 리프레쉬 토큰의 실제 값이 아닌 index값이나 해쉬 값을 액세스 토큰과 함께 클라이언트에 전달
+
+  (3) 클라이언트에서 리프레쉬 토큰 index 혹은 해쉬 값은 쿠키로 관리, 왜냐하면 가장 필수로 막아야하는 XSS 보안에 유리, 서버에서 httpOnly쿠키로 설정해서 XSS 막기, 또 추가로 secure / SameSite(Strict or Lax 모드) 옵션을 지정
+
+  > XSS : 클라이언트 단에서 실행되는 악의적 스크립트, 가장 필수적으로 막아야하는 공격
+  >
+  > httpOnly : document.cookie와 같은 자바스크립트로 쿠키를 조회하는 것을 막는 옵션)
+
+  (4) 클라이언트에서 액세스 토큰은 비공개 변수로 관리, 권한 필요 시 Authorization 헤더에 access token을 담아 요청
+
+  (5) 매 요청 시마다 액세스 토큰 + 리프레쉬 토큰 index 혹은 해쉬 값을 같이 담아서 보내어 매번 액세스 토큰을 새로 발급받는 방식을 사용
+
+  > (5-1) 요청 시 항상 리프레쉬 해쉬 값 + 액세스 토큰 보냄
+  >
+  > (5-2-1) 클라이언트 요청 시 액세스 토큰 만료면 서버 렌더링 과정 혹은 API 통신을 통해 재발급을 요청, 서버에서 리프레쉬 해쉬 값 검증 후 액세스 토큰 새로 발급해서 응답, 이 때 요청 시 쿠키에는 자바스크립트에서 접근이 불가능한(httpOnly 옵션) refresh token이 이미 담겨진 상태로 서버와 통신하게 됨
+  >
+  > (5-2-2) 리프레쉬 토큰 만료면 DB와 다시 한번 통신하여 로그인 만료 페이지 혹은 로그아웃 상태로 렌더링을 하여준다. (ex 로그인이 만료되었습니다.)
+
+  (6) refresh token이 저장된 쿠키는 외부 경로와 자바스크립트 상에서의 접근이 불가능하여 CSRF, XSS 공격에서 모두 안전성이 확보된다.
+  access token이 저장된 비공개 변수는 XSS, CSRF 공격을 시도할 방법이 사라지며, 토큰이 휘발되어 사라졌던 UX 문제도 해결된다.
 
 <br>
 
