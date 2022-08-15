@@ -6746,6 +6746,20 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 커밋 메시지 종류
 
+  (1) feat : 새로운 기능 추가
+
+  (2) fix : 버그 수정
+
+  (3) docs : 문서의 수정
+
+  (4) style : (코드의 수정 없이) 스타일(style)만 변경(들여쓰기 같은 포맷이나 세미콜론을 빼먹은 경우)
+
+  (5) refactor : 코드를 리펙토링
+
+  (6) test : Test 관련한 코드의 추가, 수정
+
+  (7) chore : (코드의 수정 없이) 설정을 변경
+
 <br><br><br>
 
 ## # ETC
