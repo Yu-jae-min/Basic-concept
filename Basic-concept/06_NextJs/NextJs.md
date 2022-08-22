@@ -9,9 +9,9 @@
 3. server side rendering이 지원된다.
 4. static file을 지원한다.
 
-- pages 디렉토리 하위에 js 파일 생성하면 정적 라우팅 기능 제공 (ex pages -> about.js 생성 : http://localhost:3000/about)
+- pages 디렉토리 하위에 js 파일 생성하면 정적 라우팅 기능 제공(ex pages -> about.js 생성 : http://localhost:3000/about)
 
-- pages 디렉토리 하위에 디렉토리 생성 후 `[id].js` 파일 생성하면 다이나믹 라우팅 기능 제공 (ex pages -> view -> `[id].js` : http://localhost:3000/view/3
+- pages 디렉토리 하위에 디렉토리 생성 후 `[id].js` 파일 생성하면 다이나믹 라우팅 기능 제공(ex pages -> view -> `[id].js` : http://localhost:3000/view/3
 
 - `_app.tsx`란?
 
