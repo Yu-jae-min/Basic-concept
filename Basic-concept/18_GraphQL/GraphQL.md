@@ -1,0 +1,679 @@
+## # GraphQL
+
+<br>
+
+### # GraphQL 특징
+
+- GraphQL 은 REST 보다 효율적이고 강력하며 유연한 대안을 제공하는 새로운 API 표준입니다.
+
+- Facebook에서 개발하고 오픈소스 로 개발했으며 현재 전 세계의 대규모 기업 및 개인 커뮤니티에서 관리하고 있습니다.
+
+- 핵심적으로 GraphQL은 클라이언트가 API에서 필요한 데이터를 정확히 지정할 수있는 선언적(decalarative) 데이터 가져 오기를 지원합니다.
+
+- 고정 데이터 구조를 반환하는 여러 엔드 포인트 대신 GraphQL 서버는 단일 엔드 포인트만 노출하고 클라이언트가 요청한 데이터로 정확하게 응답합니다.
+
+<br>
+
+### # GraphQL 장점
+
+REST는 서버에서 데이터를 노출하는 인기있는 방법이었습니다. REST 개념이 개발되었을 때 클라이언트 애플리케이션은 비교적 단순했고 개발 속도는 현재와 거의 같지 않았습니다. 따라서 REST는 많은 애플리케이션에 적합했습니다. 그러나 API 환경은 지난 몇 년 동안 급격히 변화했습니다. 특히 API 설계 방식에 어려움을 겪고있는 세 가지 요소가 있습니다.
+
+1. 모바일 사용 증가로 인해 효율적인 데이터로드가 필요합니다.
+   Facebook이 GraphQL을 개발 한 초기 이유는 증가 된 모바일 사용, 저전력 장치 및 엉성한 네트워크였습니다. GraphQL은 네트워크를 통해 전송해야하는 데이터의 양을 최소화하여 이러한 조건에서 작동하는 애플리케이션을 크게 개선합니다.
+
+2. 다양한 프런트엔드 프레임워크 및 플랫폼
+   클라이언트 애플리케이션을 실행하는 프런트엔드 프레임워크 및 플랫폼의 이기종 환경으로 인해 모든 요구 사항에 맞는 하나의 API를 구축하고 유지 관리하기가 어렵습니다. GraphQL을 통해 각 클라이언트는 필요한 데이터에 정확하게 액세스 할 수 있습니다.
+
+3. 빠른 기능 개발을위한 빠른 개발 및 기대
+   지속적인 배포는 많은 회사의 표준이되었으며 빠른 반복과 빈번한 제품 업데이트는 필수 불가결합니다. REST API를 사용하면 클라이언트 측의 특정 요구 사항 및 설계 변경을 고려하여 서버에서 데이터를 노출하는 방식을 수정해야하는 경우가 많습니다. 이는 빠른 개발 관행과 제품 반복을 방해합니다.
+
+<br>
+
+### # SDL : The Schema Definition Language
+
+- 특징
+
+```tsx
+const typeDefs = gql`
+  type SpaceCat {
+    name: String!
+    age: Int
+    missions: [Mission]
+  }
+`;
+```
+
+```tsx
+type Lift {
+  id: ID!
+  name: String!
+  status: LiftStatus
+  capacity: Int!
+  night: Boolean!
+  elevationGain: Int!
+  trailAccess: [Trail!]!
+}
+```
+
+<br>
+
+### # SDL Type
+
+- Track Type : "트랙은 특정 주제에 대해 가르치는 모듈 그룹입니다."
+- Author Type : "완전한 트랙의 저자"
+- Query Type : "홈페이지 그리드에 대한 트랙 배열 가져오기"
+- Query < Track < Author
+
+```tsx
+"Get tracks array for homepage grid"
+type Query {
+  tracksForHome: [Track!]!
+}
+
+"A track is a group of Modules that teaches about a specific topic"
+type Track {
+  id: ID!
+  title: String! // "The track's title : 트랙 제목"
+  author: Author! // "The track's main author : 트랙의 주요 저자"
+  thumbnail: String //  "The track's main illustration to display in track card or track page detail : 트랙 카드 또는 트랙 페이지 세부 정보에 표시할 트랙의 기본 그림"
+  length: Int // "The track's approximate length to complete, in minutes : 트랙의 대략적인 완료 길이(분)"
+  modulesCount: Int // "The number of modules this track contains : 이 트랙에 포함된 모듈 수"
+}
+
+"Author of a complete Track"
+type Author {
+  id: ID!
+  name: String! // "Author's first and last name : 저자의 성과 이름"
+  photo: String // "Author's profile picture url : 작가 프로필 사진 url"
+}
+```
+
+- Object Type
+
+  - 해당 타입의 특성을 표현하는 필드들로 구성됩니다.
+
+- Enums Type
+
+GraphQL에서는 열거 타입(Enums)를 정의할 수 있습니다. Enums 타입이란 일정한 값들의 집합에 대하여 의미를 표현할 수 있는 언어 기능입니다.
+
+미리 정의해둔 세트에 속하는 값만 필드에서 반환하도록 만들고 싶다면 열거 타입을 사용하면 됩니다.
+
+위에서 본 LiftStatus가 바로 Enums 타입으로 정의한 것입니다.
+
+- List Type
+
+리스트는 GraphQL 타입을 대괄호를 감싸서 만들면 됩니다. 아래 처럼 말이죠.
+
+근데 느낌표가 두개입니다.. 음.. 정리해보면 아래와 같습니다.
+
+[String] : 리스트안에 담긴 String는 null이 될 수 있다.
+[String!] : 리스트안에 담긴 String는 null이 될 수 없다.
+[String]! : 리스트안에 담긴 String는 null이 될 수 있으나, 리스트 자체는 null이 될 수 없다.
+[String!]! : 리스트안에 담긴 String는 null이 될 수 없고, 리스트 자체도 null이 될 수 없다.
+예를 들어 [String!]에서 허용되는 경우와 안되는 경우는 어떤게 있을까요? 리스트 자체가 null이 되어도 상관없지만 안에 들어가는 내용물이 null이 되면 안됩니다.
+
+myField: null // valid
+myField: [] // valid
+myField: ['a', 'b'] // valid
+myField: ['a', null, 'b'] // error
+이번에는 [String]!인 경우를 살펴보겠습니다. 여기서 주의할거는 자바스크립트에서 []는 null이랑 같지만 graphql에서 []는 허용이 됩니다. 😨😨
+
+myField: null // error
+myField: [] // valid
+myField: ['a', 'b'] // valid
+myField: ['a', null, 'b'] // valid
+뭐 일반적인 경우에는 4번째가 많이 쓰이는거 같습니다.
+
+- 유니온(Union) 타입
+
+리스트에 항상 같은 타입만 들어가지 않습니다. 유니온(Union)과 인터페이스(Interface)를 이용하면 여러타입도 가능합니다. 유니온 타입 사용 시 인라인 프래그먼트를 함께 활용할 수 있습니다.
+
+```tsx
+type StudyGroup {
+      name: String!
+      subject: String!
+      students: Int!
+  }
+
+  type Workout {
+      name: String!
+      reps: Int!
+  }
+
+  union AgendaItem = Workout | StudyGroup
+
+  type Query {
+      agenda: [AgendaItem!]!
+  }
+```
+
+위와 같이 AgendaItem 유니온 타입을 생성하여 Workout, StudyGroup 타입을 결합시켰습니다.
+그 후 아래와 같이 쿼리를 작성할때 프래그먼트를 사용해서 AgendaItem이 Workout일때와 StudyGroup일때 특정 필드만 선택되도록 만들 수 있습니다. 즉, 유니온 타입에서 각각의 객체가 어떤 필드를 반환할 것인지 정할 때 인라인 프래그먼트를 사용하면 됩니다.
+
+```tsx
+{
+  agenda {
+    ...on Workout {
+      name
+      reps
+    }
+    ...on StudyGroup {
+      name
+      subject
+      students
+    }
+  }
+}
+```
+
+![graphql_union_response](https://user-images.githubusercontent.com/85284246/186060176-1eb7d6d6-b621-4383-80f4-0ff79fd40ab7.png)
+
+<br>
+
+- 인터페이스(Interface)
+
+```tsx
+interface ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+}
+
+type StudyGroup implements ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+  subject: String!
+  students: Int!
+}
+
+type Workout implements ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+  reps: Int!
+}
+
+type Query {
+  agenda: [ScheduleItem!]!
+}
+```
+
+인터페이스란 자바에서 말하는 그 의미와 동일합니다. 추상화를 의미하며, 이걸 상속받은 타입은 그 필드는 반드시 구현해야한다는 것을 의미합니다.
+
+```tsx
+{
+  agenda {
+    name
+    start
+    end
+    ...on Workout {
+      reps
+    }
+  }
+}
+```
+
+이제 agenda는 name, start, end 뿐만 아니라 Workout에만 있는 reps같이 인라인 프래그먼트를 이용해서 선택해서 쓸 수 있습니다. (유니온과 비슷하게 쓰일 수 있다는 것을 알 수 있습니다)
+
+![graphql_interface_response](https://user-images.githubusercontent.com/85284246/186060169-7314a7cb-1f31-4b03-a1d4-01d7cc3ce082.png)
+
+<br>
+
+- 뮤테이션(Mutation) : 쿼리는 데이터를 읽기 위한 행위에 관한 기술이라면 데이터를 쓰기 위한 행위는 뮤테이션이 있습니다.
+  일반적으로 세 가지 종류의 뮤테이션이 있습니다.
+
+  1. 새로운 데이터 생성
+  2. 기존 데이터 업데이트
+  3. 기존 데이터 삭제
+
+  뮤테이션은 쿼리문과 동일한 문법 구조를 가지지만, 반드시 mutation 키워드와 함께 시작해야 한다는 점이 다릅니다.
+
+<br>
+
+### # 관계
+
+커스텀 객체 타입으로 필드를 만들면 두 객체가 서로 연결됩니다.
+
+- 1대1 관계
+  예를들어, 아래는 Lift와 Trail이 1대1로 연결되어있는 상태를 정의했습니다. "Lift는 반드시 한개의 접근가능한 코스 1개를 가지고 있다" 이런 의미겠네요.
+
+```tsx
+type Lift {
+  id: ID!
+  name: String!
+  trailAccess: Trail!
+}
+```
+
+- 1대다 관계
+  Trail은 여러개의 접근가능한 Lift를 가질 수 있도록 설정했습니다.
+
+```tsx
+  type Trail {
+    id: ID!
+    name: String!
+    accessedByLifts: [Lift!]!
+  }
+```
+
+- 다대다 관계
+  다대다 관계를 만들려면 양쪽 모두에 리스트 타입 필드를 추가하면 됩니다.
+
+```tsx
+type Lift {
+  id: ID!
+  name: String!
+  trailAccess: [Trail!]!
+}
+type Trail {
+  id: ID!
+  name: String!
+  accessedByLifts: [Lift!]!
+}
+```
+
+<br>
+
+### # Query 구조
+
+- 필드 (Fieldw) : 쿼리 요청을 위해 내부에 작성되는 것들이 필드입니다. 필드는 스키마를 참고하여 작성됩니다.
+
+```tsx
+query lifts {
+  allLifts {
+    name
+  }
+}
+
+query trails {
+  allTrails {
+    name
+    difficulty
+  }
+}
+```
+
+- 스키마 (schema) : 쿼리 요청 후 응답 시 반환 할 데이터의 목록 및 타입을 결정합니다.
+
+```tsx
+type Query {
+  allLifts(status: LiftStatus) : [Lift!]!
+  allTrails(status: TrailStatus) : [Trail!]!
+  Lift(id: ID!): Lift!
+  Trail(id: ID!): Trail!
+  liftCount(status: Liftstatus) : Int!
+  trailCount(stauts: TrailStatus) : Int!
+  gnar: String!
+  sweet: String!
+}
+```
+
+- 인자 (Arguments) : 인자를 전달하여 응답 받을 쿼리 필드 값을 지정할 수 있습니다. 이러한 동작 방식으로 쿼리 결과를 필터링 할 수 있습니다.
+
+```tsx
+query liftsAndTrails {
+  allLifts(status: OPEN) {
+    name
+    status // "status" : "OPEN"
+  }
+  allTrails {
+    name
+    difficulty
+  }
+}
+```
+
+- 별칭 (Alias)
+
+보면 알겠지만, 요청을 allLifts에서 id, name, status를 보냈다면 응답도 json 형태로 동일한 이름이 생성됩니다. 응답 객체 필드명을 다르게 받고 싶다면 어떻게 해야할까요??
+
+만약 아래와 같이 쿼리를 실행하면 에러가 납니다. 동일한 Lift를 두번 호출했으니까요.
+
+```tsx
+query lift {
+  Lift(id: "jazz-cat") {
+    capacity
+  }
+  Lift(id: "snowtooth-express") {
+    capacity
+  }
+}
+```
+
+에러를 해결하려면 별칭을 다르게 부여하면 됩니다.
+
+```tsx
+query lift {
+  jazzCatLift: Lift(id: "jazz-cat") {
+    capacity
+  }
+  expressLift: Lift(id: "snowtooth-express") {
+    capacity
+  }
+}
+```
+
+- 프래그먼트 (Fragement) : 여러 쿼리의 중복되는 필드가 많을 경우 중복되는 필드의 값을 하나로 묶어 사용할 수 있습니다.
+
+```tsx
+// 수정 전
+query {
+  Lift(id: "jazz-cat") {
+    name
+    status
+    capacity
+    night
+    elevationGain
+    trailAccess {
+      name
+      difficulty
+    }
+  }
+  Trail(id: "river-run") {
+    name
+    difficulty
+    accessedByLifts {
+      name
+      status
+      capacity
+      night
+      elevationGain
+    }
+  }
+}
+
+// 수정 후
+query {
+  Lift(id: "jazz-cat") {
+    ...liftInto
+    trailAccess {
+      name
+      difficulty
+    }
+  }
+  Trail(id: "river-run") {
+    name
+    difficulty
+    accessedByLifts {
+      ...liftInto
+    }
+  }
+}
+
+fragment liftInto on Lift {
+  name
+  status
+  capacity
+  night
+  elevationGain
+}
+```
+
+fragment 를 정의하는 방법은 fragment 식별자를 쓴 다음 이름을 써줍니다. on Lift는 어떤 타입에 대한 fragment인지를 나타내고 이 정보는 꼭 써줘야 합니다.
+
+<br>
+
+#### # Code first vs Schema first
+
+<br>
+
+### # GraphQL server의 목적
+
+1. 채워진 스키마 필드를 응답으로 반환
+2. 새로 생성된 스키마에 대해 GraphQL 쿼리 검증
+3. 클라이언트로부터 들어오는 GraphQL 쿼리 수신
+
+<br>
+
+### # GraphQL Data Mocking
+
+웹개발은 Frontend, Backend 로 파트가 나뉘어져 파트별 개발자들의 협력으로 개발하는 경우가 많습니다.
+이런식으로 나뉘어져 개발할 경우 Frontend 개발자의 작업은 Backend Data에 의존적입니다. API 호출을 통해서 받아온 데이터를 통해 UI가 그려지는 경우가 대부분이기 때문입니다.
+이렇게 파트별 Task간의 의존성의 있는경우 병렬적으로 개발하지 못해서 생산성이 저하되는 단점이 있습니다. 이러한 이유로 API가 개발 완료되지 않은 상황이라면 Frontend 개발시 자체적으로 API 호출하는 부분을 분리하고 Mocking해서 사용하거나 Fake Data를 import 해서 진행하기도 합니다.
+GraphQL에서는 Type System을 활용해서 손 쉽게 Data Mocking하는 기능을 사용할 수 있습니다. 기본적으로 Data mocking을 위해 new ApolloServer 생성자에 mock: true로 설정합니다.
+
+- mock 속성 true
+
+```tsx
+const server = new ApolloServer({
+  typeDefs,
+  mocks: true,
+});
+```
+
+- Type에 대한 Mock Resolver
+
+```tsx
+{
+  Int :() => faker.random.number(100),
+  String :() => faker.random.word(),
+  Boolean :() => faker.random.boolean(),
+}
+```
+
+- Custom Type에 대한 Mock Resolver
+
+```tsx
+const mocks = {
+  Track: () => ({
+    id: () => "track_01",
+    title: () => "Astro Kitty, Space Explorer",
+    author: () => {
+      return {
+        name: "Grumpy Cat",
+        photo:
+          "https://res.cloudinary.com/dety84pbu/image/upload/v1606816219/kitty-veyron-sm_mctf3c.jpg",
+      };
+    },
+    thumbnail: () =>
+      "https://res.cloudinary.com/dety84pbu/image/upload/v1598465568/nebula_cat_djkt9r.jpg",
+    length: () => 1210,
+    modulesCount: () => 6,
+  }),
+};
+```
+
+- List Type에 대한 Mock Resolver
+
+```tsx
+const mocks = {
+  Query: () => ({
+    tracksForHome: new MockList(20),
+    // or MockList([1, 20])
+    // or [...new Array(6)]
+  });
+}
+```
+
+### # SandBox를 활용한 GraphQL Data Mocking
+
+1. server 실행 후 `http://localhost:4000` 으로 접속합니다.
+2. Query Your Server 버튼을 클릭합니다.
+3. Example Query 버튼 클릭하여 Query 요청 후 Response에서 응답을 확인합니다.
+4. 좌측 Documentation 탭에서 로컬에 생성 된 Query Field 목록을 Fields에서 확인해볼 수 있습니다. 또한 해당 Query 목록을 클릭하여 필드에 대한 자세한 정보를 확인해볼 수 있습니다. (ex 필드 주석 내용) 그리고 Field 좌측에 `+` 버튼을 클릭하여 Query Field를 쉽게 추가할 수도 있습니다.
+
+<br>
+
+### # 클라이언트 설정
+
+```tsx
+// npm install graphql @apollo/client
+// import { ApolloClient , InMemoryCache , ApolloProvider } from '@apollo/client' ;
+
+const client = new ApolloClient({
+  uri: "http://localhost:4000",
+  cache: new InMemoryCache(options),
+});
+```
+
+- uri : 서버의 위치를 결정하는 속성
+- cache : 캐시 설정 속성, new InMemoryCache로 캐시 객체를 생성해서 넘겨주어야 합니다.
+
+![apollo_cache_flow](https://user-images.githubusercontent.com/85284246/186052840-abcba693-aa7a-4e3a-aeb3-0e6876b777f1.png)
+
+- Provider 연결
+
+ApolloProvider는 react의 ContextAPI를 사용하여 구성된 ApolloClient의 인스턴스를 구성 요소 트리 전체에서 사용할 수 있게 해줍니다.
+이를 사용하기 위해 앱의 최상위 구성 요소를 구성 요소에 래핑하고 ApolloProvider클라이언트 인스턴스를 소품으로 전달합니다.
+
+```tsx
+const client = new ApolloClient({
+  uri: "http://localhost:4000",
+  cache: new InMemoryCache(options),
+});
+
+ReactDOM.render(
+  <ApolloProvider client={client}>
+    <GlobalStyles />
+    <Pages />
+  </ApolloProvider>,
+  document.getElementById("root")
+);
+```
+
+<br>
+
+### # useQuery 사용
+
+구성 요소가 렌더링되면 UI를 렌더링하는 데 사용할 수 있는 loading, error, data 및 속성이 포함 된 useQueryApollo Client의 개체를 반환합니다.
+
+<br>
+
+### # Query Defining
+
+```tsx
+const TRACKS = gql`
+  query GetTracks {
+    tracksForHome {
+      id
+      title
+      thumbnail
+      length
+      modulesCount
+      author {
+        name
+        photo
+      }
+    }
+  }
+`;
+```
+
+3. 느낌표는 null이 들어올 수 없음을 의미합니다. (non-nullable, null 값을 허용하지 않음), 클라이언트가 쿼리를 호출한다고 했을때 서버가 반드시 반환해줘야 한다는 뜻입니다. (인자로 썼을때는 클라이언트가 반드시 서버에게 넘겨줘야 하는 값을 의미합니다.)
+
+---
+
+## ODYSSEY 1
+
+<br>
+
+### STEP 1. 기능 개요 및 설정(EATURE OVERVIEW AND SETUP)
+
+- code first vs schema first
+
+  스키마 작성 방식에는 code first 방식과 schema first 방식이 있습니다. schema first 방식의 이점 중 하나는 프론트엔드 및 백엔드 팀이 병렬로 작업할 수 있도록 하여 총 개발 시간을 단축한다는 것입니다. 프론트엔드 팀은 스키마가 정의되는 즉시 모의 데이터 작업을 시작할 수 있으며 백엔드 팀은 동일한 스키마를 기반으로 API를 개발합니다. 이것이 GraphQL API를 설계하는 유일한 방법은 아니지만 효율적인 방법입니다.
+
+- schema first flow
+
+  1. 스키마 정의 : 기능에 필요한 데이터를 식별한 다음 해당 데이터를 가능한 직관적으로 제공하도록 스키마를 구성합니다.
+
+  2. 백엔드 구현 : Apollo Server를 사용하여 GraphQL API를 구축하고 포함된 데이터 소스에서 필요한 데이터를 가져옵니다. 이 첫 번째 과정에서는 모의 데이터를 사용합니다. 다음 과정에서는 앱을 라이브 REST 데이터 소스에 연결합니다.
+
+  3. 프론트엔드 구현 : 클라이언트는 GraphQL API의 데이터를 사용하여 뷰를 렌더링합니다.
+
+<br>
+
+### STEP 2. 기능 데이터 요구 사항(FEATURE DATA REQUIREMENTS)
+
+- 스키마(schema)란?
+
+  REST API가 end point 집합이었다면, GraphQL API는 type 집합입니다. 그리고 이런 데이터 type 집합을 스키마라고 부릅니다. 스키마를 설계하기 전 필요한 데이터를 분석해야 합니다. 데이터를 분석한 후 데이터와 데이터의 관계를 자료 구조 중 노드와 간선으로 이어진 그래프로 나타내고 이 그래프의 구조를 스키마를 통해 정의할 수 있습니다. 스키마를 정의하는 언어는 줄여서 SDL(Schema Definition Language)이라고 합니다.
+
+<br>
+
+### STEP 3. 스키마 정의 언어(SDL : SCHEMA DEFINITION LANGUAGE)
+
+- GraphQL 스키마
+
+  스키마는 서버와 클라이언트 간의 계약과 같습니다. GraphQL API가 할 수 있는 것과 할 수 없는 것과 클라이언트가 데이터를 요청하거나 변경할 수 있는 방법을 정의합니다. 백엔드 구현 세부 정보를 숨기면서 소비자에게 유연성을 제공하는 추상화 계층입니다.
+
+  기본적으로 스키마는 필드를 포함하는 개체 유형의 모음입니다. 각 필드에는 고유한 유형이 있습니다. 필드의 유형은 스칼라(예: Int 또는 String)이거나 다른 개체 유형일 수 있습니다.
+
+  type 키워드를 사용하여 유형을 선언하고 그 뒤에 유형 이름(PascalCase가 모범 사례임)을 사용한 다음 포함된 필드를 유지하기 위해 대괄호를 엽니다.
+
+  필드는 이름(camelCase), 콜론, 필드 유형(스칼라 또는 객체)으로 선언됩니다. 필드에는 대괄호로 표시된 List도 포함될 수 있습니다.
+
+  매우 유사해 보이는 Javascript 객체와 달리 필드는 쉼표로 구분되지 않습니다. 또한 각 필드 값이 nullable인지 아니면 non-nullable인지 여부를 나타낼 수 있습니다. 필드가 null이 아니어야 하는 경우 해당 유형 뒤에 느낌표를 추가합니다.
+
+- 스칼라(Scalar) Type
+
+  내장 스칼라 타입은 Int, Float, String, Boolean, ID(문자열이기는 하나 고유한 값인지를 검사) 등이 있습니다.
+  또한 스칼라 타입은 객체 타입이 아니기 때문에 필드를 가지지 않습니다.
+
+- 스키마 descriptions
+
+  타입 전체에 descriptions을 사용할 때는 삼중따옴표, 타입 필드별 descriptions을 사용할 때는 따옴표를 사용할 수 있습니다.
+
+  ```tsx
+  const typeDefs = gql`
+    """
+    a cat astronaut
+    """
+    type SpaceCat {
+      "the name of the cat"
+      name: String!
+      age: Int
+      missions: [Mission]
+    }
+  `;
+  ```
+
+### STEP 4. 스키마 작성(BUILDING OUR SCHEMA)
+
+<br><br><br>
+
+## ODYSSEY 2
+
+<br>
+
+### STEP 1. GRAPHQL 쿼리의 여정(JOURNEY OF A GRAPHQL QUERY)
+
+- GraphQL을 사용한 데이터 요청 중 클라이언트에서 하는 일은?
+
+  데이터를 요청하기 위해 GraphQL 서버에 HTTP POST 혹은 GET을 통해 Query를 보냅니다. 이 때 Query는 Over Fetching을 막기 위해 필요한 필드만 선택하여 생성할 수 있습니다.
+
+- GraphQL을 사용한 데이터 요청 중 서버에서 하는 일은?
+
+  서버가 HTTP 요청을 받으면 먼저 GraphQL 쿼리로 문자열을 추출합니다. 문자열 추출 후 이 문자열을 추상구문트리(AST)로 변환합니다. 그리고 이 추상구문트리를 사용하여 서버는 스키마의 유형 및 필드에 대해 쿼리 유효성을 검사합니다. 요청된 쿼리의 필드가 스키마에 정의되지 않았거나 쿼리 형식이 잘못된 경우 서버는 오류를 발생시키고 오류를 클라이언트로 보냅니다.
+
+  오류가 발생하지 않는 경우는 실제로 데이터를 가져오게 됩니다. 쿼리의 각 필드에 대해 서버는 해당 필드의 resolver 함수를 호출하고 resolver 함수의 역할은 데이터베이스 또는 REST API와 같은 소스에서 올바른 데이터를 검색하여 스키마의 단일 필드에 데이터를 채우는 역할(해결: resolve)을 합니다.
+
+  resolver 함수를 통해 쿼리 필드가 모두 채워지면 쿼리와 모양이 정확히 동일한 JSON으로 조합되어 생성됩니다. 서버는 HTTP Body data key에 해당 JSON을 담아 응답합니다.
+
+### STEP 2. 데이터 탐색(EXPLORING OUR DATA)
+
+- 데이터는 어디에 저장되며 어떻게 구성되어 있습니까?
+- 그 구조가 클라이언트 앱의 요구 사항 및 스키마와 다른가요?
+- 리졸버 함수가 해당 데이터에 어떻게 액세스할 수 있습니까?
+
+- resolver 함수는 쿼리가 요구하는 것과 일치하도록 데이터 속성 필터링을 처리합니다.
+
+### STEP 3. 아폴로 RESTDATASOURCE(APOLLO RESTDATASOURCE)
+
+---
+
+### # REST의 단점
+
+- 오버패칭(overfetching)
+  만약 /person/1 이라는 엔드포인트가 있고 반환하는 데이터가 name, age, hobby, school, height, marry, birthday 등 20가지라고 해봅시다. 근데 정작 앱에서 필요한건 name, age, height 정보 뿐입니다.
+
+  이런식으로 필요하지 않은 데이터를 불필요하게 전송했습니다. 물론 엔드포인트 가서 백엔드를 수정하면 되긴합니다. 하지만, 나중에 가보면 birthday 정보가 필요해서 또 수정해야하는 상황이 생길 수도 있습니다.
+
+- 언더패칭(underfetching)
+  이번에는 그 사람에 정보 뿐만 아니라 그 사람이 쓴 최근게시글 5개를 추가로 가져오고 싶습니다. 그렇다면 새로운 엔드포인트를 하나 더 만들어서 다시 한번 요청해야 하는 상황이 발생합니다. GraphQL을 사용하면 중첩 쿼리를 이용해서 이런 언더패칭 문제를 해결 할 수 있다는 것을 위에서 잠시 다뤄봤습니다.
+
+- 엔드포인트 관리 문제
+  REST API를 개발해봤다면 엔드포인트가 기본 수십개이지 않을까요? (초보라서 저만 그럴수도...?) 아무튼 엔드포인트 수도 많거니와 엔드포인트를 관리하기 위해 swagger라는 도구도 있습니다. 엔드포인트를 새로 만들기 위해서는 프론트엔드 개발팀과 백엔드 개발팀이 서로 회의해야 하고요...
+
+<br>
