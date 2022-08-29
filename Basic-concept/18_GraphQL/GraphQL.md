@@ -1,6 +1,5 @@
 ## # GraphQL
 
-테스트3
 <br>
 
 ### # GraphQL 특징
