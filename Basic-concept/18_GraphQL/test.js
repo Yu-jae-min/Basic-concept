@@ -1,3 +1,3 @@
 const ABC = () => {
-  console.log("테스트11");
+  console.log("테스트1");
 };
