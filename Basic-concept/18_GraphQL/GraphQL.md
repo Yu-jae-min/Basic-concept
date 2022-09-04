@@ -576,6 +576,8 @@ const TRACKS = gql`
 
 - schema first flow
 
+  스키마 우선 설계의 이점 중 하나는 프론트엔드 및 백엔드 팀이 병렬로 작업할 수 있도록 하여 총 개발 시간을 단축한다는 것입니다. 프론트엔드 팀은 스키마가 정의되는 즉시 모의 데이터 작업을 시작할 수 있으며 백엔드 팀은 동일한 스키마를 기반으로 API를 개발합니다. 이것이 GraphQL API를 설계하는 유일한 방법은 아니지만 효율적인 방법이라고 생각하므로 이 과정 전체에서 사용할 것입니다.
+
   1. 스키마 정의 : 기능에 필요한 데이터를 식별한 다음 해당 데이터를 가능한 직관적으로 제공하도록 스키마를 구성합니다.
 
   2. 백엔드 구현 : Apollo Server를 사용하여 GraphQL API를 구축하고 포함된 데이터 소스에서 필요한 데이터를 가져옵니다. 이 첫 번째 과정에서는 모의 데이터를 사용합니다. 다음 과정에서는 앱을 라이브 REST 데이터 소스에 연결합니다.
@@ -611,7 +613,7 @@ const TRACKS = gql`
   내장 스칼라 타입은 Int, Float, String, Boolean, ID(문자열이기는 하나 고유한 값인지를 검사) 등이 있습니다.
   또한 스칼라 타입은 객체 타입이 아니기 때문에 필드를 가지지 않습니다.
 
-- 스키마 descriptions
+- 스키마 주석 (descriptions)
 
   타입 전체에 descriptions을 사용할 때는 삼중따옴표, 타입 필드별 descriptions을 사용할 때는 따옴표를 사용할 수 있습니다.
 
@@ -630,6 +632,37 @@ const TRACKS = gql`
   ```
 
 ### STEP 4. 스키마 작성(BUILDING OUR SCHEMA)
+
+- 스키마를 시작하려면 먼저 apollo-server 및 graphql의 몇 가지 패키지가 필요합니다.
+
+  - graphql 패키지는 GraphQL 쿼리를 구문 분석하고 검증하기 위한 핵심 로직을 제공합니다.
+
+  - apollo-server 패키지는 우리가 잠시 후에 사용할 gql 템플릿 리터럴과 같은 몇 가지 멋진 유틸리티와 함께 완전한 사양을 준수하는 GraphQL 서버를 제공합니다.
+
+```tsx
+// 1. npm install apollo-server graphql
+
+const { gql } = require("apollo-server"); // 2.
+
+const typeDefs = gql`
+  # Schema definitions go here
+`;
+module.exports = typeDefs;
+```
+
+우리가 가져오는 이 gql은 무엇입니까? 이것은 우리가 작성하려는 스키마 정의와 같은 GraphQL 문자열을 래핑하는 데 사용되는 태그가 지정된 템플릿 리터럴입니다.
+
+이것은 GraphQL 문자열을 작업 및 스키마 작업 시 Apollo 라이브러리가 예상하는 형식으로 변환하고 구문 강조도 활성화합니다.
+
+다음으로 typeDefs("유형 정의"의 줄임말) 상수를 선언하고 정의가 들어갈 gql 템플릿을 지정합니다. 우리가 그것에 있는 동안 나중에 서버 파일에 필요하기 때문에 지금 typeDefs를 내보내자.
+
+작은따옴표(')와 혼동하지 않도록 gql 태그와 함께 역따옴표(`)를 사용합니다.
+
+좋습니다. 유형을 정의할 준비가 되었습니다. 목업을 다시 참조하여 각 학습 트랙에 대해 다음 데이터가 필요함을 확인했습니다.
+
+이 데이터를 유형으로 구성하는 방법은 무엇입니까?
+
+글쎄, 우리는 Track이라는 이름의 단일 유형을 만들고 모든 필드를 여기에 넣고 하루라고 부를 수 있습니다. 그러나 그것이 비즈니스 도메인 관점에서 의미가 있을까요? 설마. 우선 단일 작성자가 여러 트랙을 만들 수 있으며 해당 작성자의 정보가 여러 위치에 불필요하게 복제됩니다. 대신 우리는 독립된 개체의 관점에서 생각해야 합니다. 트랙과 작성자라는 두 가지 항목으로 시작하겠습니다.
 
 <br><br><br>
 
@@ -677,3 +710,321 @@ const TRACKS = gql`
   REST API를 개발해봤다면 엔드포인트가 기본 수십개이지 않을까요? (초보라서 저만 그럴수도...?) 아무튼 엔드포인트 수도 많거니와 엔드포인트를 관리하기 위해 swagger라는 도구도 있습니다. 엔드포인트를 새로 만들기 위해서는 프론트엔드 개발팀과 백엔드 개발팀이 서로 회의해야 하고요...
 
 <br>
+
+## ODYSSEY 3
+
+### GRAPHQL ARGUMENTS (GRAPHQL 인수)
+
+- GraphQL 인수를 사용하는 방법 인수는 쿼리의 특정 필드에 제공하는 값입니다. 스키마는 각 필드가 허용하는 인수를 정의합니다. 그러면 리졸버는 필드에 제공된 인수를 사용하여 해당 필드에 대한 데이터를 채우는 방법을 결정할 수 있습니다. 인수는 특정 개체를 검색하거나 개체 집합을 필터링하거나 필드의 반환 값을 변환하는 데 도움이 될 수 있습니다. 검색을 수행하는 쿼리는 일반적으로 사용자의 검색어를 인수로 제공합니다. 스키마의 필드에 대한 인수를 정의하기 위해 필드 이름 뒤에 소괄호를 추가합니다. 내부에서 우리는 인수의 이름 다음에 콜론을 씁니다. 그런 다음 String 또는 Int와 같은 해당 인수의 유형을 씁니다. 인수가 두 개 이상인 경우 쉼표로 구분할 수 있습니다.
+
+```tsx
+track(id: ID!): Track
+```
+
+- 인수 사용 이유
+
+사용자가 제출한 입력 값 제공
+필드의 반환 값을 변환
+특정 개체 검색
+객체 세트 필터링
+
+### RESOLVER ARGS PARAMETER (resolver 인수 매개변수)
+
+- 리졸버는 부모, 인수, 컨텍스트 및 정보의 네 가지 선택적 매개변수가 있는 함수입니다.
+
+- 사용하지 않는 파라미터의 경우 언더바로 처리하거나 완전히 생략할 수도 있다.
+
+### RESOLVER CHAINS (리졸버 체인)
+
+- 리졸버 함수는 스키마의 필드에 대한 데이터를 채웁니다. 함수에는 4개의 매개변수가 있습니다. 첫 번째 parent는 리졸버 체인에서 이전 함수의 반환 데이터를 담고 있습니다. 두 번째 args는 필드에 제공된 모든 인수를 포함하는 객체입니다. 세 번째 매개변수인 context를 사용하여 데이터베이스 또는 REST API와 같은 데이터 소스에 액세스합니다. 마지막으로 네 번째 매개변수인 info는 작업 상태에 대한 정보 속성을 포함합니다.
+
+### QUERY BUILDING IN APOLLO SANDBOX (APOLLO SANDBOX에서 쿼리 작성)
+
+- $ 기호는 GraphQL의 변수를 나타냅니다. $ 기호 뒤의 이름은 쿼리 전체에서 사용할 수 있는 변수의 이름입니다. 콜론 뒤에는 변수의 유형이 있으며 이는 우리가 사용할 인수 유형과 일치해야 합니다.
+
+- 변수는 훌륭합니다. 변수를 사용하면 클라이언트 측에서 인수 값을 동적으로 전달할 수 있으므로 값을 쿼리에 하드코딩할 필요가 없습니다. 인수가 있는 쿼리를 만들 때마다 사용합니다.
+
+- 변수는 $ 기호로 표시됩니다. 쿼리에 하드코딩된 값을 포함하지 않도록 인수에 대한 동적 값을 제공하는 데 사용됩니다. 각 유형의 유형은 스키마에 지정된 유형과 일치해야 합니다.
+
+```tsx
+// ex1
+query GetTrack($trackId: ID!) {
+ track(id: $trackId) {
+
+ }
+}
+
+// ex2
+const GET_MISSION = gql`
+  query getMission($isScheduled: Boolean) {
+    mission(scheduled: $isScheduled) {
+      id
+      codename
+    }
+  }
+`;
+```
+
+### BUILDING THE TRACK PAGE (트랙 페이지 구축)
+
+- 쿼리 문자열을 gql 템플릿 리터럴로 래핑한 다음 useQuery 후크를 사용하여 서버로 보냅니다.
+
+### THE USEQUERY HOOK - WITH VARIABLES (USEQUERY 후크 - 변수 사용)
+
+- 클라이언트에서 GraphQL 서버로 호출하려면 ApolloClient의 useQuery 후크를 사용해야 합니다.
+
+```tsx
+const GET_SPACECAT = gql`
+  query getSpacecat($spaceCatId: ID!) {
+    spacecat(id: $spaceCatId) {
+      name
+    }
+  }
+`;
+
+const spaceCatId = "kitty-1";
+
+const { loading, error, data } = useQuery(GET_SPACECAT, {
+  variables: { spaceCatId },
+});
+```
+
+- useQuery 후크는 앱에서 사용하는 세 가지 유용한 속성이 있는 객체를 반환합니다. loading은 쿼리가 완료되었고 결과가 반환되었는지 여부를 나타냅니다. error는 작업에서 발생한 오류가 포함된 개체입니다. data는 쿼리가 완료된 후의 결과를 포함합니다. 쿼리에서 변수를 설정하기 위해 options 객체 내부에 있는 useQuery 후크의 두 번째 매개변수에 변수를 선언합니다.
+
+- 쿼리 로드가 완료되고 오류가 없으면 QueryResult 구성 요소는 자식을 렌더링하여 필요한 데이터를 전달합니다.
+
+```tsx
+<QueryResult error={error} loading={loading} data={data}>
+  {/* this is where our component displaying the data will go */}
+</QueryResult>
+```
+
+### NAVIGATING TO THE TRACK PAGE (트랙 페이지로 이동)
+
+- GraphQL 서버에 처음으로 쿼리를 보낼 때 Apollo Client는 결과를 캐시에 저장합니다. 다음에 동일한 쿼리를 보내려고 할 때(예: 같은 페이지로 다시 탐색) 네트워크를 통해 불필요한 호출을 보내는 대신 캐시에서 결과를 로드합니다.
+
+<br>
+
+## ODYSSEY 3
+
+### WHAT IS A MUTATION? (MUTATION은 무엇입니까?)
+
+- 데이터를 수정하려면 다른 유형의 GraphQL 작업인 쓰기 작업인 Mutation을 사용해야 합니다. Query 유형과 마찬가지로 Mutation 유형은 스키마의 진입점 역할을 합니다. 지금까지 사용해온 스키마 정의 언어(SDL)와 동일한 구문을 따릅니다.
+
+- type 키워드를 사용하여 Mutation 유형을 선언한 다음 Mutation이라는 이름을 사용합니다. 중괄호 안에는 진입점이 있으며 데이터를 변경하는 데 사용할 필드가 있습니다. (ex : deleteMisson, createMisson )
+
+- 업데이트 작업의 특정 동작(예: 추가, 삭제 또는 생성)을 설명하는 동사로 시작하여 뮤테이션이 작동하는 모든 데이터가 뒤따를 것을 권장합니다. 뮤테이션은 일반적으로 특정 개체를 수정하기 때문에 종종 인수가 필요합니다. 동일한 SDL 구문에 따라 필요에 따라 인수를 추가할 수 있습니다. 뮤테이션의 반환 유형은 콜론 뒤에 옵니다. 뮤테이션 응답의 경우, 클라이언트가 후속 쿼리를 실행할 필요 없이 UI를 업데이트할 수 있도록 뮤테이션이 업데이트한 데이터를 반환해야 합니다.
+
+- 모든 뮤테이션 응답에 세 가지 공통 필드를 추가하는 것이 좋습니다.
+
+1. code: HTTP 상태 코드와 유사한 응답의 상태를 나타내는 Int입니다.
+2. success: 모든 업데이트의 성공 여부를 나타내는 boolean 플래그입니다.
+3. message: 클라이언트 측에서 뮤테이션 결과에 대한 정보를 표시하는 문자열. 이것은 뮤테이션이 부분적으로만 성공했고 일반 오류 메시지가 전체 내용을 말할 수 없는 경우에 특히 유용합니다.
+
+- Mutations vs Queries : 쿼리와 뮤테이션은 모두 GraphQL 작업 유형입니다. 쿼리는 항상 데이터를 검색하는 읽기 작업입니다. 뮤테이션은 항상 데이터를 수정하는 쓰기 작업입니다. 쿼리 필드와 유사하게 뮤테이션 유형의 필드는 GraphQL API의 진입점이기도 합니다.
+
+### UPDATING OUR TRACKAPI DATA SOURCE (TRACKAPI 데이터 소스 업데이트)
+
+- RESTDataSource 사용하는 이유
+
+1. REST API 호출에 대한 리소스 캐싱 및 요청 중복 제거를 자동으로 처리
+2. 전용 클래스에서 데이터 가져오기 구현을 유지하고 리졸버를 간단하고 깔끔하게 유지
+
+### RESOLVING A MUTATION SUCCESSFULLY (MUTATION을 성공적으로 해결)
+
+- resolver 객체 구조
+
+1. 스키마의 Query와 뮤테이션 타입은 리졸버 객체에 상응하는 키를 가지고 있어야 합니다.
+2. 리졸버의 이름은 스키마의 필드 이름과 일치해야 합니다.
+
+```tsx
+const typeDefs = gql`
+  type Mutation {
+    assignSpaceship(spaceshipId: ID!, missionId: ID!): AssignSpaceshipResponse
+  }
+
+  type AssignSpaceshipResponse {
+    code: Int!
+    success: Boolean!
+    message: String!
+    spaceship: Spaceship
+    mission: Mission
+  }
+`;
+
+const resolvers = {
+  Mutation: {
+    assignSpaceship: async (_, { spaceshipId, missionId }, { dataSources }) => {
+      // async와 await을 사용하여 resolver에 반환 결과를 담아놓고 스키마가 요구하는 code, success, message와 함께 반환한다.
+      const { spaceship, mission } =
+        await dataSources.spaceAPI.assignSpaceshipToMission(
+          spaceshipId,
+          missionId
+        );
+      return {
+        code: 200,
+        success: true,
+        message: `Successfully assigned spaceship ${spaceshipId} to mission ${missionId}`,
+        spaceship: spaceship,
+        mission: mission,
+      };
+    },
+  },
+};
+```
+
+### RESOLVING A MUTATION WITH ERRORS (오류가 있는 MUTATION 해결)
+
+- incrementTrackViews 변형에 대한 성공적인 응답이 준비되었습니다. TrackAPI 호출에서 오류가 발생하는 상황을 처리하기 위해 이 섹션을 try 블록으로 래핑하겠습니다. 오류가 발생하면 오류를 매개변수로 사용하는 catch를 추가하여 오류를 catch합니다.
+
+```tsx
+incrementTrackViews: async (_, {id}, {dataSources}) => {
+  try {
+    const track = await dataSources.trackAPI.incrementTrackViews(id);
+    return {
+      code: 200,
+      success: true,
+      message: `Successfully incremented number of views for track ${id}`,
+      track
+    };
+  } catch (err) {
+    return {
+      // we'll return a new object here
+    };
+  }
+},
+```
+
+- 코드를 404로 설정할 수도 있지만 더 동적이고 Apollo Server와 RESTDataSource 클래스가 제공하는 값을 사용할 수도 있습니다. 오류가 발생하면 Apollo Server는 관련 오류 세부 정보가 포함된 해당 오류에 확장 필드를 첨부합니다. 이 경우 TrackAPI가 RESTDataSource를 확장하므로 이 확장 개체는 HTTP 응답 자체에 대한 몇 가지 추가 정보를 제공하는 응답 속성으로 강화됩니다. HTTP 상태 코드를 참조하는 status 속성을 반환할 수 있습니다. 다음으로 success 속성을 false로 설정할 수 있습니다. message 속성의 경우 사용자 지정 속성을 만들 수 있지만 동일한 extension.response 개체의 다른 값을 사용하겠습니다. 이것이 extension.response.body 속성입니다. 나중에 다른 유형의 오류를 반환할 수 있으므로 이 값을 보다 동적으로 만듭니다.
+
+```tsx
+incrementTrackViews: async (_, {id}, {dataSources}) => {
+  try {
+    const track = await dataSources.trackAPI.incrementTrackViews(id);
+    return {
+      code: 200,
+      success: true,
+      message: `Successfully incremented number of views for track ${id}`,
+      track
+    };
+  } catch (err) {
+    return {
+      code: err.extensions.response.status,
+      success: false,
+      message: err.extensions.response.body,
+      track: null
+    };
+  }
+},
+```
+
+- mutation 에러 처리 예시
+
+```tsx
+const resolvers = {
+  Mutation: {
+    assignSpaceship: async (_, { spaceshipId, missionId }, { dataSources }) => {
+      try {
+        const { spaceship, mission } =
+          await dataSources.spaceAPI.assignSpaceshipToMission(
+            spaceshipId,
+            missionId
+          );
+        return {
+          code: 200,
+          success: true,
+          message: `Successfully assigned spaceship ${spaceshipId} to ${missionId}`,
+          spaceship: spaceship,
+          mission: mission,
+        };
+      } catch (error) {
+        return {
+          code: error.extensions.response.status,
+          success: false,
+          message: error.extensions.response.body,
+          spaceship: null,
+          mission: null,
+        };
+      }
+    },
+  },
+};
+```
+
+### THE USEMUTATION HOOK
+
+- 쿼리가 아니라 뮤테이션인 경우 useQuery hook이 아닌 useMutation hook을 사용합니다. TrackCard 구성 요소 내에서 후크를 호출하여 시작합니다. 이전에 설정한 INCREMENT_TRACK_VIEWS를 첫 번째 매개변수로 취합니다. 두 번째 매개변수는 변수 키가 있는 객체입니다. 여기에서 incrementTrackViewsId 변수를 추가하고 탐색하려는 트랙의 ID로 설정합니다. 이 id는 이미 track prop의 맨 위에 있는 구조화 해제되었습니다. 자, 여기 반전이 있습니다. useQuery와 달리 useMutation을 호출해도 실제로는 자동으로 뮤테이션이 실행되지 않습니다! 대신 useMutation 후크는 두 개의 요소가 있는 배열을 반환합니다. 여기에서 분해를 시작할 것입니다. 첫 번째 요소는 나중에 뮤테이션을 실제로 실행하는 데 사용할 mutate 함수입니다. 우리는 그것을 incrementTrackViews라고 부를 것입니다. 두 번째 요소는 로딩, 오류 및 데이터와 같은 뮤테이션에 대한 정보가 있는 개체입니다. 이 구성 요소는 필요하지 않으므로 추출할 필요가 없습니다. 언제 mutate 함수를 실행하고 싶습니까? 사용자가 카드를 클릭할 때! CardContainer 구성 요소에 onClick 소품을 추가하고 mutate 함수인 incrementTrackViews를 호출하도록 구성해 보겠습니다.
+
+```tsx
+const [incrementTrackViews] = useMutation(INCREMENT_TRACK_VIEWS, {
+  variables: { incrementTrackViewsId: id },
+});
+
+<CardContainer
+  to={`/track/${id}`}
+  onClick={incrementTrackViews}
+>
+```
+
+- 뮤테이션 클라이언트 측 보내기
+
+  우리는 후크를 사용하여 React 클라이언트에서 GraphQL API로 요청을 보냅니다. 뮤테이션을 보내기 위해 useMutation 훅을 사용합니다. 이것은 배열을 반환합니다. 여기서 첫 번째 요소는 뮤테이션을 트리거하는 데 사용되는 mutate 함수입니다. 두 번째 요소는 로딩, 오류 및 데이터와 같은 뮤테이션에 대한 추가 정보가 있는 개체입니다. 이 후크는 GraphQL 작업을 첫 번째 매개변수로 사용합니다. 또한 변수와 같은 속성이 설정되는 두 번째 매개변수로 options 객체를 사용합니다.
+
+- useQuery vs useMutation
+
+  1. useQuery hook은 객체를 반환하지만 useMutation은 배열은 반환
+  2. useQuery hook은 쿼리를 보내는 데 사용되는 반면 useMutation hook은 뮤테이션을 보내는 데 사용됩니다.
+  3. useQuery 후크는 컴포넌트 렌더링에서 자동으로 실행되는 반면 useMutation 후크는 뮤테이트 함수를 트리거하는 데 필요한 뮤테이션을 반환합니다.
+
+- 뮤테이션 응답이 완료되었을 때 확인하기 위해 콘솔 로그를 추가해 보겠습니다. 이를 위해 useMutation 후크를 설정한 위치로 돌아가서 options 객체에 다른 속성을 추가합니다. onCompleted 속성은 뮤테이션이 성공적으로 완료되었을 때 실행될 콜백 함수이며, 되돌아오는 응답에 접근할 수 있습니다. 브라우저 콘솔에 대한 응답을 기록합니다.
+
+```tsx
+const [incrementTrackViews] = useMutation(INCREMENT_TRACK_VIEWS, {
+  variables: { incrementTrackViewsId: id },
+  // to observe what the mutation response returns
+  onCompleted: (data) => {
+    console.log(data);
+  },
+});
+```
+
+- useMutation 예시
+
+```tsx
+const ASSIGN_SPACESHIP_MUTATION = gql`
+  mutation AssignSpaceshipToMissionMutation(
+    $spaceshipId: ID!
+    $missionId: ID!
+  ) {
+    assignSpaceship(spaceshipId: $spaceshipId, missionId: $missionId) {
+      code
+      success
+      message
+      spaceship {
+        name
+      }
+      mission {
+        codename
+      }
+    }
+  }
+`;
+
+const spaceshipId = "ROCKET_X";
+const missionId = "M0007";
+
+const [assignSpaceship, { loading, error, data }] = useMutation(
+  ASSIGN_SPACESHIP_MUTATION,
+  {
+    variables: { spaceshipId, missionId },
+  }
+);
+```
+
+### OUR MUTATION IN THE BROWSER (브라우저의 MUTATION)
+
+- Apollo Client cache : Apollo Client 캐시를 활용하면 빠르게 데이터를 표시할 수 있습니다. 캐시에서 로드되기 때문에 GraphQL API에 불필요한 쿼리를 보내지 않았습니다. 뮤테이션이 API로 전송되는 동안에도 캐시에서 페이지를 로드하고 있습니다. 캐시가 업데이트되면 UI도 업데이트됩니다.
+
+유사하게, 우리는 뮤테이션이 API로 전송되는 동안에도 캐시에서 페이지를 로드하고 있습니다. 성공적으로 반환되면 numberOfView에 대한 업데이트된 값을 반환합니다. Apollo Client는 이 트랙의 ID를 확인하고 캐시에서 검색하고 numberOfViews 필드를 업데이트하기 위해 뒤에서 작업을 수행하고 있습니다. 캐시가 업데이트되면 UI도 업데이트됩니다.
+
+값은 먼저 캐시에서 로드된 다음 뮤테이션 응답이 성공적으로 돌아올 때 업데이트 됩니다.
