@@ -1028,3 +1028,148 @@ const [assignSpaceship, { loading, error, data }] = useMutation(
 유사하게, 우리는 뮤테이션이 API로 전송되는 동안에도 캐시에서 페이지를 로드하고 있습니다. 성공적으로 반환되면 numberOfView에 대한 업데이트된 값을 반환합니다. Apollo Client는 이 트랙의 ID를 확인하고 캐시에서 검색하고 numberOfViews 필드를 업데이트하기 위해 뒤에서 작업을 수행하고 있습니다. 캐시가 업데이트되면 UI도 업데이트됩니다.
 
 값은 먼저 캐시에서 로드된 다음 뮤테이션 응답이 성공적으로 돌아올 때 업데이트 됩니다.
+
+---
+
+## 질문
+
+### # ODYSSEY 1
+
+- gql로 래핑해서 쿼리를 요청하는데 gql은 스키마 정의, 쿼리문 작성할 때 무조건 래핑해서 사용해야하는지? -> 타입 추론 안되서 별루,,
+
+- gql을 사용한 요청과 client.writeQuery와의 차이는? writeQuery는 그냥 로컬 스토리지 가져오는 메소드와 비슷한 개념으로 생각하면 된다. readQuery도 마찬가지로 로컬 스토리지를 저장하는 메소드와 비슷한 개념으로 생각하자. query를 서버에 날려 가져온 데이터를 캐싱해오는 것과는 완전 관계가 없다. 별도의 state라고 생각하자! (ApolloClient는 두 가지 역할을 하는데 state관리, query 날리고 가져온 데이터 캐싱인데 이 두 가지를 별도로 생각해야 한다.) 예를 들면 필터 값을 writeQuery로 저장한 뒤 readQuery로 가져올 수 있다! (헷갈리지 말자! 모양새는 쿼리와 비슷하다)
+
+- 일반 쿼리의 경우 DB에서 데이터를 가져올 때 캐싱하는데 필드 하나라도 다르면 다른 요청으로 보고 새로 캐싱한다.
+
+```js
+const { gql } = require("apollo-server");
+
+const TRACKS = gql`
+  query getTracks {
+    tracksForHome {
+      id
+      title
+      thumbnail
+      length
+      modulesCount
+      author {
+        name
+        photo
+      }
+    }
+  }
+`;
+```
+
+- 리졸버 함수에 대한 이야기가 계속 나오던데 혹시 클라이언트 단에서 리졸버 함수 만들어놓지 않고 쿼리로 요청만 할 경우 서버에서 자동으로 스키마에 맞는 데이터를 DB 찾아서 반환해주는 것인지? 커스텀 리졸버와 디폴트 리졸버와 다르다! 디폴트 리졸버가 스키마에 맞게 데이터를 채워주는 것이고 커스텀 리졸버는 특정 조건에 맞게 가공해서 가져온다. (커스텀 리졸버는 아예 내 마음대로 필드를 채워서 가져온다고 보면 된다.)
+
+### # ODYSSEY 1
+
+- 아래 이해한 내용이 맞을까요?
+
+  - new ApolloClient로 client 객체 생성, 이 때 GraphQL 서버 url과 캐시 사용을 위해 InMemoryCache 전달 -> 프로퍼바이더에 props로 전달하여 캐시 된 데이터를 사용할 수 있도록 하고 서버에 쿼리를 요청할 수 있도록 한다.
+
+  - 서버에서는 new ApolloServer로 server 객체를 생성하고 props로 리졸버 함수 및 스키마를 전달한다.
+
+  - 클라이언트 단에서 쿼리를 서버에 날리고 서버에서는 스키마를 통해 유효성 검사를 한 뒤 유효한 쿼리라고 판단하면 각 필드에 맞는 리졸버 함수를 호출한 후 결과(JSON)를 반환한다. 그러면 클라이언트 단에서는 useQuery를 통해 해당 데이터를 응답받아 사용할 수 있다.
+
+<br>
+
+### # ODYSSEY 2
+
+- RESTDataSource 자체가 잘 이해가 안됩니다..ㅠㅠ 왜 필요한지 잘 이해가 안되요!! 하단은 문서 내용인데 그냥 리졸버의 가독성을 위해 RESTDataSource로 확장한 클래스 내부에서 리졸버 함수의 기능을 대신하는 건가 싶습니다. 아니면 인자로 받은 값을 활용하여 엔드포인트에 맞는 데이터를 받아와 상세 페이지 구현 등에 사용되는 기능인 것 같기도 합니다. 아니면 쿼리로 데이터를 받아올 때 쿼리로 받아온 데이터 중 단일 필드만 받아올 때 사용하는 것일까요? (예제를 보면 this.get에 인자로 스키마에 지정된 필드명이 들어가는 것을 보고 이런 생각을 했어용,,)
+
+  1. REST API 호출에 대한 리소스 캐싱 및 요청 중복 제거를 자동으로 처리
+
+  2. 전용 클래스에서 데이터 가져오기 구현을 유지하고 리졸버를 간단하고 깔끔하게 유지
+
+- 아래 이해한 내용이 맞을까요?
+
+  - 리졸버 사용 시 키는 루트 타입, 벨류 안에 메소드가 담긴 키는 스키마 필드와 동일하게 선언한다.
+
+  ```js
+  const typeDefs = gql`
+    type Query {
+      tracksForHome: [Track!]!
+    }
+  `;
+
+  const resolvers = {
+    Query: {
+      tracksForHome: (_, __, { dataSources }) => {
+        return dataSources.trackAPI.getTracksForHome();
+      },
+    },
+  };
+  ```
+
+  - 리졸버 함수의 인자
+
+  1. parent : 쿼리 리턴 값..? (오디세이에는 이전 리졸버 함수의 리턴 값이라고 나와 있습니다. 근데 리졸버 함수가 하나라면 참조할 수 있는 데이터가 없는 것 일까요?)
+
+  2. args : 쿼리에서 넣은 인자
+
+  3. context : 모든 리졸버에게 전달 되는 값, 주로 미들웨어를 통해 입력된 값들이 들어있다.
+
+  4. info : 스키마 정보와 더불어 현재 쿼리의 특정 필드 정보, 잘 사용하지 않음
+
+<br>
+
+### # ODYSSEY 3
+
+- 아래 이해한 내용이 맞을까요?
+
+  - 쿼리 인자는 특정 필드에 제공되는 특정 필드에 제공되는 값이다. 리졸버는 쿼리에서 넘겨준 인자를 활용하여 데이터를 채우는 방법을 결정한다. 또한 스키마는 허용되는 인자를 결정할 수 있다.
+
+  - $이 붙은 변수는 다이나믹 라우팅에서 사용된다. Router를 통해 래핑한 컴포넌트의 path중 :의 뒤에 값을 받아와 이 값을 통해 쿼리의 인자로 사용하여 요청할 수 있다. (예시로 상세 페이지 구현 시 활용될 수 있다.)
+
+  ```tsx
+  // index.js : Router 래핑한 Track 컴포넌트
+  export default function Pages() {
+    return (
+      <Router primary={false} component={Fragment}>
+        <Tracks path="/" />
+        <Track path="/track/:trackId" />
+      </Router>
+    );
+  }
+
+  // track.js : Track 컴포넌트의 인자로 trackId를 받은 뒤 useQuery의 두번째 인자로 전달한다. 이 두번째 인자는 쿼리 요청 시 $가 붙은 변수로 활용 됨.
+  const GET_TRACK = gql`
+    query getTrack($trackId: ID!) {
+      track(id: $trackId) {
+        id
+        title
+        author {
+          ...
+    }
+  `;
+
+  const Track = ({ trackId }) => {
+    const { loading, error, data } = useQuery(GET_TRACK, {
+      variables: { trackId },
+    });
+
+    return (
+      <Layout>
+        <QueryResult error={error} loading={loading} data={data}>
+          <TrackDetail track={data?.track} />
+        </QueryResult>
+      </Layout>
+    );
+  };
+  ```
+
+<br>
+
+### # ODYSSEY 4
+
+- 아래 이해한 내용이 맞을까요?
+
+  - 뮤테이션은 추가/삭제/수정 등의 사용, 데이터 업데이트 후 추가로 쿼리를 요청하지 않기 위해 사용할 수 있다.
+
+  - 뮤테이션에서 code(상태코드), success(성공 시), message(결과 내용) 사용안하시는지?
+
+  - 쿼리에서는 useQuery를 사용, 뮤테이션에서는 useMutation 사용
+
+  - useMutation은 자동 호출 x, 배열로 구조 분해해서 호출해야 함 (첫번째 인자는 뮤테이션 트리거 함수, 두번째 인자는 useQuery와 마찬가지로 data, loading, error 등의 객체), onCompleted은 뮤테이션 호출 후 실행되는 콜백
