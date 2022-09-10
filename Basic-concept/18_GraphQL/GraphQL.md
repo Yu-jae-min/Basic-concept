@@ -1173,3 +1173,1610 @@ const TRACKS = gql`
   - 쿼리에서는 useQuery를 사용, 뮤테이션에서는 useMutation 사용
 
   - useMutation은 자동 호출 x, 배열로 구조 분해해서 호출해야 함 (첫번째 인자는 뮤테이션 트리거 함수, 두번째 인자는 useQuery와 마찬가지로 data, loading, error 등의 객체), onCompleted은 뮤테이션 호출 후 실행되는 콜백
+
+<br>
+
+# 웹 앱 API 개발을 위한 GraphQL
+
+<br>
+
+## # GraphQL 이란?
+
+- API를 만들 때 사용할 수 있는 쿼리 언어이다.
+- 쿼리에 대한 데이터를 받을 수 있는 런타임이기도 하다.
+- 쿼리문으로 요청 후 응답은 JSON 데이터이며 데이터 형태는 쿼리문과 일치하며 필요한 데이터만 포함되어 있다.
+- 복수의 객체 데이터를 받기 위해 요청을 여러번 반복할 필요가 없다.
+- 원치 않은 데이터가 포함되어 있다면, 이를 제외할 수도 있다.
+- GraphQL을 사용하면 요청 한번에 필요한 데이터를 모두 받을 수 있다.
+- GraphQL 서버에서는 쿼리가 실행될 때마다 타입 시스템에 기초해 쿼리가 유효한지 검사한다.
+- GraphQL 서비스를 만들려면 GraphQL 스키마에서 사용할 타입을 정의해야 한다.
+- GraphQL은 선언형 데이터 패칭 언어이다.
+
+<br>
+
+### # GraphQL 설계 원칙
+
+- 위계적 : GraphQL 쿼리는 위계성을 띄고 있다. 필드 안에 다른 필드가 중첩될 수 있으며, 쿼리와 그에 대한 반환 데이터는 형태가 서로 같다.
+- 제품 중심적 : GraphQL은 클라이언트가 요구하는 데이터와 클라이언트가 지원하는 언어 및 런타임에 맞춰 동작한다.
+- 엄격한 타입 제한 : GraphQL 서버는 GraphQL 타입 시스템을 사용한다. 스키마의 데이터 포인트마다 특정 타입이 명시되며, 이를 기초로 유효성 검사를 받게 된다.
+- 클라이언트 맞춤 쿼리 : GraphQL 서버는 클라이언트 쪽에서 받아서 사용할 수 있는 데이터를 제공한다.
+- 인트로스펙티브 : GraphQL 언어를 사용해 GraphQL 서버가 사용하는 타입 시스템에 대한 쿼리를 작성할 수 있다.
+
+<br>
+
+## # REST의 단점
+
+- 오버페칭 : 필요하지 않은 데이터를 너무 많이 받아온다.
+- 언더페칭 : 필요한 데이터를 수집하기 위해 여러 번의 요청을 수행해야 하는 상황이 발생한다.
+- REST 엔드포인트 관리 : 클라이언트에 변경사항이 발생하면 대개 엔드포인트를 새로 만들어야 하는데, 이렇게 되면 엔드포인트 개수가 몇 배로 빠르게 늘어난다.
+
+<br>
+
+## # GraphQL 클라이언트
+
+- GraphQL 클라이언트의 목적은 개발자가 빠르게 작업할 수 있는 환경을 만들어주고 애플리케이션의 성능과 효율성을 끌어올린다.
+- 네트워크 요청, 데이터 캐싱, 사용자 화면에 데이터 주입 등의 일을 담당한다.
+- 가장 많이 사용되는 GraphQL 클라이언트는 Relay, Apollo이다.
+- 릴레이 클라이언트는 페이스북에서 만들어졌으며 페이스북, 깃허브, 트위치 등에서 사용하고 있다.
+- 아폴로 클라이언트는 Meteor 개발 그룹에서 만들어졌으며 에어비앤비, CNBC, 뉴욕타임스, 티켓마스터 등에서 사용하고 있다.
+
+<br>
+
+## # 그래프 이론
+
+- 그래프는 노드와 노드 사이에 엣지로 이어진 자료 구조이다.
+- 그래프에 루트 노드가 있다면 트리 그래프이다.
+
+<br>
+
+## # GraphQL 쿼리어
+
+- GraphQL 데이터는 단일 데이터베이스, 여러 개의 데이터베이스, 파일 시스템, REST API, 웹소켓, 다른 GraphQL API 등 저장 환경을 가리지 않는다.
+- SQL은 데이터베이스용 쿼리 언어이고 GraphQL은 인터넷용 쿼리 언어이다.
+- GraphQL은 `Query`를 사용해 데이터 요청을 보낸다. 또 데이터 추가/수정/삭제 시에는 `Mutation`을 사용하고 `Mutation`의 변화를 감지하는 `Subscription` 타입이 있다.
+- GraphQL은 명세에 따라 표준화되어 있다. 즉, 프로그래밍 언어에 종속되어 있지 않다.
+- 쿼리는 단순한 문자열로 POST 요청 본문에 담겨 GraphQL 엔드포인트로 보내진다.
+
+<br>
+
+## # GraphQL API 툴
+
+- GraphQL API에 시험삼아 쿼리를 보낼 때 가장 널리 사용하는 툴은 GraphiQL과 GraphQL 플레이그라운드이다.
+
+<br>
+
+## # GraphQL 쿼리
+
+- 쿼리를 보낼때는 요처 데이터를 필드로 적어 넣는다. 여기서 필드는 서버에서 받아 오는 JSON 응답 데이터의 필드와 일치하다.
+- 정상적인 쿼리를 보내면 data 키가 들어있는 JSON 문서가 응답으로 돌아오고 비정상적인 쿼리에는 응답으로 error 키가 들어있는 JSON 문서가 돌아온다. 이 키 값으로는 에러에 대한 세부적인 내용이 들어간다. data와 error 키가 응답 객체에 동시에 포함된 경우도 있다.
+- 쿼리 한 번에 여러 종류의 데이터를 모두 받을 수 있다. 아래 예시 코드와 같이 liftCount를 요청해 현재 상태가 OPEN 상태인 리프트의 수, 모든 리프트의 name과 status, 그리고 모든 코스의 name, status에 대한 요청을 모두 한 번에 할 수 있다.
+
+  ```js
+  // request
+  query liftsAndTrails {
+    liftCount(status: OPEN)
+    allLifts {
+      name
+      status
+    }
+    allTrails {
+      name
+      difficulty
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "data": {
+      "liftCount": 6,
+      "allLifts": [
+        {
+          "name": "Astra Express",
+          "status": "OPEN"
+        },
+        ...
+      ],
+      "allTrails": [
+        {
+          "name": "Blue Bird",
+          "difficulty": "intermediate"
+        },
+        ...
+      ]
+    }
+  }
+  ```
+
+- `query`는 GraphQL 타입이다. 루트 타입이라고도 한다.
+- GraphQL API에서 `query`에 사용할 수 있는 필드는 API 스키마에 정의한다.
+- 쿼리를 작성할 대는 필요한 필드를 중괄호로 감싼다. 이 중괄호로 묶인 블록을 셀렉션 세트라고 한다.
+- 셀렉션 세트는 서로 중첩시킬 수 있다.
+- 응답으로 돌아오는 JSON에는 쿼리에서 요청한 데이터가 모두 들어있다.
+- 데이터는 JSON 포맷으로 되어 있고, 쿼리의 형태와 똑같은 모양을 하고 있다. 각각의 JSON 필드명은 쿼리의 필드명과 동일하다.
+- 응답 객체의 필드명을 다르게 받고 싶다면, 쿼리 안의 필드명에 별칭을 부여하면 된다. `별칭 : 필드` 와 같이 부여할 수 있다.
+
+  ```js
+  // request
+  // open, charilifts, liftname, skiSlopes 등 별칭 부여
+  query liftsAndTrails {
+    open : liftCount(status: OPEN)
+    charilifts: allLifts {
+      liftname : name
+      status
+    }
+      skiSlopes: allTrails {
+      name
+      difficulty
+    }
+  }
+  ```
+
+  ```json
+  // response
+  // 부여한 별칭으로 필드 이름이 변한 것을 볼 수 있다.
+  {
+    "data": {
+      "open": 6,
+      "charilifts": [
+        {
+          "liftname": "Astra Express",
+          "status": "CLOSED"
+        }
+        ...
+      ],
+      "skiSlopes": [
+        {
+          "name": "Blue Bird",
+          "difficulty": "intermediate"
+        }
+        ...
+      ]
+    }
+  }
+  ```
+
+- GraphQL 쿼리 결과에 대한 필터링 작업을 하고 싶다면 쿼리 인자를 넘기면 된다. 쿼리 필드와 관련 있는 키-값 쌍을 하나 이상 인자로 넣을 수 있다.
+
+  ```js
+  // request
+  // 인자로 status : CLOSED 전달
+  query closedLifts {
+  	allLifts(status: CLOSED) {
+      name
+      status
+    }
+  }
+  ```
+
+  ```json
+  // response
+  // status가 CLOSED인 데이터만 필터링하여 받을 수 있다.
+  {
+    "data": {
+      "allLifts": [
+        {
+          "name": "Summit",
+          "status": "CLOSED"
+        },
+        {
+          "name": "Western States",
+          "status": "CLOSED"
+        }
+      ]
+    }
+  }
+  ```
+
+- 인자는 데이터를 선택하는 용도로 활용할 수도 있다. 예를 들어 개별 리프트의 상태에 대한 쿼리를 작성하고 싶다면 리프트의 아이디를 사용해 해당 리프트를 선택할 수 있다.
+
+  ```js
+  // request
+  query jazzCatStatus {
+    Lift(id: "jazz-cat"){
+      name
+      status
+      night
+      elevationGain
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "data": {
+      "Lift": {
+        "name": "Jazz Cat",
+        "status": "OPEN",
+        "night": false,
+        "elevationGain": 1230
+      }
+      ...
+    }
+  }
+  ```
+
+<br>
+
+### # 엣지와 연결
+
+- GraphQL 쿼리어에서 필드는 스칼라 타입과 객체 타입 둘 중 하나에 속하게 된다.
+- 스칼라 타입은 다른 프로그래밍 언어에 원시 타입과 비슷하다. Int(정수), Float(실수), String(문자열), Boolean(불리언), ID(고유 식별자)가 있다.
+- 정수와 실수 타입은 JSON 숫자 데이터를 반환하고, 문자열과 ID 타입은 JSON 문자열 데이터를 반환한다. 이 때 같은 문자열 데이터를 반환하지만 ID 타입은 반드시 유일한 문자열을 반환하도록 되어 있다.
+- 객체 타입은 스키마에 정의한 필드를 그룹으로 묶어둔 것이다. 응답으로 반환되어야 할 JSON 객체의 형태를 하고 있다.
+- 특정 객체가 있을 때 이와 관련 된 객체의 세부 정보를 얻어내는 쿼리를 작성해 객체를 서로 연결할 수 있다.
+
+  ```js
+  // request
+  // trailAccess 객체 타입 연결, 일대다 연결 관계를 가지고 있다.
+  query trailsAccessedByJazzCat {
+    Lift(id: "jazz-cat") {
+      capacity
+      trailAccess {
+        name
+        difficulty
+      }
+    }
+  }
+  ```
+
+  ```json
+  // response
+  // id가 jazz-cat인 데이터의 trailAccess를 필터링할 수 있다.
+  {
+    "data": {
+      "Lift": {
+        "capacity": 2,
+        "trailAccess": [
+          {
+            "name": "Goosebumps",
+            "difficulty": "advanced"
+          },
+          ...
+        ]
+      }
+    }
+  }
+  ```
+
+<br>
+
+### # 프래그먼트
+
+- 프래그먼트는 셀렉션 세트의 일종이며 여러 번 재사용할 수 있다.
+- 프래그먼트는 `fragment` 식별자를 사용하여 만들고 특정 타입에 대한 셀렉션 세트이므로 어떤 타입에 대한 프래그먼트인지 정의에 꼭 명시해야 한다.
+
+  ```js
+  // request
+  // 프래그먼트 활용 전 : name, status, capacity, night, elevationGain가 중복된다.
+  query {
+    Lift(id: "jazz-cat"){
+      name
+      status
+      capacity
+      night
+      elevationGain
+      trailAccess {
+        name
+        difficulty
+      }
+    }
+    Trail(id: "river-run"){
+      name
+      difficulty
+      accessedByLifts {
+        name
+        status
+        capacity
+        night
+        elevationGain
+      }
+    }
+  }
+
+  // 프래그먼트 활용 후 : js의 spread 문법과 비슷하게 사용하여 중복 필드를 줄일 수 있다. 프래그먼트 활용 전과 응답 결과는 동일하다.
+  query {
+    Lift(id: "jazz-cat"){
+        ...liftInfo
+      trailAccess {
+        name
+        difficulty
+      }
+    }
+    Trail(id: "river-run"){
+      name
+      difficulty
+      accessedByLifts {
+        ...liftInfo
+      }
+    }
+  }
+
+  fragment liftInfo on Lift {
+    name
+    status
+    capacity
+    night
+    elevationGain
+  }
+  ```
+
+- 셀렉션 세트 안에 프래그먼트를 다른 필드와 함께 쓸 수도 있다.
+
+  ```js
+  query {
+    Lift(id: "jazz-cat"){
+      ...liftInfo
+      trailAccess{
+        ...trailInfo
+      }
+    }
+    Trail(id: "river-run"){
+      ...trailInfo
+      groomed
+      trees
+      night
+    }
+  }
+
+  fragment trailInfo on Trail {
+    name
+    difficulty
+    accessedByLifts {
+      ...liftInfo
+    }
+  }
+
+  fragment liftInfo on Lift {
+    name
+    status
+    capacity
+    night
+    elevationGain
+  }
+  ```
+
+- 타입 여러 개를 한 번의 리스트에 담아 반환하고 싶다면 유니언 타입을 만들면 된다. 두 가지 타입을 하나로 묶는 것이다.
+- 인라인 프래그먼트는 이름이 없다. 쿼리 안에서 특정 타입을 바로 셀렉션 세트에 넣어버린다. 유니언 타입에서 여러 타입의 객체를 반환할 때, 각각의 객체가 어떤 필드를 반환할 것인지 정할 때 인라인 프래그먼트를 사용한다.
+- 아래 예시와 같이 사용하면 쿼리를 작성할때 프래그먼트를 사용해서 AgendaItem이 Workout일때와 StudyGroup일때 특정 필드만 선택되도록 만들 수 있다. 즉, 유니온 타입에서 각각의 객체가 어떤 필드를 반환할 것인지 정할 때 인라인 프래그먼트를 사용하면 된다.
+
+  ```js
+  type StudyGroup {
+      name: String!
+      subject: String!
+      students: Int!
+  }
+
+  type Workout {
+      name: String!
+      reps: Int!
+  }
+
+  union AgendaItem = Workout | StudyGroup
+
+  type Query {
+    agenda: [AgendaItem!]!
+  }
+
+  {
+    agenda {
+      ...on Workout {
+        name
+        reps
+      }
+      ...on StudyGroup {
+        name
+        subject
+        students
+      }
+    }
+  }
+  ```
+
+- 이름 붙은 프래그먼트를 사용해 유니언 타입 쿼리를 작성할 수도 있다.
+
+```js
+query today{
+  agenda {
+    ...workout
+    ...study
+  }
+}
+
+fragment workout on Workout {
+  name
+  reps
+}
+
+fragment study on StudyGroup {
+  name
+  subject
+  students
+}
+```
+
+- 인터페이스는 필드 하나로 객체 타입을 여러 개 반환할 때 사용한다.
+- 유사한 객체 타입을 만들 때 구현해야 하는 필드 리스트를 모아둔 것이다.
+- 인터페이스에 정의된 필드는 반드시 넣어야 하고 몇 가지 고유한 필드도 추가로 넣을 수 있다.
+- 프래그먼트를 사용하면 특정 객체 타입이 반환될 때, 필드가 더 들어갈 수 있게 인터페이스 관련 쿼리를 작성할 수 있다.
+
+```js
+// 프래그먼트를 사용하여 ScheduleItem이 Workout일 때 reps 필드를 추가로 요청할 수 있다.
+interface ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+}
+type StudyGroup implements ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+  subject: String!
+  students: Int!
+}
+type Workout implements ScheduleItem {
+  name: String!
+  start: Int
+  end: Int
+  reps: Int!
+}
+type Query {
+  agenda: [ScheduleItem!]!
+}
+
+query schedule {
+  agenda {
+    name
+    start
+    end
+    ...on Workout {
+      reps
+    }
+  }
+}
+```
+
+<br>
+
+## # 뮤테이션
+
+- 데이터의 추가/수정/삭제를 위해서는 뮤테이션(mutation)해야한다.
+- 쿼리를 작성하는 방법과 비슷하며 이름을 붙여야 한다.
+- 객체 타입이나 스칼라 타입의 반환 값을 가지는 셀렉션 세트가 들어간다.
+- API 스키마에는 뮤테이션 타입에서 사용할 수 있는 필드를 정의해둔다.
+- 뮤테이션 후에는 뮤테이션으로 변경 된 데이터를 응답받는다.
+
+  ```js
+  // request
+  // 새로운 음악 데이터를 추가될 것임을 예상할 수 있다.
+  mutation createSong {
+    addSong (title: "No Scrubs", numberOne: true, performerName: "TLC") {
+      id
+      title
+      numberOne
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "data": {
+      "addSong": {
+        "id": "5aca534f4bb1de07cb6d73ae",
+        "title": "No Scrubs",
+        "numberOne": true
+      }
+    }
+  }
+  ```
+
+- 뮤테이션으로 기존 데이터 변경도 가능하다.
+
+  ```js
+  // request
+  query closedLifts {
+  	allLifts(status: CLOSED) {
+      name
+      status
+    }
+  }
+
+  mutation closeLift {
+    setLiftStatus(id: "astra-express", status: CLOSED){ // id가 astra-express인 필드의 status를 OPEN에서 CLOSED로 바꾼다.
+      name
+      status
+    }
+  }
+  ```
+
+  ```json
+  // response : 뮤테이션 closeLift로 데이터를 수정한 뒤 쿼리 closedLifts에 대한 응답
+  // astra-express가 CLOSE 상태로 추가된 것을 확인할 수 있다.
+  {
+    "data": {
+      "allLifts": [
+        {
+          "id": "astra-express",
+          "name": "Astra Express",
+          "status": "CLOSED"
+        },
+        {
+          "id": "summit",
+          "name": "Summit",
+          "status": "CLOSED"
+        },
+        {
+          "id": "western-states",
+          "name": "Western States",
+          "status": "CLOSED"
+        }
+      ]
+    }
+  }
+  ```
+
+<br>
+
+### # 쿼리 변수 사용하기
+
+- 위와 같이 새 문자열 값을 뮤테이션의 인자로 넘겨 데이터 변경 작업을 할 수 있는데 변수를 사용해도 같은 결과를 얻을 수 있다.
+- 쿼리에 있는 정적 값을 변수로 대체하여 계속해서 바뀌는 동적인 값을 넣을 수도 있다.
+
+  ```js
+  // request
+  // 새로운 음악 데이터를 추가될 것임을 예상할 수 있다.
+  mutation createSong($title: String!, $numberOne: Int, $performerName: String!) {
+    addSong (title: $title, numberOne: $numberOne, performerName: $performerName) {
+      id
+      title
+      numberOne
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "data": {
+      "addSong": {
+        "id": "5aca534f4bb1de07cb6d73ae",
+        "title": "No Scrubs",
+        "numberOne": true
+      }
+    }
+  }
+  ```
+
+<br>
+
+## # 서브스크립션 (subscription)
+
+- 서브스크립션을 하면 GraphQL API를 사용해 실시간 데이터 변경 내용을 받을 수 있다.
+- 페이스북의 실시간 좋아요는 데이터 서브스크립션 기능을 실제 제품에 적용한 사례이다.
+- 뮤테이션과 쿼리처럼 서브스크립션도 루트 타입이 있다. 클라이언트에서 받을 수 있는 데이터 변경 내용은 서브스크립션 타입 아래 필드로 정의되어 API 스키마에 들어간다.
+
+  ```js
+  subscription {
+    liftStatusChange {
+      name
+      capacity
+      status
+    }
+  }
+  ```
+
+- 서브스크립션 요청 시 즉시 데이터를 반환하는 것이 아닌 서브스크립션 요청이 서버로 전송되면 받는 쪽에서 데이터의 변경 사항 여부를 듣기 시작한다.
+- 서브스크립션 대상 데이터의 변경 내용을 포착하면 서브스크립션 요청에 대한 응답을 받을 수 있다.
+- 즉 뮤테이션을 구독하고 뮤테이션이 실행되면 구독하고 있던 서브스크립션이 실행된다고 보면 된다.
+- 쿼리와 뮤테이션과는 달리 서브스크립션은 일회성으로 끝나지 않고 계속 열려있게 된다.
+
+  ```js
+  // request
+  // 1. 뮤테이션 실행
+  mutation closeLift {
+    setLiftStatus(id: "astra-express", status: HOLD){
+      name
+      status
+    }
+  }
+
+  // 2. 서브스크립션 실행
+  subscription {
+    liftStatusChange {
+      name
+      capacity
+      status
+    }
+  }
+  ```
+
+  ```json
+  // response
+  // 서브스크립션의 응답 결과로 뮤테이션으로 추가한 결과 값을 받아볼 수 있다.
+  {
+    "data": {
+      "liftStatusChange": {
+        "name": "Astra Express",
+        "capacity": 3,
+        "status": "HOLD"
+      }
+    }
+  }
+  ```
+
+<br>
+
+## # 인스트로펙션 (instrospection)
+
+- 인스트로펙션을 사용하면 API 스키마의 세부 사항에 관한 쿼리를 작성할 수 있다.
+- GraphQL API 인트로스펙션 쿼리를 사용하면 주어진 API 스키마를 통해 어떤 데이터를 반환받을 수 있는지 조사할 수 있다.
+- 루트 타입, 커스텀 타입, 심지어 스칼라 타입까지 나온다.
+
+  ```js
+  // request
+  query {
+    __schema {
+      types {
+        name
+        description
+      }
+    }
+  }
+  ```
+
+  ```json
+  //response
+  {
+    "data": {
+      "__schema": {
+        "types": [
+          {
+            "name": "Lift",
+            "description": "A `Lift` is a chairlift, gondola, tram, funicular, pulley, rope tow, or other means of ascending a mountain."
+          },
+          {
+            "name": "ID",
+            "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID."
+          },
+          ...
+        ]
+      }
+    }
+  }
+  ```
+
+- 특정 타입에 관한 세부 사항만 보고 싶다면 `__type` 쿼리에 타입명을 인자로 넘기면 된다.
+
+  ```js
+  // request
+  query liftDetails {
+    __type(name: "Lift") {
+      name
+      fields {
+        name
+        description
+        type {
+          name
+        }
+      }
+    }
+  }
+  ```
+
+  ```json
+  // response
+  // Lift 타입 관련 쿼리를 작성할 때 넣을 수 있는 필드 정보를 받아볼 수 있다.
+  {
+    "data": {
+      "__type": {
+        "name": "Lift",
+        "fields": [
+          {
+            "name": "id",
+            "description": "The unique identifier for a `Lift` (id: \"panorama\")",
+            "type": {
+              "name": null
+            }
+          },
+          {
+            "name": "name",
+            "description": "The name of a `Lift`",
+            "type": {
+              "name": null
+            }
+          }
+          ...
+        ]
+      }
+    }
+  }
+  ```
+
+- GraphQL API를 처음 사용할 때는 루트 타입에서 사용할 수 있는 필드가 무엇이 있는지 알아 보아야 한다.
+- 클라이언트에서 인트로스펙션 기능을 사용하면 현재 API 스키마의 동작 방식을 알아볼 수 있다.
+
+  ```js
+  // request
+  query {
+    __schema{
+      queryType{
+        ...typeFields
+      }
+      mutationType{
+        ...typeFields
+      }
+      subscriptionType{
+        ...typeFields
+      }
+    }
+  }
+
+  fragment typeFields on __Type {
+    name
+    fields {
+      name
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "data": {
+      "__schema": {
+        "queryType": {
+          "name": "Query",
+          "fields": [
+            {
+              "name": "allLifts"
+            },
+            {
+              "name": "allTrails"
+            },
+            {
+              "name": "Lift"
+            },
+            {
+              "name": "Trail"
+            },
+            {
+              "name": "liftCount"
+            },
+            {
+              "name": "trailCount"
+            },
+            {
+              "name": "search"
+            }
+          ]
+        },
+        "mutationType": {
+          "name": "Mutation",
+          "fields": [
+            {
+              "name": "setLiftStatus"
+            },
+            {
+              "name": "setTrailStatus"
+            }
+          ]
+        },
+        "subscriptionType": {
+          "name": "Subscription",
+          "fields": [
+            {
+              "name": "liftStatusChange"
+            },
+            {
+              "name": "trailStatusChange"
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
+
+<br>
+
+## # 추상구문트리
+
+- 쿼리 문서는 문자열로 이루어져 있다. GraphQL API로 쿼리를 보낼 때, 문자열은 추상구문트리로 파싱되어 명령 실행 전에 유효성 검사를 거친다.
+- 추상구문트리는 계층 구조를 지닌 객체로 쿼리를 표현하는데 사용한다.
+- 쿼리에는 최소한 정의가 하나 이상 들어가며 여러 개의 정의가 리스트로 들어 있을 수 있다.
+- 정의 타입으로는 오퍼레이션디피니션과 프라그먼트디피니션 타입이 있다.
+- 오퍼레이션디피니션에는 쿼리, 뮤테이션, 서브스크립션 작업 타입만 들어갈 수 있다.
+- 오퍼레이션디피니션 내부에 중괄호로 이루어진 셀렉션 세트가 들어가는데 여기 안에 들어가는 필드가 인자를 받아 쿼리 작업이 진행되는 실제 필드이다.
+- GraphQL은 추상구문트리를 횡단하며 GraphQL 언어와 현재 스키마와 비교해 유효성 검사를 실시하고 쿼리어 구문에 오류가 없고 요청에서 요구한대로 스키마에 필드와 타입이 다 들어 있다면 작업이 실행된다. 그렇지 않으면 특정 에러를 반환한다.
+- GraphQL은 서비스를 사용할 때 GraphQL 쿼리 언어를 사용하는데 특정 GraphQL은 서비스에서 사용할 수 있는 작업과 필드를 미리 정의해 두지 않고서는 쿼리 언어를 사용할 수 없다. 이 때 이 특별한 정의를 GraphQL은 스키마라고 한다.
+
+<br>
+
+## # 스키마 설계하기
+
+- REST가 엔드포인트의 집합이라면 GraphQL은 타입 집합이다.
+- API에서 반환할 데이터 타입을 정의하는데 이러한 데이터 타입의 집합을 스키마라고 한다.
+- 스키마 퍼스트는 디자인 방법론의 일종이다. 스키마 퍼스트를 사용하면 백엔드 팀은 스키마를 보고 어떤 데이터를 저장하고 전달해야 하는지 이해할 수 있고 프론트엔드 팀은 사용자 인터페이스 작업을 할 때 필요한 데이터를 정의할 수 있다.
+- GraphQL은 스키마 정의를 위해 SDL(스키마 디피니션 랭귀지)를 지원한다.
+
+<br>
+
+## # 타입 정의하기
+
+<br>
+
+### # 타입
+
+- 스키마를 정의한다는 것은 곧 팀에서 도메인 객체에 관해 이야기할 때 사용할 공통의 언어를 정의하는 것과 같다.
+- 타입에는 필드가 들어간다. 필드는 각 객체의 데이터와 관련이 있다. 각각의 필드는 특정 종류의 데이터를 반환한다. 문자열을 반환하기도 하고, 커스텀 객체 타입이나 여러 개의 타입을 리스트로 묶어 반환하기도 한다.
+- 스키마에는 타입 정의를 모아둔다. 스키마는 자바스크립트 파일에 문자열로 작성하거나, 따로 텍스트 파일로 작성해 둘 수도 있다. 텍스트 파일의 주요 확장자는 `.graphql` 이다.
+
+  ```js
+  // 스키마
+  type Photo {
+    id: ID! // 사진에 접근할 때 키 값으로 사용할 수 있다.
+    name: String! // 메타데이터 정보를 넣는다.
+    url: String! // 이미지 파일에 대한 경로가 들어간다.
+    description: String // 메타데이터 정보를 넣는다.
+  }
+  ```
+
+- 필드 뒤에 붙은 느낌표는 필드에서 null 값을 허용하지 않음(non-nullable)을 뜻한다. 즉 데이터를 꼭 반환해야하는 필드이다.
+- GraphQL에서 ID 스칼라 타입은 고유 식별자 값이 반환되어야 하는 곳에 사용하면 된다. JSON에 담기는 id 필드 반환 값은 문자열 타입이지만, 고유한 값인지 유효성 검사를 받는다.
+
+<br>
+
+### # 스칼라 타입
+
+- 내장 스칼라 타입은 Int, Float, String, Boolean, ID가 있다.
+- 내장 스칼라 타입 외에도 커스텀 스칼라 타입을 직접 만들어 사용할 수 있다. npm 패키지 중 `graphql-custom-type` 은 자주 사용할 법한 커스텀 스칼라 타입을 모아둔 패키지도 있다.
+
+  ```js
+  scalar DataTime
+
+  type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DataTime!
+  }
+  ```
+
+<br>
+
+### # 열거 타입
+
+- 열거 타입은 스칼라 타입에 속하며 필드에서 반환하는 문자열 값을 세트로 미리 지정해 둘 수 있다.
+- 미리 정의해 둔 세트에 속하는 값만 필드에서 반환하도록 만들고 싶다면 열거 타입을 사용하면 된다.
+
+  ```js
+  // 이넘 타입 사용
+  // Photo의 category 필드는 Photocategory 내부에 정의 된 값들 중 하나를 반환한다.
+  enum Photocategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAPHIC
+  }
+
+  type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DataTime!
+    category: Photocategory!
+  }
+  ```
+
+<br>
+
+## # 연결과 리스트
+
+- GraphQL 스키마 필드에서는 GraphQL 타입이 담긴 리스트 반환도 가능하다. 리스트는 GraphQL 타입을 대괄호로 감싸서 만든다.
+- 유니온이나 인터페이스 타입을 사용하면 리스트에 여러 개의 타입을 한 번에 담을 수도 있다.
+- 리스트 null 적용 규칙
+  1. [Int] : 리스트 안에 담긴 정수 값은 null이 될 수 있다.
+  2. [Int!] : 리스트 안에 담긴 정수 값은 null이 될 수 없다.
+  3. [Int]! : 리스트 안에 담긴 정수 값은 null이 될 수 있으나, 리스트 자체는 null이 될 수 없다.
+  4. [Int!]! : 리스트 안에 담긴 정수 값은 null이 될 수 없고, 리스트 자체도 null이 될 수 없다.
+- 리스트에 값이 전혀 없다면 그냥 [] 같이 빈 JSON 배열을 반환한다.
+- 빈 배열은 엄밀히 말하면 null이 아니다. 그냥 아무 값도 들어있지 않은 배열이다.
+
+<br>
+
+### # 일대일 연결
+
+- 각각의 객체 타입을 노드라고 가정했을 때 이 객체 타입의 연결이 필요한 경우 엣지가 필요하다. Photo와 User는 단방향 관계이며 두 노드를 이어주는 엣지는 postedBy가 된다.
+
+  ```js
+  // 스키마
+  // Photo(Node) -> User(Node), 중간 화살표가 Edge이며 postedBy가 된다.
+  type User {
+    githubLogin : ID!
+    name: String
+    avatar : String
+  }
+
+  type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DateTime!
+    category: PhotoCategory!
+    postedBy: User!
+  }
+  ```
+
+<br>
+
+### # 일대다 연결
+
+- GraphQL 서비스는 최대한 방향성이 없도록 유지하는 편이 좋다. 방향이 없다면 아무 노드에서 그래프 횡단을 시작할 수 있으므로, 클라이언트 쪽에서 쿼리를 최대한 자유롭게 만들 수 있기 때문이다.
+- 일대다 관계는 어떤 객체(부모)의 필드에서 다른 객체 리스트(자식)를 반환하는 필드를 보유하고 있을 때 나타나는 관계이다. 아래 예시의 경우 한 유저는 여러 개의 사진을 게시할 수 있으므로 User -> 다수의 Photo의 관계가 되고 일대다 관계이다.
+
+  ```js
+  // 스키마
+  // User(Node) -> 다수의 Photo(Node), 중간 화살표가 Edge이며 postedPhotos가 된다.
+  type User {
+    githubLogin : ID!
+    name: String
+    avatar : String
+    postedPhotos: [Photo!]!
+  }
+
+  type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DateTime!
+    category: PhotoCategory!
+    postedBy: User!
+  }
+  ```
+
+<br>
+
+### # 다대다 연결
+
+- 가끔 노드 리스트를 다른 노드 리스트와 연결지어야 할 때도 있다.
+- 다대다 연결 관계를 만드려면 노드 양쪽 모두에 리스트 타입 필드를 추가하면 된다.
+- 사진 앱을 예시로 한 장의 사진에는 여러 명의 사용자가 태그 될 수 있고, 한 명의 사용자가 여러 장의 사진에 태그될 수 있다.
+
+  ```js
+  // 스키마
+  // User는 사진 여러 장에 태그 될 수 있다.
+  // Photo에서는 사진 한 장에 여러 명을 태그할 수 있다.
+  type User {
+    ...
+    inPhotos: [Photo!]!
+  }
+
+  type Photo {
+    ...
+    taggedUsers: [User!]!
+  }
+  ```
+
+- 다대다 연결을 만들 경우 관계 자체에 대한 정보를 담고 싶을 때도 있다. 이럴 때 통과 타입을 사용할 수 있다. 통과 타입은 공식 스펙은 아니다.
+- 아래 예제에서는 friends 필드를 User 타입에 직접 만들지 않고 Friendship라는 통과 타입을 만들어 연결하였다. 그리고 Friendship 타입에 친구 리스트와 관계를 받을 수 있는 필드를 추가하였다.
+- 아래와 같은 경우는 기존 타입에 추가적인 정보가 필요할 때 사용할 수 있다. 친구 리스트를 나타내는 필드인 friends, 우정 지속기간인 howLong, 만난 위치인 whereWeMet 필드를 추가하였다.
+
+```js
+type User {
+  friends: [Friendship!]!
+}
+
+type Friendship {
+  friends: [User!]!
+  howLong: Int!
+  whereWeMet: Location
+}
+```
+
+<br>
+
+### # 여러 타입을 담는 리스트
+
+- 일정 앱을 예시로 일정에는 여러 종류의 이벤트가 들어가며 이벤트마다 데이터 필드가 달라질 수 있다. 따라서 GraphQL로 일정 스키마를 만들기 위해서는 유니언 타입이나 인터페이스를 사용하면 된다.
+
+  ```js
+  // 스케쥴 쿼리
+  // 유니언 타입 사용
+  query schedule {
+    agenda {
+      ...on Workout {
+        name
+        reps
+      }
+      ...on StudyGroup {
+        name
+        subject
+        students
+      }
+    }
+  }
+
+  union AgendaItem = StudyGroup | Workout
+
+  type StudyGroup {
+    name: String!
+    subject: String!
+    students: [User!]!
+  }
+
+  type Workout {
+    name: String!
+    reps: Int!
+  }
+
+  type Query {
+    agenda : [AgendaItem!]!
+  }
+  ```
+
+- 인터페이스 역시 한 필드 안에 타입을 여러 개 넣을 때 사용한다. 특정 필드가 무조건 특정 타입에 포함되도록 만들 수 있다.
+- 아래 예시의 경우 일정 아이템을 만들어 리스트에 넣으려면 일정 종류와는 상관없이 필수 필드는 반드시 들어가야 한다.
+- AgendaItem 이라는 추상 타입을 만들고 확장하여 다른 타입을 만든다. 이렇게 만들게 되면 AgendaItem을 기반으로 만들어진 StudyGroup과 Workout 타입은 name, start, end가 필수적으로 들어가야 한다.
+
+  ```js
+  scalar DateTime
+
+  interface AgendaItem {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+  }
+
+  type StudyGroup implements AgendaItem {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+    participants: [User!]!
+    topic: String!
+  }
+
+  type Workout implements AgendaItem {
+    name: String!
+    start: DateTime!
+    end: DateTime!
+    reps: Int!
+  }
+
+  type Query {
+    agenda: [AgendaItem!]!
+  }
+
+  query schedule {
+    agenda {
+      name
+      start
+      end
+      ...on Workout {
+        reps
+      }
+    }
+  }
+  ```
+
+- 일반적으로 객체에 따라 필드가 완전히 달라져야 한다면 유니언 타입을 쓰는 편이 좋고 특정 필드가 반드시 들어가야 한다면 인터페이스 타입이 적절하다.
+
+<br>
+
+## # 인자
+
+- 예를 들어 Query 타입에 allUsers와 allPhotos를 목록으로 반환하는 필드가 있는데 User 한명 혹은 Photo 한 장만 선택할 때 인자를 사용할 수 있다. 이 때 인자로 원하는 사용자나 사진에 대한 정보를 쿼리문 인자로 제공한다.
+- 필드처럼 인자도 타입이 있어야한다. 스키마에서 사용할 수 있는 스칼라 타입이나 객체 타입으로 인자의 타입을 정할 수 있다.
+- 특정 사용자나 정보를 받아오기 위해서는 인자가 필수이다. 그러므로 null 값을 반환할 수 없는 필드로 정의한다.
+
+  ```js
+  // 스키마
+  type Query {
+    ...
+    User(githubLogin: ID!): User!
+    Photo(id: ID!): Photo!
+  }
+
+  // 쿼리
+  query {
+    User(githubLogin: "Jay"){ // Jay의 이름, 아바타를 받아온다.
+      name
+      avatar
+    }
+  }
+
+  query {
+    Photo(id: "14TH5B6NS4KIG3H4S"){ // ID에 맞는 사진 세부 정보를 받아온다.
+      name
+      description
+      url
+    }
+  }
+  ```
+
+<br>
+
+### # 데이터 필터링
+
+- 반드시 인자가 값을 반환하도록 만들 필요는 없다. null을 반환할 수 있는 필드를 만들고 인자는 옵션으로 받아도 된다. 그렇게 되면 부가적인 파라미터로 인자를 넘겨 쿼리 요청이 수행된다.
+- 아래 예시는 allPhotos 쿼리에 옵션으로 category 필드를 넣었다. 카테고리 인자 값은 PhotoCategory 이넘 타입에 정의된 값 중 하나이다. 이 때 별다른 인자를 전달하지 않으면 모든 사진이 반환된다.
+
+  ```js
+  // 스키마
+  type Query {
+    ...
+    allPhotos(category: PhotoCategory): [Photo!]!
+  }
+
+  // 쿼리
+  query {
+    allPhotos(category: "SELFIE"){ // SELFIE 카테고리에 맞는 사진 세부 정보를 받아온다.
+      name
+      description
+      url
+    }
+  }
+  ```
+
+<br>
+
+### # 데이터 페이징
+
+- GraphQL 쿼리에 인자를 전달해 반환 데이터의 양을 조절할 수 있다. 이 때 한 페이지에 나올 데이터의 양을 정한다는 의미에서 이 과정을 데이터 페이징이라고 한다.
+- 아래 예제 중 first 인자는 데이터 페이지 한 장 당 들어가는 레코드 수를 지정하기 위해 사용하고, start는 첫 번째 레코드가 시작되는 인덱스, 즉 시작 위치 값을 지정하기 위해 사용한다.
+
+  ```js
+  // 스키마
+  // 쿼리에서 전달되는 인자가 없는 경우, 기본 값을 설정할 수 있다.
+  type Query {
+    ...
+    allUsers(first: Int=50 start: Int=0): [User!]!
+    allPhotos(first: Int=25 start: Int=0): [Photo!]!
+  }
+
+  // 쿼리
+  // 아래 인자는 90번째 사용자에서 시작해 10명까지의 데이터만 얻는 쿼리이다.
+  query {
+    allUsers(first: 10 start: 90){
+      name
+      avartar
+    }
+  }
+  ```
+
+<br>
+
+### # 정렬
+
+- 데이터 리스트가 반환되는 쿼리를 작성할 때는 리스트의 정렬 방식을 지정할 수 있다. 이 때도 인자를 사용한다.
+- 이넘을 사용하여 정렬 기준이 될 필드를 지정하고 정렬 방식도 지정할 수 있다.
+
+  ```js
+  // 스키마
+  // 정렬 방향인 SortDirection 이넘 타입, 정렬 기준인 SortablePhotoField 이넘 타입 생성
+  enum SortDirection {
+    ASCENDING
+    DESCENDING
+  }
+
+  enum SortablePhotoField {
+    name
+    description
+    category
+    creatred
+  }
+
+  type Query {
+    allPhotos (
+      sort: SortDirection = DESCENDING
+      sortBy: SortablePhotoField = creatred
+    ): [Photo!]!
+  }
+
+  // 쿼리
+  // name 필드 기준으로 내림차순 정렬한 사진 리스트가 반환된다.
+  query {
+    allUsers(first: 10 start: 90){
+      allPhotos(sortBy: name)
+    }
+  }
+  ```
+
+<br>
+
+## # 뮤테이션
+
+- 쿼리가 조회를 위해 사용되었다면 뮤테이션은 추가/수정/삭제를 위해 사용된다.
+- 애플리케이션 상태를 바꿀 액션이나 이벤트가 있을 때 뮤테이션을 사용한다.
+- 뮤테이션도 쿼리와 마찬가지로 스키마 안에 커스텀 타입을 정의해두어야 한다.
+
+  ```js
+  // 스키마
+  // 루트 mutation 타입에 추가하여 클라이언트에서 사용할 수 있도록 한다.
+  schema {
+    query: Query
+    mutation: Mutation
+  }
+
+  // postPhoto 필드를 추가하여 사용자가 사진을 게시할 수 있도록 한다.
+  // 사용자가 게시하는 사진의 name을 필수 값으로 들어오도록 하였다.
+  type Mutation {
+    postPhoto(
+      name: String!
+      description: String
+      category: PhotoCategory = PORTRAIT
+    ): Photo!
+  }
+
+  // 뮤테이션
+  // 사용자가 사진을 게시할 때 해당 뮤테이션 요청이 전송된다.
+  // 생성 된 사진의 ID는 데이터베이스에서 생성해 부여한다.
+  mutation {
+    postPhoto(name: "Sending the palisades") {
+      id
+      url
+      created
+      postedBy {
+        name
+      }
+    }
+  }
+  ```
+
+- 뮤테이션 요청이 완료된 후에는 생성 된 데이터를 응답으로 받는다.
+
+<br>
+
+## # 인풋 타입
+
+- 인풋 타입은 인자에서만 사용되며 인풋 타입을 활용하면 인자 관리를 체계적으로 할 수 있다.
+- 모든 필드에서 인자로 사용할 수 있다.
+
+  ```js
+  // 스키마
+  // 인풋 타입 사용 전
+  schema {
+    query: Query
+    mutation: Mutation
+  }
+
+  type Mutation {
+    postPhoto(
+      name: String!
+      description: String
+      category: PhotoCategory = PORTRAIT
+    ): Photo!
+  }
+
+  // request
+  mutation {
+    postPhoto(name: "Sending the palisades") {
+      id
+      url
+      created
+      postedBy {
+        name
+      }
+    }
+  }
+  ```
+
+  ```js
+  // 스키마
+  // 인풋 타입 사용 후
+  schema {
+    query: Query
+    mutation: Mutation
+  }
+
+  input PostPhotoInput {
+    name: String!
+    description: String
+    category: PhotoCategory = PORTRAIT
+  }
+
+  type Mutation {
+    postPhoto(input: PostPhotoInput!): Photo!
+  }
+
+  // request
+  mutation newPhoto($input: PostPhotoInput!){
+    postPhoto(input: $input) {
+      id
+      url
+      created
+    }
+  }
+  ```
+
+  ```json
+  // response
+  {
+    "input": {
+      "name": "Hanging at the Arc",
+      "description": "Sunny on the deck of the Arc",
+      "category": "LANDSCAPE"
+    }
+  }
+  ```
+
+<br>
+
+## # 리턴 타입
+
+- 리턴 타입 또한 지정할 수 있다.
+
+  ```js
+  // 스키마
+  // 로그인 시도 시 사용자 코드를 전달하여 유효하다면 user, token 정보가 담긴 객체를 반환하는 예시이다.
+  type AuthPayload {
+    user: User!
+    token: String!
+  }
+
+  type Mutation {
+    ...
+    githubAuth(code: String!): AuthPayload!
+  }
+  ```
+
+<br>
+
+## # 서브스크립션
+
+- 서브스크립션은 구독 개념으로 뮤테이션이 실행될 때 마다 그 정보를 클라이언트에서 받아볼 수 있도록 만들 수 있다.
+
+  ```js
+  // 스키마
+  // 커스텀 Subscription 객체를 만든 뒤 newPhoto와 newUser를 구독하는 예시이다. 만약 새로운 사진이 게시되면 newPhoto를 구독 중인 클라이언트는 모두 새로운 사진에 대한 알림을 받게 된다.
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+  }
+
+  type Subscription {
+    newPhoto: Photo!
+    newUser: User!
+  }
+  ```
+
+- 서브스크립션에서도 인자를 사용할 수 있다. 인자를 사용하여 구독하는 쪽에서 원하는 데이터만 필터링하여 받아볼 수 있다.
+
+  ```js
+  // 스키마
+  // 인자를 사용하여 생성되는 사진 중 카테고리가 ACTION인 사진의 데이터만 필터링하여 받는 예시이다.
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+  }
+
+  type Subscription {
+    newPhoto(category: PhotoCategory): Photo!
+    newUser: User!
+  }
+
+  subscription {
+    newPhoto(category: "ACTION"){
+      id
+      name
+      url
+      postedBy {
+        name
+      }
+    }
+  }
+  ```
+
+- 서브스크립션은 실시간 데이터를 다루기에 좋은 방법이다.
+
+<br>
+
+## # 스키마 주석 (descriptions)
+
+- 타입 전체에 descriptions을 사용할 때는 삼중따옴표, 타입 필드별 descriptions을 사용할 때는 따옴표를 사용할 수 있다.
+
+  ```js
+  const typeDefs = gql`
+    """
+    a cat astronaut
+    """
+    type SpaceCat {
+      "the name of the cat"
+      name: String!
+      age: Int
+      missions: [Mission]
+    }
+  `;
+  ```
+
+<br>
+
+## # 리졸버
+
+- 스키마에는 사용자가 작성할 수 있는 쿼리를 정의해두고, 타입 간의 연관 관계를 적어둔다. 데이터 요구 사항에 대한 내용은 들어있지만 실제로 데이터를 가져오는 일은 리졸버의 몫이다.
+- 리졸버는 특정 필드의 데이터를 반환하는 함수이다. 스키마에 정의된 타입과 형태에 따라 데이터를 반환한다.
+- 리졸버는 비동기로 작성할 수 있으며 REST API, 데이터베이스, 혹은 기타 서비스의 데이터를 가져오거나 업데이트 작업을 할 수 있다.
+- 모든 필드는 그에 대응하는 리졸버 함수가 있어야 하며, 이들 함수는 스키마의 규칙을 따라야만 한다.
+- 함수는 스키마에 정의된 필드와 반드시 동일한 이름을 가져야하며, 스키마에 정의된 데이터 타입을 반환한다.
+
+  ```js
+  const typeDefs = gql`
+    type Query {
+      totalPhotos: Int!
+    }
+  `;
+
+  const resolvers = {
+    Query: {
+      totalPhotos: () => 42,
+    },
+  };
+  ```
+
+<br>
+
+## # 아폴로 클라이언트
+
+- 아폴로 클라이언트는 클라이언트에서 서버로 요청을 보내고 받는 것에 특화되어 있다.
+- 아폴로 링크를 같이 사용해 네트워크 요청을 처리하고 아폴로 캐시로 모든 캐시 작업을 처리한다.
+- 아폴로 클라이언트를 사용해 GraphQL 서비스로 향하는 모든 네트워크 요청을 관리할 수 있다.
+- 아폴로 클라이언트는 성능 향상을 위해 요청에 관한 응답 결과를 로컬 캐시에 자동으로 저장하고 요청 처리를 캐시로 위임한다.
+- 클라이언트는 로컬 메모리에 캐싱하는 일도 할 수 있다. client.extract()를 호출하여 캐시 내부를 확인할 수 있다.
+- ApolloProvider 컴포넌트로 래핑하여 ApolloProvider 컴포넌트에 자식 컴포넌트 모두 GraphQL 클라이언트로 접근할 수 있도록 한다.
+- 기본적으로 아폴로 클라이언트는 로컬 자바스크립트 변수로 데이터를 저장한다. 클라이언트를 만들 때마다 캐시가 생성된다. 요청이 이루어질 때마다 그에 대한 응답은 로컬에 캐싱된다.
+
+<br>
+
+### # 캐시 방침 설정
+
+- fetchPolicy 프로퍼티를 사용하면 아폴로 클라이언트가 데이터를 찾아보는 장소를 지정할 수 있다. 캐시 혹은 네트워크 요청 둘 중 하나가 된다.
+
+1. cache-first : 기본 값, 이 상태에서 클라이언트는 캐시 내부만 들여다 본다. 만약 네트워크 요청 없이도 작업 처리가 가능하다면 캐시만 보고 끝난다. 그러나 쿼리에서 처리해야 할 데이터가 캐시에 없다면 네트워크 요청을 보낸다.
+2. cache-only : 클라이언트로 하여금 캐시만 보도록 강제하여 절대 네트워크 요청은 보내지 않는다. 만약 쿼리를 충족시키는 데이터가 캐시에 없다면 에러를 반환한다.
+3. cache-and-network : 요청 즉시 캐시를 우선으로 쿼리 처리 시도가 이루어지며 캐시 안의 데이터와는 별개로 최신 데이터를 가져오기 위해 네트워크 요청도 항상 추가로 보낸다.
+4. network-only : 쿼리를 처리할 때 네트워크 요청만 사용한다.
+5. no-cache : 항상 네트워크 요청을 사용해 데이터를 처리하고 응답 결과를 캐싱하지 않는다.
+
+<br>
+
+### # 로컬 앱 상태 관리
+
+- InMemoryCache 생성자를 사용해 캐시 인스턴스를 만들 수 있다.
+
+- client.readQuery : readQuery를 사용해 로컬 앱 상태를 캐시에서 바로 읽는다.
+- client.writeQuery : writeQuery를 사용해서 캐시의 로컬 앱 상태를 바로 업데이트한다.
+- onResetStore : 모든 로컬 앱 상태 데이터를 삭제할 수 있다. 쿼리가 실행되면 로컬 앱 상태를 변경해야 한다. onResetStore는 저장소가 초기화 된 후에 호출되는 콜백 함수를 정의할 수 있다.
+
+<br>
+
+## # useQuery, useLazyQuery, useMutation
+
+- useQuery : query를 실행할 때 사용한다.
+
+  ```js
+  // 구조 분해한 data는 useQuery의 결과 값이다. data 외에도 loading, error 등이 있다.
+  const { data: userPinnedVideoStatus } = useQuery(
+    ReadIsPinnedVideoOpenFieldDocument, // 실행 할 query 이다.
+    {
+      skip: !userId, // userId가 없는 경우 쿼리가 실행되지 않고 스킵된다.
+      variables: {
+        // query 실행 시 변수에 전달되는 값이다.
+        userId: userId,
+      },
+    }
+  );
+  ```
+
+<br>
+
+- useLazyQuery : 일반적인 query는 컴포넌트가 마운트 및 렌더링되고 useQuery가 호출되면 자동으로 실행된다. 하지만 useMutation과 같이 원하는 시점에 query를 실행할 수 있도록 useLazyQuery를 사용할 수 있다. 즉 쿼리 지연을 위해 사용한다.
+
+  ```js
+  // getClubUserData를 사용해 원하는 시점에 query를 실행할 수 있다.
+  const [getClubUserData, { data: clubData }] = useLazyQuery(
+    ReadClubUserBasicDataDocument, // 실행 할 query 이다.
+    {
+      onCompleted: () => setLoading(false), // 쿼리 실행이 성공한 후 처리를 할 수 있다.
+    }
+  );
+  ```
+
+<br>
+
+- useMutation : mutation을 실행할 때 사용한다.
+
+  ```js
+  // updateUser를 사용해 원하는 시점에 mutation을 실행할 수 있다.
+  const [updateUser, { loading: updateLoading }] = useMutation(
+    UpdatePlayerUserDocument, // 실행 할 mutation 이다.
+    {
+      update: (cache) => {
+        cache.modify({
+          // 캐시 데이터를 관리할 때 사용한다.
+          id: "ROOT_QUERY", // id는 수정해야 할 캐시 데이터를 가리킨다.
+          fields: {
+            // fields는 함수 목록으로 수정이 필요한 각 필드의 함수를 지정한다. 각 필드 함수는 현재 필드 값을 인수로 받으며 해당 필드의 신규 값을 반환한다.
+            player: () => {},
+          },
+        });
+      },
+    }
+  );
+  ```
+
+## 질문
+
+- 다른 책에서 보면 gpl을 활용하여 요청 query를 생성하고 useQuery의 인자로 넘겨 생성한 query를 실행하는데 우리 프로젝트의 경우 typed-document-nodes.generated.ts 내부에 Document가 붙은 객체를 useQuery 인자로 넘깁니다. 제가 이해한 내용은 예시에서 사용한 gql은 쿼리를 추상구문트리로 변환하여 서버에 요청을 보내는 것으로 알고 있는데 저희 프로젝트의 경우 생성한 query를 미리 typed-document-nodes.generated.ts 내부에서 추상구문트리로 변경하여 추상구문트리로 변경한 객체를 사용하여 요청을 날리는 것 같습니다. 맞을까요?
+
+```js
+// 공식 문서 예시입니다.
+const GET_DOG_PHOTO = gql`
+  query Dog($breed: String!) {
+    dog(breed: $breed) {
+      id
+      displayImage
+    }
+  }
+`;
+
+function DogPhoto({ breed }) {
+  const { loading, error, data } = useQuery(GET_DOG_PHOTO, {
+    variables: { breed },
+  });
+
+  if (loading) return null;
+  if (error) return `Error! ${error}`;
+
+  return (
+    <img src={data.dog.displayImage} style={{ height: 100, width: 100 }} />
+  );
+}
+```
+
+- 공식 문서에서 useMutation 실행 결과를 구조 분해한 배열의 첫번째 인자는 mutation fuction이라고 나와있는데 저번에 질문드렸을 때 함수가 아니라고 말씀하셨었습니다. 공식문서나 포스팅 글, 저희 프로젝트 같은 경우에서도 첫번째 인자를 함수처럼 사용하는데 아무리 생각해도 mutation을 트리거하는 함수라고 이해가 되서 질문드립니다. 제가 잘못 이해하고 있는 것일까요?
+
+```js
+// 저희 프로젝트 예시입니다.
+// 참고 : https://www.apollographql.com/docs/react/data/mutations
+const [updateUser, { loading: updateLoading }] = useMutation(
+  UpdatePlayerUserDocument,
+  {
+    update: (cache) => {
+      cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          player: () => {},
+        },
+      });
+    },
+  }
+);
+```
+
+- 저희 프로젝트에 useApolloClient의 역할이 궁금합니다. 또한 readQuery, writeQuery 학습 중 아래와 같은 예시를 보았는데 아래 예시를 통해 이해한 내용은 캐시 안에 저장되어 있는 데이터를 읽을 때는 readQuery를 사용하고 캐시에 저장되어 있는 데이터 필드를 채울 때는 writeQuery를 사용하는 것으로 이해했습니다. 하지만 저희 프로젝트 같은 경우 아래와 같이 InMemoryCache를 사용하여 인스턴스를 생성하는 것이 아닌 useApolloClient를 사용하여 인스턴스를 생성합니다. 두 가지의 차이가 무엇일까요? 그리고 저번에 아폴로의 역할이 state 관리와 데이터 캐싱 두 가지로 말씀하셨었는데 아예 별도로 본다면 아래의 경우 readQuery를 통해 캐싱 된 데이터를 어떻게 가져올 수 있는 것일까요? 일반 query를 통해 가져온 데이터는 자동으로 메모리에 캐싱되고 이 메모리에 캐싱 된 데이터를 가져올 수 있는 것이 readQuery이고 캐싱 된 데이터를 변경할 수 있는 것이 writeQuery 일까요?
+
+  ```js
+  const cache = new InMemoryCache();
+
+  // 캐시 안에 저장되어 있는 데이터 읽기
+  let { totalUsers, allUsers, me } = cache.readQuery({ query: ROOT_QUERY });
+
+  // 캐시 안에 저장되어 있는 데이터 채우기
+  cache.writeQuery({
+    query: ROOT_QUERY,
+    data: {
+      me: null,
+      allUsers: [],
+      totalUsers: 0,
+    },
+  });
+  ```
