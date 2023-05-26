@@ -342,3 +342,31 @@
   ```
 
 <br>
+
+## # FVM
+
+FVM 은 Flutter Version Management 의 약자이다. FVM을 사용하면 각 프로젝트별로 다른 Flutter 버전을 사용할 수 있어서 원하는 플러터 버전으로 스위칭 할 수 있다.
+
+## # FVM 세팅
+
+1. 터미널에서 아래 명령어 입력
+
+```
+pub global activate fvm
+```
+
+2. 쉘에 PATH 추가
+
+```
+// vim 편집기로 열기
+vi ~/.zshrc
+
+// 아래 PATH 추가
+export PATH="$PATH:$HOME/.pub-cache/bin"
+```
+
+3. 터미널에서 정상적으로 설치 되었는지 테스트하기
+
+```
+fvm help
+```
