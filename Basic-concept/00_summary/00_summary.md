@@ -667,6 +667,38 @@
 
 - CSS의 :root속성을 통해 문서 트리의 루트 요소를 선택할 수 있다. HTML의 루트 요소는 `<html>`요소 선택자를 나타낸다. 다크 모드같은 경우 유용하게 사용할 수 있다.
 
+<br>
+
+### # position 속성
+
+<br>
+
+- static : 기본 값이다. 차례대로 왼쪽에서 오른쪽, 위에서 아래로 쌓인다.
+
+- relative : 자신의 위치를 기준으로 이동한다.
+
+- sticky : 부모 내부에서만 위치가 고정된다. 스크롤 위치가 부모를 벗어나면 고정이 해제된다.
+
+- fixed : 항상 해당 위치에 고정시킨다.
+
+- absolute : 부모 relative를 기준으로 이동한다.
+
+<br>
+
+### # image object-fit 속성
+
+<br>
+
+- fill : 이미지 비율을 유지하지 않으며 컨텐츠 박스 크기에 맞추어 이미지를 늘린다.
+
+- contain : 이미지 비율을 유지하며 컨텐츠 박스 크기에 맞추어 이미지가 모두 포함될 수 있도록 이미지 사이즈를 조절한다. 컨텐츠 박스와 비율이 일치하지 않으면 컨텐츠 박스의 빈 영역이 생긴다.
+
+- cover : 이미지 비율을 유지하며 컨텐츠 박스 크기에 맞추어 이미지를 채운다. 컨텐츠 박스와 비율이 일치하지 않으면 이미지가 잘린다.
+
+- none : 이미지의 크기를 조절하지 않는다.
+
+- scale-down : none과 contain 중 이미지 크기가 더 작아지는 값을 선택한다.
+
 <br><br><br>
 
 ## # Javascript
@@ -1005,7 +1037,7 @@
 
 - async/await
 
-  function 앞에 async를 붙여 사용하며 async를 붙이면 해당 함수는 항상 프로미스를 반환한다. await는 async 함수 내부에서만 사용되며 프로미스가 처리(settled)될 때까지 함수 실행을 기다리게 만든다. 메인 작업들은 멈추지 않고 await을 포함하고 있는 async 함수만 일시정지된다. 그 후 promise가 처리되면 그 결과와 함께 실행이 재개된다. promise가 처리되길 기다리는 동안엔 엔진이 다른 일(다른 스크립트를 실행, 이벤트 처리 등)을 할 수 있기 때문에, CPU 리소스가 낭비되지 않는다. async/await의 사용하는 이유는 then 메소드 사용을 억제하여 코드가 더 간결해지고 가독성이 높아진다는 장점이 있다.
+  function 앞에 async를 붙여 사용하며 async를 붙이면 해당 함수는 항상 프로미스를 반환한다. await는 async 함수 내부에서만 사용되며 프로미스가 처리(settled)될 때까지 함수 실행을 기다리게 만든다. 메인 작업들은 멈추지 않고 await을 포함하고 있는 async 함수만 일시정지된다. (async 키워드가 붙은 함수를 통째로 백그라운드 Web API로 넘긴다고 보면 된다.) 그 후 promise가 처리되면 그 결과와 함께 실행이 재개된다. promise가 처리되길 기다리는 동안엔 엔진이 다른 일(다른 스크립트를 실행, 이벤트 처리 등)을 할 수 있기 때문에, CPU 리소스가 낭비되지 않는다. async/await의 사용하는 이유는 then 메소드 사용을 억제하여 코드가 더 간결해지고 가독성이 높아진다는 장점이 있다.
 
   ```js
   // 예제1 : 일반 비동기 통신
@@ -1237,6 +1269,8 @@
 
 - 이벤트 전파란?
 
+  ![javascript_이벤트전파_01](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/d986b842-c9d3-4f50-ae72-7ab3572a1844)
+
   DOM 이벤트(마우스를 클릭하거나 키보드를 누르는 등 사용자 행위)의 흐름은 캡처링, 타깃, 버블링 단계로 나누어서 이루어진다. 캡처링은 이벤트가 발생한 요소부터 하위 요소로 이벤트가 전파되는 단계이고 타깃 단계는 이벤트가 실제 타깃 요소에 전달되는 단계이며 별도로 처리되지 않는다. 버블링은 이벤트가 발생한 요소부터 상위 요소로 이벤트가 전파되는 단계이다. 이벤트 흐름은 항상 캡처링으로 시작하여 버블링으로 종료된다. 이벤트 리스너 등록 시 capture 파라미터의 불리언 값을 통해 캡처링 단계에서 이벤트를 감지할 지, 버블링 단계에서 이벤트를 감지할 지 결정할 수 있다. `ex) div.addEventListener("click", clickEvent, { capture: true })`
 
   예를 들어 div로 감싼 ul이 있다고 가정하고 li에 이벤트 리스너를 걸고 버블링 단계에서 이벤트가 실행되도록 설정해놓았다고 하면 사용자가 li를 클릭하여 클릭이라는 이벤트를 발생시키게 되면 div->ul->li의 캡쳐링 단계를 지나쳐 li->ul->div의 버블링 단계 중 이벤트 리스너가 달린 li를 지나쳤을 때부터 이벤트가 발생하게 되는 것이다. 예시와 같은 경우 li에만 이벤트 리스너가 달려있기 때문에 버블링 단계에서 ul과 div에서는 특정 이벤트가 실행되지 않는다.
@@ -1401,55 +1435,46 @@
 
 - slice가 1차원 배열은 깊은 복사, 2차원 배열은 얕은 복사를 수행하는 이유
 
-  slice 메소드는 기본적으로 얕은 복사를 수행하지만 1차원 배열의 경우 값이 원시 타입이기 때문에 원시 타입에 새로운 값 할당 시 독립적인 메모리 공간을 생성하여 이 메모리 공간에 새로운 데이터가 추가되어 서로 다른 참조를 바라보게 된다. 그렇기 때문에 깊은 복사처럼 보인다. 하지만 2차원 배열의 경우 내부 배열도 참조 타입이기 때문에 메모리 힙에 독립적인 공간에 존재하지만 `[[2차원 배열의 주소값], 원시 타입]`과 같이 결국 내부 배열의 메모리 주소를 바라보고 있으므로 최종적으로 같은 참조를 바라보게 되는 것이다.
+  ```javascript
+  // 1차원 참조 타입 복사
+  const originalArray = [1, 2, 3, 4];
+  const copiedArray = [...originalArray];
+  originalArray[0] = 100;
 
-  ```js
-  const test = [[1, 2, 3], 100];
-  const copy = test.slice();
-
-  test[0].push(10);
-  test[1] = 200;
-
-  console.log(test); // [[1, 2, 3, 10], 200]
-  console.log(copy); // [[1, 2, 3, 10], 100]
+  console.log(originalArray); // [100, 2, 3, 4]
+  console.log(copiedArray); // [1, 2, 3, 4]
   ```
 
-  (1) test는 콜스택의 "주소: 광명1동 / 값: 소하1동" 의 주소를 가리키고, copy는 가리키는 콜스택의 "주소: 광명2동 / 값: 소하1동" 의 주소를 가리킨다.
+  Array.prototype.slice(), Object.assign(), Spread 연산자(…) 모두 기본적으로 얕은 복사를 수행한다. 즉, 깊은 복사처럼 보이지만 실제로 깊은 복사를 수행하는 것이 아니다. 여기서 얕은 복사란 복사란 복사 대상인 참조 타입의 내부 요소들의 참조 주소를 새로운 배열의 참조로 복사하는 것을 의미한다. 즉 아래 예시에서는 originalArray가 가리키는 0x00000F1 배열의 내부 요소들의 참조 주소 0x00000F3,0x00000F4,0x00000F5,0x00000F6 자체를 originalArray이 가리키는 0x00000F2 배열의 참조 주소로 복사하는 것이다.
 
-  (2) 위 test, copy의 값 필드에 소하1동은 메모리힙에 존재하며 "주소: 소하1동 / 값: [하안1동, 100]"과 같이 존재한다.
+  여기서 1차원 참조 타입의 값을 복사할 때 깊은 복사처럼 보이는 이유는 1차원 참조 타입의 값은 원시 타입이기 때문이다. 만약 1차원 참조 타입의 값이 원시 타입이 아닌 참조 타입이라면 1차원 참조 타입이 아닌 2차원 참조 타입이다. 결국 1차원 참조 타입의 값은 무조건 원시 타입이라는 것인데 원시 타입의 값은 새로운 값으로 변경될 때 새로운 메모리 영역을 생성하고 그 메모리 주소로 참조 주소를 변경하게 된다.
 
-  (3) 2차원 배열인 [1, 2, 3] 또한 참조 데이터이기 때문에 별도의 메모리 공간에 "주소: 하안1동 / 값: [1, 2, 3]" 과 같이 존재하게 되는 것이다.
+  위 코드에서 originalArray[0] = 100;를 통해 index 0의 값을 변경할 때 해당 값은 1(0x00000F3)인 원시 타입이기 때문에 100(0x00000F7)으로 참조 주소가 변경되게 된다. 이 때 copiedArray는 복사될 때 참조하고 있던 참조 주소들을 여전히 참조하고 있으므로 변경되지 않는다. 그렇기 때문에 originalArray 의 참조 주소만 변경되게 된다.
 
-  (4) `test[0].push(10)` 이 실행되면 하안1동의 값 필드가 "주소: 하안1동 / 값: [1, 2, 3, 10]" 과 같이 변경되게 된다.
+  그렇기 때문에 결론적으로 깊은 복사처럼 보이게 된다.
 
-  (5) `test[1] = 200` 이 실행되면 메모리에 존재하지 않던 원본 데이터가 새로 생성되므로 메모리 힙에 새로운 메모리 공간이 생성되고 기존에 존재하던 "주소: 소하1동 / 값: [하안1동, 100]"과 함께 "주소: 소하2동 / 값: [하안1동, 200]" 이 생성되게 된다.
+  ![원시타입과_참조타입의_메모리_공간_할당_07](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/25a1bf8f-0fba-4a36-8864-de39d7cba7ae)
 
-  (6) test는 콜스택의 "주소: 광명1동 / 값: 소하2동" 을 가리키게 되고 copy는 콜스택의 "주소: 광명2동 / 값: 소하1동" 을 가리키게 된다.
+  ```javascript
+  // 2차원 참조 타입 복사
+  const originalArray = [
+    [1, 2],
+    [3, 4],
+  ];
+  const copiedArray = [...originalArray];
+  originalArray[0][0] = 100;
 
-  (7) 콜스택에서 참조하는 값은 다른 메모리힙에 데이터(소하1동, 소하2동)를 참조하므로 원본 데이터는 공유되지 않고 메모리힙에서는 같은 메모리힙에 데이터(하안1동)를 공유하고 있으므로 참조 데이터는 여전히 같은 데이터를 바라보고 있으므로 변경이 공유된다. 결과는 아래 이미지와 같다.
-
-  ![slice얕은복사및깊은복사결과](https://user-images.githubusercontent.com/85284246/177502040-def3cf4a-5b38-4b2e-a57e-22d62d5ce159.jpeg)
-
-  ```js
-  // 예제2
-  const a = [1, 2, 3];
-  const b = a;
-  const c = a.slice();
-
-  a[0] = 100;
-
-  console.log(a); // [100, 2, 3]
-  console.log(b); // [100, 2, 3]
-  console.log(c); // [1, 2, 3]
+  console.log(originalArray); // [[100, 2], [3, 4]]
+  console.log(copiedArray); // [[100, 2], [3, 4]]
   ```
 
-  ![얕은복사예제1](https://user-images.githubusercontent.com/85284246/182851908-ac26b5f2-c197-4c07-b707-e27b94e794d3.jpeg)
+  위 코드에서 `Spread` 문법을 활용한 2차원 배열의 복사는 메모리 상에서 아래와 같이 동작한다. 우선 위에서 말한 것과 같이 얕은 복사를 수행하여 `originalArray`가 가리키는 `0x00000F1` 배열의 내부 요소들의 참조 주소`0x00000F3`, `0x00000F4`를 `copiedArray`가 가리키는 `0x00000F2` 배열의 내부 value로 복사하게 된다.
 
-  (1) b : b의 복사 방식은 기본적으로 같은 참조를 바라보는 얕은 복사를 수행한다. 콜스택에서 a변수가 바라보는 메모리 주소를 b변수도 함께 바라보고 있다. 그렇기 때문에 콜스택에 메모리 공간에 값 필드가 가리키는 메모리힙 데이터의 주소 값 또한 같게 되어 데이터가 함께 변경된다. (콜스택에서부터 참조가 같다.)
+  이 때 해당 배열은 2차원 배열이므로 `0x00000F3`, `0x00000F4` 배열 또한 내부에 배열을 가리키는 참조 주소를 가지고 있게 된다. 아래 이미지에서 `[0x00000F5, 0x00000F6]`과 `[0x00000F7, 0x00000F8]`를 말한다.
 
-  (2) c : c의 복사 방식은 기본적으로 같은 참조를 바라보는 얕은 복사를 수행한다. 하지만 b와 다르게 콜스택에서 c가 참조할 새로운 메모리 공간을 생성한 후 그 메모리의 주소 값을 참조하고 그 메모리의 값 필드가 a가 가리키는 메모리힙에 데이터 주소를 가리키게 된다. 그러므로 새로운 값 할당 시 기존 1,2,3 데이터는 원시 데이터이므로 값 변경 시 메모리힙에 새로운 공간을 생성하여 100, 2, 3을 할당하게 되고 a와 b는 이 데이터 주소를 참조하게 된다. 반면 c는 기존에 바라보던 1,2,3의 데이터를 그대로 바라보고 있게 된다. (메모리힙에서 참조가 같다.)
+  그 후 `originalArray[0][0] = 100;`를 통해 index 0 배열(`0x00000F3`)의 index 0(`0x00000F5`) value 참조 주소가 `0x00000F9`로 변경되게 된다. 콜스택에 두 식별자가 가리키고 있는 메모리힙에 참조 주소 `0x00000F1`, `0x00000F2` 배열의 내부 value는 여전히 `0x00000F3`, `0x00000F4` 로 동일하기 때문에 콘솔에 찍히는 값은 동일하게 된다.
 
-  (3) 예를 들어 const arr = [1, 2, 3]일 때 arr.push(100) 통해 값을 추가하는 경우는 참조타입을 수정하는 것이기 때문에 메모리힙에 원본 데이터가 변경되는 것이고 a[0] =100의 경우 1이라는 원시타입을 수정하는 것이기 때문에 메모리힙에 [100, 2, 3]이라는 새로운 메모리 공간이 생성된다. 그 후 기존에 [1, 2, 3]을 담고있던 메모리힙에 데이터는 가비지컬렉팅에 의해 제거된다. 배열 자체가 참조타입이고 참조타입 내부에 원시타입이 들어가있음을 잊지말자. 원시타입은 값 변경 시 새로운 메모리 공간을 할당하게 된다.
+  ![원시타입과_참조타입의_메모리_공간_할당_08](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/ae872617-5971-4762-ab62-cbe7a270c85b)
 
 <br>
 
@@ -2153,6 +2178,32 @@
 
 <br>
 
+### # **axios의 withCredential과 fetch의 credential**
+
+<br>
+
+- withCredential을 직역해보면 자격 증명을 함께라고 해석할 수 있다. 단어의 의미만 봐도 알 수 있듯이 무언가 인증할 때 필요한 옵션인 것을 알 수 있다. 정확히 withCredential 옵션의 역할은 서로 다른 도메인(크로스 도메인)에 요청을 보낼 때 요청에 Credential 정보를 담아서 보낼 지를 결정하는 옵션이다. axios에서는 withCredential , fetch에서는 credential로 지정할 수 있다.
+
+  ```javascript
+  /* axios */
+  axios.get("https://example.com/items", {
+    withCredentials: false, // default
+  });
+
+  /* fetch API */
+  fetch("https://example.com:1234/users", {
+    credentials: "include",
+  });
+  ```
+
+  credential 정보가 포함되어 있는 요청은 아래 두 가지 경우를 의미한다.
+
+  (1) 쿠키를 첨부해서 보내는 요청
+
+  (2) 헤더에 Authorization 항목이 있는 요청
+
+<br>
+
 ### # **가비지 컬렉팅이 뭐냐? 어떨때 필요할것 같나?**
 
 <br>
@@ -2669,6 +2720,79 @@
 
   blockScopeTest(); // 0, 1, 2가 순서대로 찍힌다.
   ```
+
+<br>
+
+### # **Spread 문법과 Rest 파라미터**
+
+<br>
+
+- Spread 문법
+
+  Spread 라는 단어가 가지고 있는 의미는 확산의 의미를 가지고 있다. 이 문법을 사용하면, 객체 혹은 배열을 펼칠수 있다. 즉, Spread 문법(...)은 대상을 개별 요소로 분리한다. 단, Spread 문법의 대상은 이터러블이어야 한다.
+
+  ```javascript
+  const animals = ["개", "고양이", "참새"];
+  const anotherAnimals = [...animals, "비둘기"];
+
+  console.log(animals); // ['개', '고양이', '참새']
+  console.log(anotherAnimals); // ['개', '고양이', '참새', '비둘기']
+  ```
+
+<br>
+
+- Rest 파라미터
+
+  Rest 라는 단어가 가지고 있는 의미는 나머지라는 의미를 가지고 있다. 이 문법을 사용하면, 나머지 값을 묶어서 정의할 수 있다.
+
+  ```javascript
+  // 배열에서의 Rest
+  const numbers = [0, 1, 2, 3, 4, 5, 6];
+  const [one, ...rest] = numbers;
+
+  console.log(one); // 0
+  console.log(rest); // [1, 2, 3, 4, 5, 6]
+  ```
+
+  함수의 인자를 전달할 때 Rest 파라미터의 특성을 이용해서 가변 인자를 전달할 수 있다. 아래 예시 코드 내부 sum 함수는 인자로 들어오는 number를 모두 더하는 함수이다. 이 때 인자는 몇 가지가 들어올 지 모르는 가변 인자를 받고 있다. 이 때 Rest 파라미터를 사용해서 함수에 전달된 인수들의 목록을 배열로 받아 가변 인자를 받아 처리할 수 있다.
+
+  ```javascript
+  function sum(...rest) {
+    return rest.reduce((acc, current) => acc + current, 0);
+  }
+
+  const result = sum(1, 2, 3, 4, 5, 6);
+  console.log(result); // 21
+  ```
+
+<br>
+
+### # **함수의 인자 복사**
+
+<br>
+
+- 자바스크립트에서 함수의 인자를 넘길 때, 인자는 값에 의한 전달(pass by value) 방식으로 처리된다. 이는 인자의 값이 복사되어 함수 내부로 전달되는 것을 의미한다. 이 때 복사하는 방식은 얕은 복사와 같이 처리된다.
+
+  ```javascript
+  const person = { name: "Lydia", age: 21 };
+
+  const changeAge = (x = { ...person }) => (x.age += 1);
+
+  const changeAgeAndName = (x = { ...person }) => {
+    x.age += 1;
+    x.name = "Sarah";
+  };
+
+  changeAge(person);
+  changeAgeAndName();
+  console.log(person); // { name: “Lydia”, age: 22 }
+  ```
+
+  코드의 전반적인 흐름은 객체 타입의 value를 업데이트 시키는 코드이다. value를 업데이트 시키기 위한 함수로 changeAge, changeAgeAndName 를 선언해서 사용하고 있는데 이 때 두 함수의 차이점은 호출문에서 인자 전달의 유무에서 차이점이 있다. 두 함수의 파라미터인 x식별자에 값이 할당되는 방식은 아래와 같이 할당된다.
+
+  - changeAge : 인자로 전달 된 객체의 값을 복사하지만 참조 타입의 값을 복사하기 때문에 결국 같은 참조를 가리키게 된다. 즉 x의 값이 할당되는 방식은 const x = person와 같이 동작하게 된다.
+
+  - changeAgeAndName : person 변수의 값 자체를 Spread로 복사하기 때문에 콜스택에서 x와 person은 서로 다른 메모리힙의 주소를 가리키고 있고 메모리힙에서의 메모리 value는 동일한 상태가 된다. 즉 x의 값이 할당되는 방식은 const x = { name: "Lydia", age: 21 }과 같이 동작하게 된다.
 
 <br><br><br>
 
@@ -3943,7 +4067,7 @@
 
 <br>
 
-- react-error-boundary 패키지를 설치한 후 ErrorBoundary 컴포넌트를 사용할 수 있는 것으로 알고 있다. ErrorBoundary 컴포넌트를 사용하면 런타임 시 문제가 발생할 경우 ErrorBoundary 컴포넌트에 fallback 속성에 jsx문법이나 컴포넌트를 할당하여 에러 페이지를 노출시킬 수 있다. 또한 useQuery와 함께 사용할 경우 useQuery 옵션 중 useErrorBoundary 옵션을 true로 설정하면 useQuery에 isError를 ErrorBoundary로 대체하여 사용할 수 있다.
+- react-error-boundary 패키지를 설치한 후 ErrorBoundary 컴포넌트를 사용할 수 있는 것으로 알고 있다. ErrorBoundary 컴포넌트를 사용하면 런타임 시 문제가 발생할 경우 ErrorBoundary 컴포넌트에 fallback 속성에 jsx문법이나 컴포넌트를 할당하여 에러 페이지를 노출시킬 수 있다. 또한 useQuery와 함께 사용할 경우 useQuery 옵션 중 useErrorBoundary 옵션을 true로 설정하면 useQuery에 isError를 ErrorBoundary로 대체하여 사용할 수 있다. 또 ErrorBoundary와 함께 Suspense를 많이 사용하는데 Suspense 컴포넌트를 통해 비동기 데이터를 더 편하게 다룰 수 있다. 예를 들어 Suspense 컴포넌트로 라우트 컴포넌트를 감싼 뒤 fallback 속성을 통해 비동기 네트워크 요청 시 로딩 중인 경우 띄어줄 컴포넌트를 지정할 수 있다. 또 ErrorBoundary와 마찬가지로 useQuery와 함께 사용할 수 있다.
 
 <br>
 
@@ -4395,6 +4519,377 @@
 (2) map의 key : map 메서드 사용 시 key 값으로 index 사용
 
 (3) 다중 컴포넌트 : 컴포넌트 두 개를 한 파일에 선언
+
+<br>
+
+### # **FileReader와 URL.createObjectURL**
+
+이미지 미리보기와 같이 파일 입출력 관련 기능을 구현할 때 사용하는 대표적인 메소드로는 FileReader와 URL.createObjectURL 방식이 있다.
+
+<br>
+
+- FileReader
+
+  FileReader 객체는 File객체나 Blob객체에 저장된 바이너리 데이터를 비동기적으로 읽어들이는 객체이다.
+
+<br>
+
+- URL.createObjectURL
+
+  File객체나 Blob객체를 인자로 받아 임시 URL을 생성하여 사용한다. 해당 URL은 생성된 페이지 내에서만 유효하다.
+  URL.createObjectURL 사용 시 주의할 점은 문서가 닫히거나(페이지 이동) URL.revokeObjectURL 를 호출하지 않으면 생성한 고유 URL은 메모리에 계속 상주하게 된다. 즉 메모리 누수가 발생할 수 있다. 그러므로 사용하지 않을 때에는 URL.revokeObjectURL를 통해 생성한 객체 URL을 제거해주어야한다.
+
+<br>
+
+- FileReader vs URL.createObjectURL
+
+  (1) 메모리 사용량 : FileReader는 base64 인코딩 string을 사용하고 URL.createObjectURL는 포인터를 사용하기 때문에 FileReader의 메모리 사용량이 더 크다.
+
+  (2) 속도 및 편의성 : FileReader는 파일이나 blob을 읽고 base64 인코딩 string으로 변환하는데 많은 작업이 필요하고 URL.createObjectURL은 읽기 과정 없이 고유한 URL을 즉시 생성하므로 속도가 더 빠르다.
+
+  (3) 수용 가능 용량 : FileReader는 10mb, URL.createObjectURL는 800md 정도 용량까지 수용한다.
+
+<br>
+
+### # **import 중괄호 {}의 유무**
+
+<br>
+
+- export 방식에서 차이가 있다. export로 내보낸 경우 이름을 그대로 활용하여 {} 중괄호로 감싸 가져와야하고 export default로 내보낸 경우 이름을 변경하여 괄호 없이 가져올 수 있다. 이 때 중괄호가 있는 경우도 as 키워드를 이용하면 이름을 바꿔 받아올 수 있다. {a as b}의 경우 a의 값을 b에 할당하여 가져온다라고 해석할 수 있다.
+
+  ```javascript
+  // App.js
+  const a = 1;
+  const b = 2;
+  export { a };
+  export const c = 3;
+  export default b;
+  ```
+
+  ```javascript
+  // Sub.js
+  import d, { a, c as e } from "./Example";
+  console.log(a, d, e); // 1, 2, 3
+  ```
+
+<br>
+
+### # **트리 쉐이킹 (Tree Shaking)**
+
+<br>
+
+- 웹팩에서도 찾아볼 수 있고 네이밍에서도 알 수 있듯이 나무를 흔들어 필요없는 나뭇잎들을 떨어뜨린다는 뜻이다. 즉, 불필요한 코드를 제거하여 번들 사이즈나 시간을 줄이는 작업을 얘기한다. 즉 성능의 이점을 얻을 수 있다. ES6에서 정의한 표준 모듈 시스템으로 export , import 를 사용하여 의존성 모듈을 가져와 사용할 수 있다. 아래와 같이 사용할 수 있는데 import를 통해 필요한 패키지만 가져와 사용하고 있다.
+
+  ```javascript
+  // Import only some of the utilities!
+  import { unique, implode, explode } from "array-utils";
+  ```
+
+<br>
+
+### # **Link tag 특정 조건에서의 페이지 이동**
+
+<br>
+
+- Link tag 사용 시 특정 조건에서만 페이지 이동이 가능하도록 하려면 아래와 같은 코드로 작성할 수 있다.
+
+  ```javascript
+  // return문 외부
+  const testHandler = (event) => {
+    if (inputValue.length <= 0) event.preventDefault();
+  };
+
+  // return문 내부
+  <Link className={btnClass} to="/search" key={id} onClick={testHandler}>
+    <img alt="cart close icon" src={url} className={iconClass} />
+  </Link>;
+  ```
+
+<br>
+
+### # **Link tag 페이지 이동 시 props 전달하기**
+
+<br>
+
+- Link tag 페이지 이동 시 props를 전달할 수 있다.
+
+  ```javascript
+  <Link
+    to={{
+      pathname: '/search'
+      state: {
+        data1: year,
+        data2: title,
+        data3: summary
+      }
+    }}
+  />
+  ```
+
+  전달 받은 props는 useLocation hook을 이용하여 사용할 수 있다.
+
+  ```javascript
+  import React from "react";
+  import { useLocation } from "react-router";
+
+  const Search = () => {
+    const location = useLocation();
+    console.log(location);
+    ...
+  }
+  ```
+
+<br>
+
+### # **axios와 모듈화**
+
+<br>
+
+- 클라이언트에서 서버로 보내는 요청은 무수히 많기 때문에 모듈화가 거의 필수적이라고 볼 수 있다. 이미 설계된 모듈을 가져와 method, path, param 등을 넣어 사용하여 생산성 향상과 유지보수를 용이하게 할 수 있다. 이럴 때 axios.create를 사용할 수 있다.
+
+  (1) Axios 인스턴스 만들기
+
+  ```javascript
+  // api/axiosInstance.js
+  import axios from "axios";
+
+  // baseURL, headers 등 공통으로 사용할 옵션 세팅
+  export const apiClient = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
+  });
+  ```
+
+  (2) 요청을 가로채기 위한 Interceptors
+
+  아래와 같이 인스턴스를 만든 후에는 interceptors를 활용하여 요청 시 해당 요청을 가로챈 후 추가 로직을 구현할 수 있다. 아래 코드는 토큰을 심기 위해 사용하였다.
+
+  ```javascript
+  // api/axiosInstance.js
+  apiClient.interceptors.request.use((config) => {
+    const accessToken = localStorage.getItem("access_token");
+
+    if (accessToken && config.headers) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return config;
+  });
+  ```
+
+  (3) 사용 예시
+
+  ```javascript
+  // api/todos.js
+  import { apiClient } from "./axiosInstance";
+
+  export const getTodos = async () => {
+    return apiClient.get("/todos");
+  };
+
+  export const createTodo = async (todo) => {
+    return apiClient.post("/todos", { todo });
+  };
+
+  export const updateTodo = async (id, todo, isCompleted) => {
+    return apiClient.put(`/todos/${id}`, { todo, isCompleted });
+  };
+
+  export const deleteTodo = async (id) => {
+    return apiClient.delete(`/todos/${id}`);
+  };
+  ```
+
+<br>
+
+- 모듈화 장점
+
+  (1) 일관성 유지: 인터셉터를 사용하면 여러 곳에서 헤더에 토큰을 추가하는 것을 일관성 있게 관리할 수 있다.
+
+  (2) 재사용성: 인터셉터를 설정하면 다른 API 호출에서도 자동으로 헤더에 토큰이 추가된다.
+
+  (3) 유지보수성 향상: 코드를 보다 간결하고 관리하기 쉽게 만든다.
+
+<br>
+
+### # **modal Portals로 사용하기**
+
+<br>
+
+(1) modal이 생성 될 위치에 div 생성 (ex public/index.html)
+
+```html
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <div id="modal-root"></div>
+</body>
+```
+
+(2) modal Potal 만들기
+
+```javascript
+// src/components/ModalPortal.ts
+import { ReactNode } from "react";
+import ReactDom from "react-dom";
+
+interface Props {
+  children: ReactNode;
+}
+
+const ModalPortal = ({ children }: Props) => {
+  const el = document.getElementById("modal-root") as HTMLElement;
+
+  return ReactDom.createPortal(children, el);
+};
+
+export default ModalPortal;
+```
+
+(3) 실제 사용할 modal 만들기
+
+```javascript
+// src/components/LoginModal/LoginModal.tsx
+import styles from "./loginModal.module.scss";
+
+const LoginModal = ({ onClose }: any) => {
+  return (
+    <div className={styles.loginModal}>
+      <div className={styles.content}>
+        <h3>아이디와 비밀번호 모두 입력해주세요.</h3>
+        <button type="button" onClick={onClose}>
+          닫기
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default LoginModal;
+```
+
+(4) Portal을 사용하여 modal 사용하기
+
+```javascript
+import LoginModal from "components/Modal/LoginModal/LoginModal";
+import ModalPortal from "components/Modal/ModalPortal";
+
+const Login = () => {
+  ...
+
+  return (
+    <div>
+      ...
+
+      {modalOpen && (
+        <ModalPortal>
+          <LoginModal onClose={HandleModalShow} />
+        </ModalPortal>
+      )}
+    </div>
+  );
+};
+
+export default Login;
+```
+
+<br>
+
+### # **useRef hook 모달 영역 밖 클릭 시 닫기**
+
+<br>
+
+- useRef hook을 사용하여 모달 영역 밖 클릭 시 모달이 자동으로 닫히도록 구현할 수 있다.
+
+  ```javascript
+  const userMenu = useRef();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const modalCloseHandler = ({ target }) => {
+    if(isOpen && !userMenu.current.contains(target)) setIsOpen(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener('click', modalCloseHandler);
+
+    // 모달 특성상 컴포넌트가 unmount 되는 주기가 많으므로 useEffect 부수 효과 함수안의 리턴문을 통해 click 이벤트를 remove 한다.
+    return () => {
+      window.removeEventListener('click', modalCloseHandler);
+    };
+  });
+
+  return (
+    {
+      isOpen &&
+      <Modal ref={userMenu}>
+        ...
+      </Modal>
+    }
+  );
+  ```
+
+<br>
+
+### # **useTransition / useDeferredValue**
+
+react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었다. 이 두가지 hook은 기존 debouncing과 throttling이 필요한 경우 사용할 수 있다.
+
+<br>
+
+- useTransition
+
+  사용 방법은 useState와 동일하게 배열로 구조 분해해서 사용하는데 첫번째 요소를 state 대기 상태를 감지할 때 사용하며 두번째 요소는 useState의 setState 함수를 콜백으로 전달받아 setState의 실행 우선 순위를 늦츨 수 있다. useTransition 내부에서 setState가 동작 시 일반 setState는 긴급 업데이트로 처리되고 useTransition 내부 setState는 일반 setState보다 느리게 동작한다. 또한 useTransition 내부에서 setState가 동작하고 있을 때 또 다시 setState가 되면 마지막 업데이트 사항만 반영된다. 즉 기존 비동기로 처리되어 우선 순위를 정할 수 없던 setState를 useTransition를 통해 우선 순위를 나눌 수 있게 된 것이다. 예를 들어 버튼을 클릭하여 UI를 업데이트 시킨다고 가정할 때 버튼 클릭은 일반 setState로 사용하여 사용자와 바로 상호작용 할 수 있도록 하고 UI 업데이트는 useTransition 내부에서 setState로 처리할 수 있다. 요약해서 useTransition는 우선 순위를 늦츨 수 있고 setState가 완전히 처리될 때까지 loading 상태를 표시할 수 있다는 것이다.
+
+  ```javascript
+  function App() {
+    const [isPending, startTransition] = useTransition();
+    const [firstCount, setFirstCount] = useState(1);
+
+    const handleClick = () => {
+      startTransition(() => {
+        setSecondCount((prev) => prev + 10);
+      });
+
+      setFirstCount((prev) => prev + 1);
+    };
+
+    return (
+      <div>
+        {isPending ? (
+          <div>로딩...</div>
+        ) : (
+          arr2.map((el, index) => {
+            return (
+              <button key={index} onClick={handleClick}>
+                {secontCount}
+              </button>
+            );
+          })
+        )}
+      </div>
+    );
+  }
+  ```
+
+<br>
+
+- useDeferredValue
+
+  useTransition는 업데이트 순서에 직접 관여하는 반면 useDefferredValue는 업데이트 되는 값에 관여한다. useDefferredValue 를 적용하는 경우 값이 완전히 처리되기 전까지 이전 값을 표시한다. 사용법은 setState의 업데이트 값인 state를 전달받아 사용한다.
+
+  ```javascript
+  const UseDeferredValueTest = () => {
+    const [query, setQuery] = useState("");
+    const deferredQuery = useDeferredValue(query);
+
+    return (
+      ...
+      <SearchResults query={query} />
+    )
+  }
+  ```
 
 <br><br><br>
 
@@ -5543,6 +6038,12 @@ function GenericReturnFunc<T>(arg: T): T {
 <br>
 
 ### # RESTful API, GraphQL, Path Parameter, Query Parameter
+
+<br>
+
+- API란?
+
+  API(Application Programming Interface)란 단어 자체의 뜻 처럼 어플리케이션 프로그래밍 인터페이스를 말한다. 인터페이스란 쉽게 말해 자판기의 버튼과 같은 역할을 하며 소프트웨어와 소프트웨어 간의 정보교환 창구이다. 지정된 형식으로 요청, 명령을 받을 수 있는 수단을 말한다. 예를 들어 기상청서버로부터 미리 작성된 소프트웨어(지정된 형식, 공개된 메뉴얼)를 통해 날씨 정보를 요청하고 전송 받을 수가 있다.
 
 <br>
 

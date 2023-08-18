@@ -99,7 +99,7 @@ export default FileUploadTest;
 
 ## **2. URL.createObjectURL**
 
-두 번째로 `URL.createObjectURL` 방식이다. File객체나 Blob객체를 인자로 받아 임시 URL을 생성하여 상사용한다. 해당 URL은 생성된 페이지 내에서만 유효하다.
+두 번째로 `URL.createObjectURL` 방식이다. File객체나 Blob객체를 인자로 받아 임시 URL을 생성하여 사용한다. 해당 URL은 생성된 페이지 내에서만 유효하다.
 
 `URL.createObjectURL` 사용 시 주의할 점은 문서가 닫히거나(페이지 이동) `URL.revokeObjectURL` 를 호출하지 않으면 생성한 고유 URL은 메모리에 계속 상주하게 된다. 즉 메모리 누수가 발생할 수 있다. 그러므로 사용하지 않을 때에는 `URL.revokeObjectURL`를 통해 생성한 객체 URL을 제거해주어야한다.
 
