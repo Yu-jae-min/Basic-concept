@@ -6444,7 +6444,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # apllo client useQuery의 fetchPolicy / nextFetchPolicys
+### # **apllo client useQuery의 fetchPolicy / nextFetchPolicys**
 
 <br>
 
