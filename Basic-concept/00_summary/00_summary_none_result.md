@@ -2,99 +2,67 @@
 
 <br>
 
-### # **시멘틱 태그와 SEO**
-
-<br>
+### # 시멘틱 태그와 SEO
 
 - 시멘틱 태그란?
 
-<br>
-
 - 웹 접근성 이란?
-
-<br>
 
 - 웹 표준 이란?
 
-<br>
+- SEO(Search Engine Optimization, 검색 엔진 최적화)란?
 
 - 검색 엔진의 동작 순서
 
-<br>
-
-- SEO(검색 엔진 최적화)란?
+- SEO(검색 엔진 최적화)적용 사례
 
 <br>
 
-- SEO(검색 엔진 최적화)적용 사례가 있으면 구체적인 적용 방법도 같이 설명
-
-<br>
-
-### # **ul / ol / dl 차이**
-
-<br>
+### # ul / ol / dl 차이
 
 - ul
 
-<br>
-
 - ol
-
-<br>
 
 - dl
 
 <br>
 
-### # **block vs inline vs inline block**
-
-<br>
+### # display 속성, block / inline / inline block
 
 - display: block
 
-<br>
-
 - display: inline
-
-<br>
 
 - display: inline-block
 
 <br>
 
-### # **script 태그를 HTML 파일에서 body 태그 아래에 쓸 지 위에 쓸 지?**
+### # script 태그를 HTML 파일에서 body 태그 아래에 위치시키는 이유
 
 <br>
 
-### # **html ID와 Class 에 대해 설명해달라**
+### # 태그 속성 ID 선택자와 Class 선택자
 
 <br>
 
-### # **HTML 파일 최상단에 !DOCTYPE은 왜 표기하는 것인지?**
+### # HTML 파일 최상단에 `<!DOCTYPE html>`를 표기하는 이유
 
 <br>
 
-### # **표준모드와 쿼크모드**
+### # 브라우저 렌더링 모드, 표준모드와 쿼크모드
 
 <br>
 
-### # **`data-*` 속성**
+### # `data-*` 속성
 
 <br>
 
-### # **attribute와 property의 차이점이 무엇인가?**
+### # attribute와 property의 차이점
 
 <br>
 
-- attribute
-
-<br>
-
-- property
-
-<br>
-
-### # **캔버스 관련 작업을 해보신 적이 있나요?**
+### # 캔버스 관련 작업 경험
 
 <br><br><br>
 
@@ -104,27 +72,17 @@
 
 ### # CSS 핵(hack)이란?
 
-<br>
-
 - CSS hack 이란?
-
-<br>
 
 - CSS hack 종류
 
 <br>
 
-### # **CSS 전처리기**
-
-<br>
+### # CSS 전처리기
 
 - CSS 전처리기란?
 
-<br>
-
 - CSS 전처리기가 만들어진 이유
-
-<br>
 
 - CSS 전처리기 장단점
 
@@ -132,97 +90,119 @@
 
   - 단점
 
-<br>
-
 - Sass를 사용하는 이유
 
-<br>
-
 - SCSS를 모듈로 사용한 이유
-
-<br>
 
 - SCSS, SASS 차이는?
 
 <br>
 
-### # **CSS framework를 사용해본 적이 있으신가요? 실무에서 사용해보았다면 어떤 이점이 있었나요?**
+### # CSS framework를 사용해본 적이 있으신가요? 실무에서 사용해보았다면 어떤 이점이 있었나요?
 
 <br>
 
 ### # **SCSS vs styled-components**
 
-<br>
-
 - 각각의 차이점
-
-<br>
 
 - 둘 중 무엇을 주로 쓰고 쓰는 이유는?
 
 <br>
 
-### # **반응형에 대해 설명해달라**
-
-<br>
+### # 반응형
 
 - 반응형이란?
 
-<br>
-
 - 반응형 웹의 3요소
-
-<br>
 
 - 적응형과 반응형의 차이를 아는가?
 
 <br>
 
-### # **Flexbox 속성 종류**
-
-<br>
+### # display flex
 
 - display flex
 
-<br>
-
 - flex-direction
-
-<br>
 
 - justify-contents
 
-<br>
-
 - align-items
-
-<br>
 
 - flex-wrap
 
-<br>
-
 - align-content
-
-<br>
 
 - flex-basis
 
-<br>
-
 - flex-grow
 
-<br>
-
 - flex-shrink
-
-<br>
 
 - flex
 
 <br>
 
-### # **before, after 언제 사용하는가?**
+### # display grid
+
+- grid와 flex의 차이
+
+- 그리드 용어
+
+  - 그리드 컨테이너 (Grid Container)
+
+  - 그리드 아이템 (Grid Item)
+
+  - 그리드 트랙 (Grid Track)
+
+  - 그리드 셀 (Grid Cell)
+
+  - 그리드 라인(Grid Line)
+
+  - 그리드 번호(Grid Number)
+
+  - 그리드 갭(Grid Gap)
+
+  - 그리드 영역(Grid Area)
+
+- 그리드 속성
+
+  - `display: grid`
+
+  - grid-template-rows, grid-template-columns
+
+    - fr(fraction) 속성
+
+    - repeat 함수 속성
+
+    - minmax 함수 속성
+
+  - auto-fill과 auto-fit
+
+  - row-gap, column-gap, gap
+
+  - grid-auto-columns, grid-auto-rows
+
+  - grid-column-start, grid-column-end, grid-column, grid-row-start, grid-row-end, grid-row
+
+  - grid-template-areas
+
+  - grid-auto-flow
+
+  - align-items, justify-items
+
+  - align-content, justify-content
+
+  - align-self, justify-self
+
+  - order
+
+  - z-index
+
+<br>
+
+### # before, after
 
 <br>
 
