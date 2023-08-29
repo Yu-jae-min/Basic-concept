@@ -174,7 +174,7 @@
 
   - 장점 (재유구)
 
-    (1) 재사용성 및 개발 시간 단축 : 변수 및 Mixins의 사용으로 일관된 테마 사용
+    (1) 재사용성 증가로 인한 개발 시간 단축 : 변수 및 Mixins의 사용으로 일관된 테마를 사용하므로 재사용성이 증가하고 개발 시간이 단축된다.
 
     (2) 유지관리 : Nesting을 통해 구조가 명확해져 유지보수가 용이해지고 여러 파일로 나누어 관리가 가능해 짐, 이 경우 일반 css도 가능하지만 서버에서 불러오는 파일이 css 전처리기에 경우 컴파일된 1개의 스타일시트만 불러오게 된다.
 
@@ -202,17 +202,13 @@
 
 <br>
 
-### # **CSS framework를 사용해본 적이 있으신가요? 실무에서 사용해보았다면 어떤 이점이 있었나요?**
-
-<br>
+### # CSS framework를 사용해본 적이 있으신가요? 실무에서 사용해보았다면 어떤 이점이 있었나요?
 
 - 사용해본 경험은 없다. 유명한 css 프레임워크로는 부트스트랩, 메터리얼UI, 테일윈드CSS 등이 있는 것으로 알고 있고 css 프레임워크를 사용하는 이유로는 빠르고 일관적인 스타일링과 프로젝트 유지 보수 시 빠른 캐치업이 가능하기 때문에 사용하는 것으로 알고 있다.
 
 <br>
 
-### # **SCSS vs styled-components**
-
-<br>
+### # SCSS vs styled-components
 
 - 각각의 차이점 (속파동시문클)
 
@@ -228,23 +224,17 @@
 
   (6) 클래스 사용 여부 : scss는 클래스를 일일히 지정해야하고 styled-components는 지정하지 않아도 된다.
 
-<br>
-
 - 둘 중 무엇을 주로 쓰고 쓰는 이유는?
 
   scss와 styled component 둘 다 사용해본 경험이 있다. 주로 쓰는 것은 SCSS를 주로 사용한다. 그 이유는 개인적으로 SCSS 문법이 더 친숙하고 편하며 더 빠르기 때문이다. CSS 파일이 추출되는 CSS 모듈 방식은 자바스크립트 해석 과정이 따로 없기 때문에 더 빠르다고 한다.
 
 <br>
 
-### # **반응형에 대해 설명해달라**
-
-<br>
+### # 반응형
 
 - 반응형이란?
 
   반응형 웹이란 하나의 웹사이트에서 PC, 태블릿, 모바일 등 접속하는 디스플레이의 종류에 따라 크기가 자동으로 변하게 만든 웹페이지 접근 기법을 말한다.
-
-<br>
 
 - 반응형 웹의 3요소 (미플플)
 
@@ -254,71 +244,49 @@
 
   (3) Flexible Img : 모든 화면에서 볼 수 있는 큰 이미지를 사용하고 max-width를 100%, height를 auto로 설정하는 방법이다.
 
-<br>
-
 - 적응형과 반응형의 차이를 아는가?
 
   반응형 웹은 하나의 템플릿을 사용해 모든 기기에 대응하는데 반해, 적응형 웹은 선별된 기기 유형에 따라 별도의 독립적인 템플릿이 요구한다. 반응형은 하나의 템플릿을 사용하므로 개발이 상대적으로 간편하다는 장점이 있지만 속도는 사용자 기기에 맞는 템플릿과 css만 다운로드하는 적응형이 더 빠르다.
 
 <br>
 
-### # **Flexbox 속성 종류**
-
-<br>
+### # display flex
 
 - display flex
 
   display에 flex를 적용하여 flex container를 만들 수 있다.
 
-<br>
-
 - flex-direction
 
   flex container 내부에 flex item이 배치 방향을 설정한다. 디폴트 값은 row이다. 속성의 종류로는 row, column 등이 있다.
-
-<br>
 
 - justify-contents
 
   가로 축을 기준으로 flex item에 배치를 결정한다. 속성의 종류로는 flex-start, flex-end, center, space-between 등이 있다.
 
-<br>
-
 - align-items
 
   세로 축을 기준으로 flex item에 배치를 결정한다. 속성의 종류로는 stretch, flex-start, flex-end, center 등이 있다.
-
-<br>
 
 - flex-wrap
 
   flex item이 flex container를 넘어갈 때 줄바꿈 처리를 어떻게 할지 결정한다. 속성의 종류로는 nowrap, wrap 등이 있다.
 
-<br>
-
 - align-content
 
   줄바꿈이 허용된 상태에서 flex item이 두 줄 이상이 되었을 때 세로 축을 기준으로 flex item에 배치를 결정한다.
-
-<br>
 
 - flex-basis
 
   flex item에 기본 크기를 결정한다.
 
-<br>
-
 - flex-grow
 
   flex-grow는 flex item이 flex-basis의 값보다 커질 수 있는지를 결정하는 속성이다. 디폴트 값은 0으로 커지지 않는 것을 뜻한다. 0이 아닌 경우의 값은 비율을 나타내며 이 비율은 flex-basis값을 제외한 여백을 나눠갖는 비율이다.
 
-<br>
-
 - flex-shrink
 
   flex-shrink는 flex item이 flex-basis의 값보다 작아질 수 있는지를 결정하는 속성이다. 디폴트 값은 1이다. 0으로 설정할 경우 flex-basis보다 작아지지 않기 때문에 고정 폭의 컬럼을 만들 수 있다.
-
-<br>
 
 - flex
 
@@ -326,11 +294,117 @@
 
 <br>
 
-### # **before, after 언제 사용하는가?**
+### # display grid
+
+- grid와 flex의 차이
+
+  flex는 한 방향 레이아웃 시스템 (1차원)이고 grid는 두 방향(가로-세로) 레이아웃 시스템 (2차원)이다.
+
+- 그리드 용어
+
+  - 그리드 컨테이너 (Grid Container)
+
+    `display: grid`를 적용하는, Grid의 전체 영역이다. Grid 컨테이너 안의 요소들이 Grid 규칙의 영향을 받아 정렬된다고 생각하면 된다.
+
+  - 그리드 아이템 (Grid Item)
+
+    Grid 컨테이너의 자식 요소들입니다. 바로 이 아이템들이 Grid 규칙에 의해 배치되는 것이다. `display: grid`를 적용한 요소의 `children`을 말한다.
+
+  - 그리드 트랙 (Grid Track)
+
+    Grid의 행(Row) 또는 열(Column)
+
+  - 그리드 셀 (Grid Cell)
+
+    Grid의 한 칸을 가리킨다. `display: grid`를 적용한 요소의 `children`과 같이 `<div>`같은 실제 html 요소는 그리드 아이템이고, 이런 Grid 아이템 하나가 들어가는 “가상의 칸(틀)”이라고 생각하면 된다.
+
+  - 그리드 라인(Grid Line)
+
+    Grid 셀을 구분하는 선이다.
+
+  - 그리드 번호(Grid Number)
+
+    Grid 라인의 각 번호이다.
+
+  - 그리드 갭(Grid Gap)
+
+    Grid 셀 사이의 간격이다.
+
+  - 그리드 영역(Grid Area)
+
+    Grid 라인으로 둘러싸인 사각형 영역으로, 그리드 셀의 집합이다.
+
+- 그리드 속성
+
+  - `display: grid`
+
+    `grid 컨테이너에 적용하는 속성`이다. 해당 속성을 적용시킨 후 다른 gird 속성을 활용하여 그리드 컨테이너 요소의 자식 요소인 그리드 아이템 요소에 grid 규칙을 적용시킬 수 있다. `display: inline-grid` 속성도 있는데, 이건 block과 inline-block의 관계를 생각하면 된다. 아이템의 배치와 관련이 있다기 보다는, 컨테이너가 주변 요소들과 어떻게 어우러질지 결정하는 값이다. inline-grid는 inline-block처럼 동작한다.
+
+  - grid-template-rows, grid-template-columns
+
+    컨테이너에 지정해주는 속성이며 Grid 트랙의 크기들을 지정해주는 속성이다. grid-template-rows는 행(row)방향, grid-template-columns은 열(column)방향의 크기를 지정한다.
+
+    - fr(fraction) 속성
+
+      숫자 비율대로 트랙의 크기를 나눈다. 즉 위의 1fr 1fr 1fr은 균일하게 1:1:1 비율을 지정한다는 의미이다.
+
+    - repeat 함수 속성
+
+      반복되는 값을 자동으로 처리할 수 있는 함수이다. 첫번째 인자는 반복되는 수이고 두번째 인자는 반복되는 값을 전달해주면 된다.
+
+    - minmax 함수 속성
+
+      최솟값과 최댓값을 지정할 수 있는 함수이다. 예를 들어 minmax(100px, auto)의 의미는 최소한 100px, 최대는 자동으로(auto) 늘어나도록 한 것이다.
+
+  - auto-fill과 auto-fit
+
+    column의 개수를 미리 정하지 않고 설정된 너비가 허용하는 한 최대한 셀을 채운다. 만약 9개의 children을 가지는 부모 컨테이너에 `grid-template-columns: repeat(auto-fill, minmax(20%, auto))`과 같은 값을 지정하게 되면 두 개의 row와 다섯 개의 column을 가지는 레이아웃이 생성된다. 이 때 가장 끝 셀은 비어있게 된다. 왜냐하면 컬럼의 최소 크기를 20%로 지정해주었기 때문에 그리드 아이템은 로우 당 5개씩 아이템이 배치되고 두 번째 로우에는 4개의 아이템만 배치되게 된다. 이 때 auto-fit을 사용하면 나머지 셀의 크기를 균등하게 늘려 비어있는 셀을 채우게 된다. 또 auto-fill이나 auto-fit을 적용시킨 상태로 셀 크기를 px로 지정하면 브라우저 크기에 따라 레이아웃이 변경되도록 지정할 수 있다.
+
+  - row-gap, column-gap, gap
+
+    셀 사이의 간격을 만든다.
+
+  - grid-auto-columns, grid-auto-rows
+
+    grid-template-columns, grid-template-rows의 통제를 벗어난 위치에 있는 트랙의 크기를 지정하는 속성이다. 예를 들어 children을 9개 가지고 있는 컨테이너에 grid-template-rows: repeat(3, minmax(50px, auto))와 같이 속성을 지정한다면 나머지 6개의 요소는 통제를 벗어난 위치에 있는 트랙이 되는 것이다. 이 때 grid-auto-rows: minmax(50px, auto)과 같이 해당 속성을 단독으로 사용하면 모든 트랙의 크기를 지정해줄 수 있다. 그리드 아이템 갯수를 미리 알 수 없을 때 유용하다.
+
+  - grid-column-start, grid-column-end, grid-column, grid-row-start, grid-row-end, grid-row
+
+    이 속성들은 Grid 아이템에 적용하는 속성으로, 각 셀의 영역을 지정한다. 그리드 영역에는 그리드 라인 번호가 매겨져 있는데, 바로 그 번호를 이용해서 column과 row의 범위를 결정하는 것이다.
+
+  - grid-template-areas
+
+    각 영역(Grid Area)에 이름을 붙이고, 그 이름을 이용해서 배치하는 방법이다.
+
+  - grid-auto-flow
+
+    아이템이 자동 배치되는 흐름을 결정하는 속성이다. 초기 속성은 행 방향 배치인 row이고, 열 방향 배치 속성인 column, 빈 셀 채우는 속성인 dense, 행 방향 배치와 빈 셀을 채우는 속성인 row dense, 열 방향 배치와 빈 셀을 채우는 속성인 column dense 등이 있다.
+
+  - align-items, justify-items
+
+    align-items과 justify-items은 컨테이너에 적용되는 속성으로 셀 안에서 그리드 아이템들의 정렬 방식을 지정한다. align-items은 세로(column축) 방향, justify-items은 가로(row축) 방향을 지정할 수 있다. 기본 값은 stretch로 셀 내부에 꽉 차게 적용되고 축의 시작점부터 정렬 되는 start, 축의 중심점부터 정렬되는 center, 축의 끝점부터 정렬되는 end 등의 속성이 있다. 또 place-items이라는 축약형 속성으로 align-items과 justify-items을 한번에 지정해줄 수 있다.
+
+  - align-content, justify-content
+
+    Grid 아이템들의 크기를 모두 합한 값이 Grid 컨테이너의 크기보다 작을 때 Grid 아이템들을 통째로 정렬한다. align-content은 세로(column축) 방향으로 그룹 정렬하는데 그리드 아이템들의 높이 합이 컨테이너 높이보다 작을 때 적용되고, justify-content은 가로(row축) 방향으로 그룹 정렬하는데 그리드 아이템들의 폭 합이 컨테이너 폭보다 작을 떄 적용된다. 기본 값은 stretch로 컨테이너 내부에 꽉 차게 적용되고 컨테이너 시작점부터 정렬되는 start, 컨테이너 중심점부터 정렬되는 center, 컨테이너 끝점부터 정렬되는 end, 그리드 아이템 사이에 균일한 간격을 두고 정렬되는 space-between, 그리드 아이템 둘레에 균일한 간격을 두고 정렬되는 space-around, 그리드 아이템 사이와 양 끝에 균일한 간격을 두고 정렬되는 space-evenly 속성 등이 있다. 또 place-content이라는 축약형 속성으로 align-content과 justify-content를 한번에 지정해줄 수 있다.
+
+  - align-self, justify-self
+
+    그리드 아이템에 적용하는 속성으로 개별 아이템을 정렬할 수 있다. align-content와 justify-content와의 차이는 그리드 아이템 개별로 적용시킬 때 사용하는 속성이라는 것이다. 사용 방법은 동일하지만 개별로 동작하므로 stretch, start, center, end 속성만 존재한다. 또 place-self 축약형 속성으로 align-self justify-self를 한번에 지정해줄 수 있다.
+
+  - order
+
+    시각적 나열 순서를 결정하는 속성이다. 숫자 값이 들어가며 작은 숫자일 수록 먼저 배치된다. 시각적으로 변경되는 것일 뿐 HTML 자체 구조를 바꾸는 것은 아니므로 접근성 측면에서 사용에 주의하여야한다. 시각 장애인분들이 사용하는 스크린 리더로 화면을 읽을 때 order를 이용해 순서를 바꾼 것은 의미가 없다는 것이다.
+
+  - z-index
+
+    z-index로 Z축 정렬을 할 수 있다. 숫자가 클 수록 위로 올라온다. position에서의 z-index와 같은 개념이다.
 
 <br>
 
-- 가상 요소를 만들 때 사용하며 태그를 직접 추가하지 않고 장식 요소를 추가할 때 사용하였다. 사용함으로써 의미없는 태그를 추가하지 않아도 된다.
+### # before, after
+
+- 가상 요소를 만들 때 사용하며 태그를 직접 추가하지 않고 장식 요소를 추가할 때 사용한다. 해당 속성을 사용함으로써 의미없는 태그를 추가하지 않아도 된다.
 
 <br>
 
