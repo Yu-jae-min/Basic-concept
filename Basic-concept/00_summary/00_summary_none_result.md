@@ -1154,6 +1154,42 @@
 
 <br>
 
+- 기본 리렌더링 조건
+
+- 리액트의 2가지 렌더링과 2가지 렌더링 단계
+
+  - 리액트 렌더링 단계와 브라우저 렌더링 단계
+
+  - 리액트의 렌더링
+
+    - 컴포넌트 렌더링
+
+    - 엘리먼트 렌더링
+
+  - 리액트의 렌더링 단계
+
+    - Render phase 단계
+
+    - Commit phase 단계
+
+- React.createElement이란?
+
+- children과 렌더링
+
+  - children이란?
+
+  - 부모 리렌더링 시 children이 리렌더링 되지 않는 이유
+
+  - children은 언제 사용하는 것이 좋을까?
+
+- React.memo
+
+  - React.memo란?
+
+  - children props를 전달 받는 컴포넌트에서 React.memo가 동작하지 않는 이유
+
+<br>
+
 ### # **컴포넌트**
 
 <br>
