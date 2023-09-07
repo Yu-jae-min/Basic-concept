@@ -1368,7 +1368,15 @@
 
 <br>
 
-- useMemo와 useCallback은 언제 사용하는가?
+- useMemo를 사용해야 하는 경우
+
+<br>
+
+- useCallback을 사용해야 하는 경우
+
+<br>
+
+- useMemo와 useCallback을 사용하지 말아야 하는 경우
 
 <br>
 
