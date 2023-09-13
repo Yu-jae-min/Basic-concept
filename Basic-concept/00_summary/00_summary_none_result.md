@@ -1658,11 +1658,217 @@
 
 ### # 안티 패턴 알고 있는 것?
 
-<br><br><br>
+<br>
 
-## # Typescript
+### # **FileReader와 URL.createObjectURL**
+
+- FileReader
+
+- URL.createObjectURL
+
+- FileReader vs URL.createObjectURL
 
 <br>
+
+### # **import 중괄호 {}의 유무**
+
+<br>
+
+### # **트리 쉐이킹 (Tree Shaking)**
+
+<br>
+
+### # **Link tag 특정 조건에서의 페이지 이동**
+
+<br>
+
+### # **Link tag 페이지 이동 시 props 전달하기**
+
+<br>
+
+### # **axios와 모듈화**
+
+- 모듈화 방법
+
+- 모듈화 장점
+
+<br>
+
+### # **modal Portals로 사용하기**
+
+<br>
+
+### # **useRef hook 모달 영역 밖 클릭 시 닫기**
+
+<br>
+
+### # **useTransition / useDeferredValue**
+
+- useTransition
+
+- useDeferredValue
+
+<br>
+
+### # **React 18 Streaming SSR**
+
+- 기존 SSR의 문제점
+
+- Streaming SSR
+
+<br>
+
+### # React Server Component (RSC)
+
+- React Server Component 도입 배경
+
+- React Server Component의 장점
+
+- 서버, 클라이언트, 공유 컴포넌트
+
+  - 컴포넌트의 분류
+
+  - 서버 컴포넌트
+
+    - 서버 컴포넌트란?
+
+    - 사용 시 주의사항
+
+    - 파일 네임 컨벤션
+
+  - 클라이언트 컴포넌트
+
+    - 클라이언트 컴포넌트란?
+
+    - 사용 시 주의사항
+
+    - 파일 네임 컨벤션
+
+  - 공유 컴포넌트
+
+    - 공유 컴포넌트란?
+
+    - 사용 시 주의사항
+
+    - 파일 네임 컨벤션
+
+- 미래의 리액트 컴포넌트
+
+- 서버 컴포넌트(RSC)와 서버 사이드 렌더링(SSR)의 차이
+
+<br><br><br>
+
+## # Next.js
+
+<br>
+
+### # **Next.js 사용 이유**
+
+<br>
+
+### # **`_app`과 `_document`**
+
+- `_app`
+
+- `_document`
+
+<br>
+
+### # **CRS, SSR, SSG, ISR**
+
+- CRS (Client Side Rendering)
+
+  - CRS이란?
+
+  - 동작 방식
+
+  - 장점
+
+  - 단점
+
+<br>
+
+- SSR (Server Side Rendering)
+
+  - SSR이란?
+
+  - 동작 방식
+
+  - 장점
+
+  - 단점
+
+<br>
+
+- SSG (Static Site Generation)
+
+  - SSG란?
+
+  - 동작 방식
+
+  - 장점
+
+  - 단점
+
+<br>
+
+- ISR (Incremental Static Regeneration)
+
+  - ISR이란?
+
+  - 동작 방식
+
+  - 장점
+
+  - 단점
+
+<br>
+
+### # **getStaticProps, getStaticPath, getInitialProps, getServerSideProps**
+
+- getStaticProps
+
+- getStaticPath
+
+- getServerSideProps vs getInitialProps
+
+  - 공통점
+
+  - 차이점
+
+<br>
+
+### # **PWA(Progressive Web Apps)**
+
+- PWA란?
+
+- PWA 장단점
+
+  - 장점
+
+  - 단점
+
+<br>
+
+### # **Next.js의 환경 변수**
+
+- .env
+
+- .env.development
+
+- .env.production
+
+- .env.local
+
+- .env.test
+
+<br>
+
+### # **컴포넌트 내부의 실행 순서**
+
+app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부에는 로직단에 console.log, useEffect, useLayoutEffect, 렌더단에 console.log 즉시 실행 함수가 있다.
+
+<br><br><br>
 
 ## # Typescript
 
@@ -2439,6 +2645,18 @@
   (10) IAM(Identity and Access Management)
 
   (11) VPC(Virtual Private Cloud)
+
+<br>
+
+- AWS S3, AWS EC2, AWS Amplify를 활용한 각 프론트 배포 방법 차이
+
+  - AWS EC2
+
+  - AWS S3
+
+  - AWS Amplify
+
+  - 대표 프론트 배포 방법
 
 <br>
 

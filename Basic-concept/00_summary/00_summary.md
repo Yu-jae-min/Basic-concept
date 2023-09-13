@@ -983,7 +983,7 @@
 
 <br>
 
-- 크로스 브라우징 대응이 되게 하는 것으로 어떤 노력을 해봤는가? (아리바인)
+- 크로스 브라우징 대응이 되게 하는 것으로 어떤 노력을 해봤는가? (아리바인호타)
 
   (1) IE 용 주석 : HTML 문서 내에 IE 용 주석을 이용한 방법으로 IE 사용자가 접근하지 못하도록 막았었다.
 
@@ -992,6 +992,10 @@
   (3) 바벨 사용 : 바벨의 플러그인이나 프리셋을 활용하여 자바스크립트 최신 문법을 하위 문법으로 변환해주었다.
 
   (4) input 한글 입력 시 이벤트 두 번 실행 : 최근 프로젝트 중 검색 창에 검색어 입력 후 추천 검색어 리스트가 나타나면 키보드로 이동하여 선택할 수 있는 기능을 구현하였는데 이 때 한글을 입력 후 방향키 입력 시 첫번째 키다운 이벤트가 두 번씩 발생하는 에러가 있었다. 에러가 발생한 이유는 한글이 조합어이기 때문이었고 조합어는 문자가 작성 중인지 아닌 지를 판별하는 isComposing 속성이 있다고 한다. 한글 입력 후 방향키 입력 시 방향키는 조합어가 아니기 때문에 isComposing 상태가 true에서 false로 전환되는데 이 때 이벤트가 두 번 실행 되었다. 즉 방향키 입력 순간 isComposing가 변경되며 두 번 실행되는데 isComposing 상태가 true일 때 한 번 실행, false일 때 한 번 실행되며 총 두 번 실행되게 되었다. 이 문제를 해결하기 위해 `e.nativeEvent.isComposing` 속성을 활용하여 isComposing이 true인 경우 방향키 이벤트가 실행되지 않도록 지정하여 입력 값이 조합어가 아닌 경우만 이벤트가 실행되도록 하였다.
+
+  (5) 호환성 확인 : 메소드나 스타일 속성을 사용할 때 Can I Use와 같은 사이트를 통해 브라우저 호환성 체크
+
+  (6) 타깃 설정 : 모든 브라우저 대응이 어려운 경우 구글 어낼리틱스나 navigator 객체의 userAgent를 통해 서비스를 사용하는 사용자의 기기를 확인 후 많은 점유를 차지하는 기기 순서대로 대응하였다.
 
 <br>
 
@@ -3715,13 +3719,13 @@
 
 - 번들링(Bundling)
 
-  서로 연관있는 여러 파일을 하나의 파일로 병합(js, img, scss 등)하는 것을 말한다. 하나로 병합 된 번들로 요청/응답을 받음으로써 HTTP 요청 횟수를 줄일 수 있다. 대표적인 툴로는 웹팩이 있다.
+  서로 연관있는 여러 파일을 하나의 파일로 병합(js, img, scss 등)하는 것을 말한다. 하나로 병합 된 번들로 요청/응답을 받음으로써 HTTP 요청 횟수를 줄일 수 있다. 대표적인 툴로는 웹팩이 있다. 코드 스플리팅과 연관이 있는데 코드 스플리팅을 통해 번들을 분할하여 메인 번들과 번들인 조각 청크로 번들을 쪼갤 수 있다. 쪼개진 번들은 필요에 따라 순차적으로 클라이언트에 전달된다.
 
 <br>
 
-- 코드스플리팅(code splitting)
+- 코드 스플리팅(code splitting)
 
-  프로젝트 규모가 커지면 번들 사이즈도 커지게 된다. 그렇게 되면 성능 저하가 일어날 수 있다. 이럴 때 코드 스플리팅을 사용한다. 코드 스플리팅은 하나의 번들을 여러 개의 번들로 나누어준다. 코드스플리팅으로 번들을 나눈 후 실제 로드될 화면에 필요한 번들 파일만 불러오고 나머지 번들 파일은 호출하지 않고 지연시키는 비동기 로딩으로 로딩 속도를 향상시킬 수 있다.
+  프로젝트 규모가 커지면 번들 사이즈도 커지게 된다. 그렇게 되면 성능 저하가 일어날 수 있다. 이럴 때 코드 스플리팅을 사용한다. 코드 스플리팅은 하나의 번들을 여러 개의 번들(청크)로 나누어준다. 코드 스플리팅으로 번들을 나눈 후 실제 로드될 화면에 필요한 번들 파일만 불러오고 나머지 번들 파일은 호출하지 않고 지연시키는 비동기 로딩으로 로딩 속도를 향상시킬 수 있다.
 
 <br>
 
@@ -5071,6 +5075,180 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   또한 브라우저에서는 전달받은 HTML 부분을 먼저 렌더링하고 렌더링이 완료된 부분 먼저 하이드레이션을 수행한다.
 
+<br>
+
+### # React Server Component (RSC)
+
+<br>
+
+- React Server Component 도입 배경
+
+  기존 React에서 Data fetching 시 대부분 아래와 같은 케이스 중 하나를 선택하여 API를 호출한다.
+
+  - **부모 컴포넌트에서 거대한 API를 호출하여 자식의 props로 내려준다.**
+  - **컴포넌트에 필요한 API를 각 컴포넌트에서 호출한다.**
+
+  첫 번째 방법의 경우 부모 컴포넌트에서 거대한 API를 호출하여 API 요청 수를 줄일 수 있지만 데이터 오버 패칭 및 부모 컴포넌트와 자식 컴포넌트의 의존성이 높아지게 되어 재사용 및 유지보수가 어려워지게 된다.
+
+  두 번째 방법의 경우 각 컴포넌트가 렌더링 될 때 필요한 데이터만 가져와 보여줄 수 있다는 장점이 있지만 API 요청 수가 많고 부모 컴포넌트가 렌더링 된 후 API를 요청하여 응답을 받아올 때까지 자식 컴포넌트의 렌더링과 API 호출이 지연된다. 또한 호출 지연이 발생하는 경우 나타나는 `Waterfall`로 인해 사용자 경험은 떨어지게 되고 UI가 밀리는 `Layout Shift`가 발생할 수 있다.
+
+  또한 기존 Nextjs에서 SSR을 위해 getSeverSideProps를 사용했는데 getSeverSideProps는 최상위 컴포넌트에서만 사용이 가능했고 getSeverSideProps를 통해 받아온 데이터를 props 등으로 하위 컴포넌트로 내려주어야 한다는 문제가 있었다. 이러한 문제도 React Server Component 로 해결할 수 있다. RSC를 사용하면 서버와 클라이언트(브라우저)가 서로 협력하여 렌더링할 수 있다. 즉, 일부 컴포넌트는 브라우저에서, 일부 컴포넌트는 서버에서 렌더링할 수 있게 된다.
+
+  마지막으로 번들 사이즈 문제도 해결할 수 있다. UI를 렌더링할 때 UI를 렌더링하는 데에는 필요하지 않은 데이터 처리 과정에 필요한 모듈까지 함께 번들링 되기 때문에 큰 프로젝트의 경우 브라우저가 받아와야 하는 파일의 용량이 매우 높아진다. 이 불필요한 청크들을 받아오는 것을 막기 위해 Code splitting이나 Lazy Loading과 같은 기술을 이용하지만 반복되는 작업과 시간 투자가 불편함으로 작용했다. 이러한 문제점도 `React Server Component`를 통해 해결할 수 있다. RSC를 사용해서 인터렉션이 없는 부분에 번들이 추가되지 않도록 할 수 있다. (Zero-Bundle)
+
+<br>
+
+- React Server Component의 장점
+
+  - 자유로운 서버 리소스 접근
+
+    서버 컴포넌트는 서버에서 동작하기 때문에 데이터베이스, GraphQL, 파일 시스템, 인터널 서비스 등 서버 사이드 데이터 소스에 직접 접근 할 수 있다. 서버는 공용 api 엔드 포인트를 거치지 않고 데이터를 직접 가져올 수 있고, 일반적으로 데이터 소스와 더 가깝게 배치되어 있으므로 브라우저보다 더 빠르게 데이터를 가져올 수 있다.서버에서 fetching한 데이터는 클라이언트 컴포넌트에 props로 전달 가능하다. 한 가지 유의해야 할 점은 json으로 인코딩 가능한 serializable props만 전달 가능하며 function은 전달할 수 없다.
+
+  - 제로 번들 사이즈 컴포넌트
+
+    프론트엔드 앱을 개발하다 보면 무수한 라이브러리를 사용하게 된다. 직접 구현하기 까다로운 라이브러리들을 하나 둘 추가하다 보면 번들 사이즈가 늘게 되고, 퍼포먼스에 악영향을 끼치게 된다. 요즘은 많은 라이브러리들이 트리 셰이킹을 지원하고 필요에 따라 코드 스플리팅으로 렌더링에 필요한 번들 사이즈를 최대한 줄일 수 있지만 결국 번들 사이즈가 늘어나는 것은 막을 수 없다. 이것이 서버 컴포넌트가 고안 된 이유 중 하나이다. 클라이언트 컴포넌트와 다르게 서버 컴포넌트 코드는 브라우저에 다운로드 되지 않고 서버에서 미리 렌더링 된 static content를 전달하기 때문에 패키지를 추가해도 번들 사이즈에 영향을 끼치지 않는다. 즉 브라우저는 자바스크립트 번들을 모두 다운로드 해야하지만 서버는 모든 의존성을 미리 다운로드 해놓고 수시로 재사용 하기 때문에 무거운 코드 모듈을 저렴하게 사용할 수 있다. 즉 유저 인터랙션이 없는 컴포넌트들은 서버 컴포넌트로 사용하면 동일한 뷰를 제공함과 동시에 번들 사이즈와 초기 로딩 시간을 감소시킬 수 있다.
+
+  - 자동 코드 스플리팅
+
+    Code splitting이란 하나의 거대한 자바스크립트 번들을 여러 개의 작은 번들로 쪼개어 필요할 때마다 클라이언트로 전송하는 방법이다. 기존 클라이언트 컴포넌트에서는 `React.lazy`와 `dynamic import`를 사용하여 렌더링에 필요한 컴포넌트를 동적으로 불러왔었다. Code splitting은 앱의 퍼포먼스를 크게 향상할 수 있으나 두 가지 단점이 존재한다. 첫 번째로 lazy loading이 필요한 컴포넌트마다 일일이 `React.lazy`와 `dynamic import`를 적용해야 한다. 두 번째로는 부모 컴포넌트가 렌더링 된 이후 로딩을 시작하기 때문에 화면에 보이기 전 어느 정도의 딜레이가 존재한다는 점이다. 서버 컴포넌트는 이러한 단점을 두 가지 방식으로 해결했다. 서버 컴포넌트에서 import 되는 모든 클라이언트 컴포넌트를 Code splitting point로 간주하기 때문에 더 이상 일일이 `React.lazy`를 적용할 필요가 없어졌다. 또한 서버에서 미리 필요한 컴포넌트를 선택하기 때문에 클라이언트는 렌더링 프로세스 초기에 번들을 다운로드할 수 있다.
+
+<br>
+
+- 서버, 클라이언트, 공유 컴포넌트
+
+  - 컴포넌트의 분류
+
+    서버 컴포넌트가 도입되면서 리액트 컴포넌트는 크게 세 가지 컴포넌트로 분류되었다.
+
+  - 서버 컴포넌트
+
+    - 서버 컴포넌트란?
+
+      - 서버에서만 렌더링되는 컴포넌트
+
+      - 유저 인터랙티비티 제공 불가
+
+    - 사용 시 주의사항
+
+      - X : useState(), useReducer(), useEffect()와 같은 state / effects 사용 불가
+
+      - X : DOM과 같은 브라우저 api 사용 불가
+
+      - X : state / effects / 브라우저 api 사용하는 커스텀 훅 사용 불가
+
+      - O : 데이터베이스 / 내부 서비스 / 파일시스템과 같은 server-only 데이터 사용 가능
+
+      - O : 서버 컴포넌트 / 클라이언트 컴포넌트 / native elements (예: div, span) 임포트 및 렌더링 가능
+
+      - O : 클라이언트 컴포넌트 props로 serializable한 데이터 전달 가능
+
+    - 파일 네임 컨벤션
+
+      `*.server.js`
+
+  - 클라이언트 컴포넌트
+
+    - 클라이언트 컴포넌트란?
+
+      - 클라이언트에서 렌더링 되거나 SSR을 통해 서버에서 렌더링 되는 컴포넌트
+
+      - 유저 인터랙션 사용 가능
+
+      - 서버 컴포넌트 도입 전 리액트 컴포넌트
+
+    - 사용 시 주의사항
+
+      - X : 서버 컴포넌트 import 불가, 다만 서버 컴포넌트는 클라이언트 컴포넌트에게 또 다른 서버 컴포넌트를 children props로 넘겨주는 건 가능 `예) 부모 서버 컴포넌트에서 클라이언트 컴포넌트인 ChildClient 컴포넌트와 서버 컴포넌트인 ChildServer import -> <ChildClient><ChildServer /></ChildClient>`
+
+      - X : server-only 데이터 사용 불가
+
+      - O : state / effects / 브라우저 api 사용 가능
+
+    - 파일 네임 컨벤션
+
+      `*.client.js`
+
+  - 공유 컴포넌트
+
+    - 공유 컴포넌트란?
+
+      서버와 클라이언트에서 렌더링 되는 컴포넌트
+
+    - 사용 시 주의사항
+
+      - X : state / effects / 브라우저 api 사용 불가
+
+      - X : 서버 컴포넌트 임포트 불가, server-only 데이터 사용 불가
+
+      - O : 서버와 클라이언트 컴포넌트에서 임포트 되어 사용 가능
+
+    - 파일 네임 컨벤션
+
+      `*.js`
+
+<br>
+
+- 미래의 리액트 컴포넌트
+
+  서버 컴포넌트가 도입됨으로써 백엔드 데이터 직접 접근, 번들 사이즈 감소, 자동 Code Splitting이 가능하게 되었고, 이로 인해 미래의 리액트 애플리케이션은 각 컴포넌트의 역할에 집중하여 개발할 수 있으며 애플리케이션의 퍼포먼스 또한 향상될 수 있을 것이다.
+
+  ```jsx
+  // Note.server.jsx
+  import { format } from "date-fns"; // 번들사이즈에 영향 없음
+  import { readFile } from "react-fs"; // 번들사이즈에 영향 없음
+  import path from "path";
+
+  import NotePreview from "./NotePreview"; // 공유 컴포넌트
+  import EditButton from "./EditButton.client"; // 클라이언트 컴포넌트, 자동 코드 분할됨
+
+  export default function Note({ selectedId }) {
+    const note = readFile(path.resolve(`./notes/${selectedId}.md`), "utf8"); // 파일 시스템에서 data fetching
+
+    if (note === null) {
+      return (
+        <div className="note--empty-state">
+          <span className="note-text--empty-state">
+            노트를 찾을 수 없어요 🥺
+          </span>
+        </div>
+      );
+    }
+
+    // 노트가 존재하지 않을 시 아래의 코드는 클라이언트에 전달되지 않음
+    let { id, title, body, updated_at } = note; // serializable한 props 클라이언트 컴포넌트로 전달 가능
+    const updatedAt = new Date(updated_at);
+
+    return (
+      <div className="note">
+        <div className="note-header">
+          <h1 className="note-title">{title}</h1>
+          <div className="note-menu" role="menubar">
+            <small className="note-updated-at" role="status">
+              마지막 변경 시간 {format(updatedAt, "yyyy MMM d 'at' h:mm bb")}
+            </small>
+            <EditButton noteId={id}>수정</EditButton>
+          </div>
+        </div>
+        <NotePreview body={body} />
+      </div>
+    );
+  }
+  ```
+
+<br>
+
+- 서버 컴포넌트(RSC)와 서버 사이드 렌더링(SSR)의 차이
+
+  - 서버 컴포넌트와 서버 사이드 렌더링은 서버에서 렌더링 된다는 유사점이 있지만 해결하고자 하는 문제점이 다르다. 서버 사이드 렌더링은 응답 받은 트리를 raw html로 렌더링하기 위한 환경을 시뮬레이션 한다. 즉, 서버와 클라이언트 컴포넌트를 별도로 구별하지 않고 동일한 방식으로 렌더링한다.
+
+  - 서버 컴포넌트의 코드는 클라이언트로 전달되지 않는다. 하지만 서버 사이드 렌더링의 모든 컴포넌트의 코드는 자바스크립트 번들에 포함되어 클라이언트로 전송된다.
+
+  - 서버 컴포넌트는 페이지 레벨에 상관없이 모든 컴포넌트에서 서버에 접근 가능하다. 하지만 Next.js의 경우 가장 top level의 페이지에서만 `getServerProps()`나 `getInitialProps()`로 서버에 접근 가능하다.
+
+  - 서버 컴포넌트는 클라이언트 상태를 유지하며 refetch 될 수 있다. 서버 컴포넌트는 HTML이 아닌 특별한 형태로 컴포넌트를 전달하기 때문에 필요한 경우 포커스, 인풋 입력값 같은 클라이언트 상태를 유지하며 여러 번 데이터를 가져오고 리렌더링하여 전달할 수 있다. 하지만 SSR의 경우 HTML로 전달되기 때문에 새로운 refetch가 필요한 경우 HTML 전체를 리렌더링 해야 하며 이로 인해 클라이언트 상태를 유지할 수 없다.
+
+  - 서버 컴포넌트는 서버 사이드 렌더링 대체가 아닌 보완의 수단으로 사용할 수 있다. 서버 사이드 렌더링으로 초기 HTML 페이지를 빠르게 보여주고, 서버 컴포넌트로는 클라이언트로 전송되는 자바스크립트 번들 사이즈를 감소시킨다면 사용자에게 기존보다 훨씬 빠르게 인터랙팅한 페이지를 제공할 수 있을 것이다.
+
 <br><br><br>
 
 ## # Next.js
@@ -5155,7 +5333,9 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 - CRS (Client Side Rendering)
 
-  클라이언트 사이드 렌더링이다. react.js는 기본적으로 클라이언트 사이드 렌더링을 사용한다.
+  - CRS이란?
+
+    클라이언트 사이드 렌더링이다. react.js는 기본적으로 클라이언트 사이드 렌더링을 사용한다.
 
   - 동작 방식
 
@@ -5177,7 +5357,9 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 - SSR (Server Side Rendering)
 
-  서버 사이드 렌더링이다. next.js는 기본적으로 서버 사이드 렌더링을 사용한다. 비교적 인터렉션이 적고 데이터가 요청마다 한 번만 처리되어도 충분한 경우에 적합하다.
+  - SSR이란?
+
+    서버 사이드 렌더링이다. next.js는 기본적으로 서버 사이드 렌더링을 사용한다. 비교적 인터렉션이 적고 데이터가 요청마다 한 번만 처리되어도 충분한 경우에 적합하다.
 
   - 동작 방식
 
@@ -5199,7 +5381,9 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 - SSG (Static Site Generation)
 
-  pre-rendering(말 그대로 사전 렌더링을 말한다. 빌드 시 페이지를 미리 생성한다. next.js는 모든 페이지를 pre-rendering한다. 초기 로딩 속도를 향상시킬 수 있다.) 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 통해 구현할 수 있다. getStaticProps와 getServerSideProps 의 차이점은 getServerSideProps 은 매 요청 시 호출되지만 getStaticProps 는 빌드 타임에 딱 한번만 호출된다. 업데이트가 적거나 고정된 데이터를 사용하는 페이지에 적합하다.
+  - SSG란?
+
+    pre-rendering(말 그대로 사전 렌더링을 말한다. 빌드 시 페이지를 미리 생성한다. next.js는 모든 페이지를 pre-rendering한다. 초기 로딩 속도를 향상시킬 수 있다.) 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 통해 구현할 수 있다. getStaticProps와 getServerSideProps 의 차이점은 getServerSideProps 은 매 요청 시 호출되지만 getStaticProps 는 빌드 타임에 딱 한번만 호출된다. 업데이트가 적거나 고정된 데이터를 사용하는 페이지에 적합하다.
 
   - 동작 방식
 
@@ -5219,9 +5403,11 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-- ISR
+- ISR (Incremental Static Regeneration)
 
-  pre-rendering 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 의 revalidate 를 통해 구현할 수 있다. getStaticProps 와의 차이점은 revalidate 시간마다 호출되어 페이지를 업데이트할 수 있다. SSG의 단점을 보완한 방식으로, revalidate가 필요한 SSG 페이지(자주 변경되지 않는 동적인 컨텐츠를 일부 포함하는 경우)에 적합하다.
+  - ISR이란?
+
+    pre-rendering 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 의 revalidate 를 통해 구현할 수 있다. getStaticProps 와의 차이점은 revalidate 시간마다 호출되어 페이지를 업데이트할 수 있다. SSG의 단점을 보완한 방식으로, revalidate가 필요한 SSG 페이지(자주 변경되지 않는 동적인 컨텐츠를 일부 포함하는 경우)에 적합하다.
 
   - 동작 방식
 
@@ -5261,9 +5447,9 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 - getServerSideProps vs getInitialProps
 
-  getServerSideProps와 getInitialProps 모두 서버 사이드 렌더링 시 사용하며 두 메소드 모두 페이지 요청이 들어올 때 마다 매번 호출된다.
-
   - 공통점
+
+    - getServerSideProps와 getInitialProps 모두 서버 사이드 렌더링 시 사용하며 두 메소드 모두 페이지 요청이 들어올 때 마다 매번 호출된다.
 
     - 한 페이지에서 하나만 실행된다.
 
@@ -7509,6 +7695,32 @@ function GenericReturnFunc<T>(arg: T): T {
   (10) IAM(Identity and Access Management) : AWS의 리소스에 개별적인 접근 권한을 제어하는 서비스이다. 한 루트 계정에 계정 또는 그룹 등 여러 개의 IAM 계정을 생성하여 각 게정마다 접근 가능한 서비스에 제한을 둘 수 있다.
 
   (11) VPC(Virtual Private Cloud) : 사용자가 정의하는 가상의 네트워크이다. VPC를 적용하면 VPC별로 EC2 인스턴스를 묶어 독립적인 네트워크를 구성할 수 있고 각각의 VPC에 따라 네트워크 설정을 다르게 할 수 있다.
+
+<br>
+
+- AWS S3, AWS EC2, AWS Amplify를 활용한 각 프론트 배포 방법 차이
+
+  - AWS EC2
+
+    AWS EC2는 웹 서버 구축 과정이 필요하고, 비용이 S3보다 더 높고, S3보다 많은 설정(운영체제, 보안그룹, 스케일링 관리 등)이 필요하다는 단점이 있지만 그에 따라 많은 제어 또한 가능하다는 장점이 있다. AWS EC2는 웹 서버가 구축되어 있기 때문에 SSR 프로젝트에 적합하다. EC2로 배포하게 된 후 사용자가 접속하면 EC2 인스턴스에 요청이 전달되고 EC2 인스턴스에서 요청을 처리(SSR)하여 HTML 생성 후 응답하게 된다.
+
+  - AWS S3
+
+    AWS S3는 웹 서버 구축 과정이 필요없고 정적인 컨텐츠(build 결과물인 HTML, CSS, Javascript 번들 등)를 배포할 수 있다. EC2에 비해 비용이 상대적으로 저렴하고 배포도 간편하며 보통 AWS CDN 서비스인 Cloudfront(HTTPS 사용, 캐시, 빠른 데이터 제공 등을 위해 사용)와 함께 사용된다. S3로 배포할 프로젝트는 정적 웹페이지로 CSR를 사용하는 프로젝트에 적합하다. S3를 통해 배포한 서비스에 SSR을 구현하기 위해서는 추가적인 작업이 필요하다. S3로 배포하게 된 후 사용자가 접속하면 Cloudfront에 요청이 전달되고 캐시서버에 캐싱 된 데이터가 없다면 S3에 요청을 전달하여 개발자가 업로드한 빌드 결과물을 응답한다. 브라우저는 응답받은 결과물 중 js를 통해 렌더링한다. 그리고 사용자가 다시 접속하게 되면 Cloudfront 캐시서버에 캐싱 된 데이터를 활용하여 응답한다.
+
+  - AWS Amplify
+
+    AWS Amplify로 배포하게 되면 업로드 후, 빌드, 배포 과정을 거치기 때문에 SSR 적용이 가능하다.
+
+  - 대표 프론트 배포 방법
+
+    (1) Nginx : 정적 콘텐츠를 배포하게 해준다.
+
+    (2) AWS EC2 : 웹 서버와 WAS 서버 배포가 가능하다.
+
+    (3) AWS S3 + Cloudfront : 정적 콘텐츠(프론트 서버)를 배포하게 해준다.
+
+    (4) AWS Amplify : 정적 콘텐츠(프론트 서버)를 배포하게 해줌. S3+ cloudfront 방법보다 간편하게 배포 가능하며 배포 자동화, 그리고 자동으로 S3와 Cloudfront가 구현된다.
 
 <br>
 
