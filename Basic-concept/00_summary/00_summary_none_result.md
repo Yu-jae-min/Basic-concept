@@ -2648,6 +2648,18 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
+- AWS S3, AWS EC2, AWS Amplify를 활용한 각 프론트 배포 방법 차이
+
+  - AWS EC2
+
+  - AWS S3
+
+  - AWS Amplify
+
+  - 대표 프론트 배포 방법
+
+<br>
+
 - 배포 방법 (EC2)
 
 <br>
