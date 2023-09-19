@@ -1360,6 +1360,50 @@
 
 <br>
 
+### # 성능 개선 지표
+
+- 브라우저 기준의 측정
+
+- 사용자 기준의 측정
+
+- 성능 측정 도구 중 크롬 개발자 도구
+
+  - Network
+
+  - Performance
+
+  - Lighthouse
+
+    - Lighthouse란?
+
+    - Performance
+
+    - Best practices
+
+    - Accessibility
+
+    - Progressive Web App (PWA)
+
+    - SEO
+
+  - Lighthouse Performance의 여섯가지 metric과 가중치
+
+    - FCP (First Contentful Paint), 10%
+
+    - LCP (Largest Contentful Paint), 25%
+
+    - TBT (Total Blocking Time), 30%
+
+    - CLS (Cumulative Layout Shift), 15%
+
+    - SI (Speed Index), 10%
+
+    - TTI (Time To Interactive), 10%
+
+- Next.js에서 Lighthouse 사용하기
+
+<br>
+
 ### # **useMemo, useCallback에 대한 설명**
 
 <br>
