@@ -2966,6 +2966,24 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
+### # 모노레포(Monorepo) 구성을 위한 터보레포(Turborepo)
+
+- 프로젝트 구성 방식
+
+  - 모놀리식(Monolithic)
+
+  - 멀티레포(Multi-Repo)
+
+  - 모노레포(Mono-Repo)
+
+- 터포레포(Turborepo)
+
+  - 터포레포(Turborepo)란?
+
+  - 터보레포 특징
+
+<br>
+
 ### # **최근에 관심있게 읽거나 참고하는 기술서적이 있나요?**
 
 <br>
