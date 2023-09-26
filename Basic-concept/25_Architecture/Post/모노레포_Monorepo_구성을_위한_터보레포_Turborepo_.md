@@ -1,4 +1,4 @@
-# [ect] 모노레포(Monorepo) 구성을 위한 터보레포(Turborepo)
+# [Architecture] 모노레포(Monorepo) 구성을 위한 터보레포(Turborepo)
 
 2023년 09월 24일
 

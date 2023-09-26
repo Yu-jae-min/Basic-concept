@@ -2938,6 +2938,78 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br><br><br>
 
+## # Architecture
+
+<br>
+
+### # 모노레포(Monorepo) 구성을 위한 터보레포(Turborepo)
+
+- 프로젝트 구성 방식
+
+  - 모놀리식(Monolithic)
+
+  - 멀티레포(Multi-Repo)
+
+  - 모노레포(Mono-Repo)
+
+- 터포레포(Turborepo)
+
+  - 터포레포(Turborepo)란?
+
+  - 터보레포 특징
+
+<br>
+
+### # Micro Frontends Architecture
+
+- Micro Frontends Architecture
+
+- Micro Frontends의 적용 시점, 장단점
+
+  - 적용 시점
+
+  - 메인 컨셉
+
+    - 컨텍스트 독립성
+
+    - 네임스페이스를 활용한 분리
+
+    - 통신 시스템에 기본 브라우저 기능 활용
+
+    - 탄력적인 웹 디자인 구축
+
+  - 장단점
+
+    - 장점
+
+    - 단점
+
+- Micro Frontends 통합 방법
+
+  - 공통적으로 존재하는 아키텍처
+
+  - 서버 사이드 템플릿 통합
+
+  - 빌드타임 통합
+
+  - iframe을 통한 런타임 통합
+
+  - Web Components를 통한 런타임 통합
+
+  - Javascript를 통한 런타임 통합
+
+- Micro Frontends 통합 고려사항
+
+  - 스타일링
+
+  - Component Library 공유
+
+  - 애플리케이션 간 커뮤니케이션
+
+  - 백엔드 통신
+
+<br><br><br>
+
 ## # Git & Github
 
 <br>
@@ -2963,24 +3035,6 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 <br><br><br>
 
 ## # ETC
-
-<br>
-
-### # 모노레포(Monorepo) 구성을 위한 터보레포(Turborepo)
-
-- 프로젝트 구성 방식
-
-  - 모놀리식(Monolithic)
-
-  - 멀티레포(Multi-Repo)
-
-  - 모노레포(Mono-Repo)
-
-- 터포레포(Turborepo)
-
-  - 터포레포(Turborepo)란?
-
-  - 터보레포 특징
 
 <br>
 
