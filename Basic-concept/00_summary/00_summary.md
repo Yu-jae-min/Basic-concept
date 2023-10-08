@@ -2254,7 +2254,7 @@
 
 - 가비지 컬렉터
 
-  가비지 컬렉터는 메모리 관리를 수행한다. 즉 메모리를 차지하는 데이터 중 사용하지 않는 데이터를 자동으로 삭제한다. 또한 자바스크립트는 자동으로 가비지 컬렉팅을 수행한다. 자바스크립트에서 데이터는 원시타입의 경우 콜스택, 참조타입의 경우 메모리힙에 저장되는데 주소와 값에 형태로 저장되고 저장 된 데이터가 사용될 때는 주소와 값 중 주소 값을 참조하여 사용되게 된다. 만약 자신의 주소 값을 참조하는 식별자가 없는 경우 사용하지 않는 데이터이기 때문에 가비지 컬렉터에 의해 삭제되게 되는 것이다.
+  가비지 컬렉터는 메모리 힙에서 메모리 관리를 수행한다. 즉 메모리를 차지하는 데이터 중 사용하지 않는 데이터를 자동으로 삭제한다. 또한 자바스크립트는 자동으로 가비지 컬렉팅을 수행한다. 자바스크립트에서 데이터는 원시타입의 경우 콜스택, 참조타입의 경우 메모리 힙에 저장되는데 주소와 값에 형태로 저장되고 저장 된 데이터가 사용될 때는 주소와 값 중 주소 값을 참조하여 사용되게 된다. 만약 메모리 힙에서 객체나 배열 자신의 주소 값을 참조하는 식별자가 없는 경우 사용하지 않는 데이터이기 때문에 가비지 컬렉터에 의해 삭제되게 되는 것이다. 반면 콜스택의 원시 타입 데이터의 경우 전역 컨텍스트나 함수 컨텍스트가 종료될 때 자동으로 메모리에서 함께 제거된다.
 
 <br>
 
@@ -3731,12 +3731,24 @@
 
 - react에서의 코드 스플리팅 방법
 
-  (1) dynamic import 문법 사용 : 자바스크립트 함수 비동기 로딩 시 import() 함수 형태로 메서드 안에서 사용하게 되면 필요할 때 해당 스크립트를 불러와서 사용할 수 있다. import를 함수로 사용하면 Promise를 반환한다.
+  (1) dynamic import 문법 사용 : 자바스크립트 함수 비동기 로딩 시 import() 함수 형태로 메서드 안에서 사용하게 되면 필요할 때 해당 스크립트를 불러와서 사용할 수 있다. import를 함수로 사용하면 Promise를 반환한다. nextjs에서는 next/dynamic의 dynamic 메소드를 사용하여 구현할 수 있다. 첫번째 인자로 import 함수, 두번째 인자로 옵션을 지정할 수 있다. 옵션에서는 로딩 시 보여줄 UI, SSR 여부 등을 지정할 수 있다.
 
   ```js
+  // react
   const onClick = () => {
     import("./subPage").then((result) => result.default());
   };
+
+  // next
+  import dynamic from "next/dynamic";
+
+  const DynamicHeader = dynamic(() => import("../components/header"), {
+    loading: () => <p>Loading...</p>,
+  });
+
+  export default function Home() {
+    return <DynamicHeader />;
+  }
   ```
 
   (2) React.lazy와 Suspense를 통한 컴포넌트 코드 스플리팅 : React.lazy는 컴포넌트를 렌더링하는 시점에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수이다. 또한 lazy로 코드 스플리팅 된 컴포넌트는 Suspense를 통해 나타낼 수 있다. Suspense는 리액트 내장 컴포넌트로 코드 스플리팅 된 컴포넌트를 로딩하도록 발동시킬 수 있고, 로딩이 끝나지 않았을 때 fallback 이라는 props를 통해 로딩 중에 보여줄 요소를 지정할 수 있다. 또한 react-loadable 라이브러리의 Lodable Components를 사용하는 방법도 있다.
@@ -3836,6 +3848,12 @@
 
 페이지 이동 시 사용하는 hook, 페이지 이동 시 추가 로직을 사용할 수 있다. 또 이동되는 페이지에 state를 전달할 수 있다.
 또 해당 페이지를 새로 불러오거나, 이전 페이지, 다음 페이지로의 이동을 편하게 할 수 있다. `ex) navigate(0), navigate(-1), navigate(+1)`
+
+<br>
+
+### # a태그와 link 컴포넌트 차이
+
+- a태그는 페이지 이동 시 페이지를 새로 불러오고 새로 불러오기 때문에 모든 데이터를 다시 요청한다. 반면 link 컴포넌트는 페이지 이동 시 HTML5 History API를 사용하여 브라우저의 주소만 바꿀 뿐, 페이지를 새로 불러오지는 않고 필요한 데이터만 요청한다.
 
 <br>
 
@@ -6965,6 +6983,54 @@ function GenericReturnFunc<T>(arg: T): T {
   (2) 무상태(Stateless) 프로토콜 : 각각의 요청이 독립적이고 서로 관련이 없다.
 
   (3) 비연결 지향(Connectionless) 프로토콜 : 응답을 주고 받은 후 연결을 끊어버린다.
+
+<br>
+
+- HTTP 프로토콜 header와 body의 역할
+
+  - header
+
+    HTTP 요청의 header는 요청에 대한 메타데이터를 포함한다. Content-Type은 요청 본문(body)의 데이터 타입을 지정한다. 예를 들어, JSON 데이터를 보낼 때는 "application/json"을 설정할 수 있다. 또한 Authorization은 인증 토큰 또는 사용자 인증 정보를 포함하여 접근 권한을 부여할 수 있다. 이 외에도 header는 기타 요청에 필요한 헤더 정보를 추가할 수 있다.
+
+    ```javascript
+    fetch("https://api.example.com/data", {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer myToken",
+        "Content-Type": "application/json",
+      },
+    });
+    ```
+
+  - body
+
+    HTTP 요청의 body는 요청에 포함될 데이터를 포함하며, 일반적으로 POST 또는 PUT 요청과 함께 사용된다. 데이터는 주로 JSON, FormData, 텍스트 등의 형식으로 전송되며 Content-Type 헤더에 지정한 데이터 형식과 일치해야 한다.
+
+    ```javascript
+    // fetch를 사용한 JSON 데이터 전송
+    fetch("https://api.example.com/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ key1: "value1", key2: "value2" }),
+    });
+
+    // axios를 사용한 JSON 데이터 전송
+    axios.post(
+      "https://api.example.com/create",
+      {
+        key1: "value1",
+        key2: "value2",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer myToken",
+        },
+      }
+    );
+    ```
 
 <br>
 
