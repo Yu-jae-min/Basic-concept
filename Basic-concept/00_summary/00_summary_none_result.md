@@ -1652,6 +1652,16 @@
 
 <br>
 
+### # **SWC(Speedy Web Compiler)**
+
+- SWC(Speedy Web Compiler)란?
+
+- 빌드 시간 측정
+
+<br>
+
+<br>
+
 ### # **prettier, eslint란?**
 
 <br>
