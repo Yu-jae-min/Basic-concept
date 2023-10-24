@@ -781,6 +781,20 @@
 
 - scale-down : none과 contain 중 이미지 크기가 더 작아지는 값을 선택한다.
 
+<br>
+
+### # 사용했던 CSS 속성 순서 컨벤션
+
+- (1) Layout Properties (position, float, clear, display)
+
+- (2) Box Model Properties (width, height, margin, padding)
+
+- (3) Visual Properties (color, background, border, box-shadow)
+
+- (4) Typography Properties (font-size, font-family, text-align, text-transform)
+
+- (5) Misc Properties (cursor, overflow, z-index)
+
 <br><br><br>
 
 ## # Javascript
@@ -4607,7 +4621,7 @@
 
 <br>
 
-- 스크롤 이벤트의 특성 상 반복적으로 이벤트를 호출되게 되는데 스크롤 이벤트와 같이 반복적으로 호출되는 이벤트는 사용하지 않는 이벤트를 제거(실행 중지)하기 위해 클린업 함수를 적용시켜야한다. 만약 스크롤 이벤트에서 클린업 함수로 클리어 처리를 하지 않는 경우 모든 이벤트가 실행되거나 메모리에서 제거되지 않기 때문에 성능 이슈가 발생한다. removeEventListener를 통해 클린업 함수를 만들어 클리어 처리를 해주어야 메모리 누수가 발생하지 않는다. 또한 스크롤 이벤트의 경우 쓰로틀링을 구현하여 일정 시간동안 한번만 실행되도록 구현할 수 있다. 쓰로틀링은 로대쉬(Lodash)라이브러리의 쓰로틀(throttle)로 구현하거나 직접 구현할 수 있다. 쓰로틀링 구현은 직접 구현할 경우 setTimeout을 통해 일정 시간동안 스크롤 이벤트를 실행시키고 쓰로틀링을 체크하는 boolean타입의 state를 함께 사용하여 구현할 수 있다. (ex : https://velog.io/@y_jem/%EC%93%B0%EB%A1%9C%ED%8B%80%EB%A7%81throttling%EA%B3%BC-%EB%94%94%EB%B0%94%EC%9A%B4%EC%8B%B1debouncing)
+- 스크롤 이벤트의 특성 상 반복적으로 이벤트를 호출되게 되는데 스크롤 이벤트와 같이 반복적으로 호출되는 이벤트는 사용하지 않는 이벤트를 제거(실행 중지)하기 위해 클린업 함수를 적용시켜야한다. 만약 스크롤 이벤트에서 클린업 함수로 클리어 처리를 하지 않는 경우 모든 이벤트가 실행되거나 메모리에서 제거되지 않기 때문에 성능 이슈가 발생한다. removeEventListener를 통해 클린업 함수를 만들어 클리어 처리를 해주어야 메모리 누수가 발생하지 않는다. 또한 스크롤 이벤트의 경우 쓰로틀링을 구현하여 일정 시간동안 한번만 실행되도록 구현할 수 있다. 쓰로틀링은 로대쉬(Lodash)라이브러리의 쓰로틀(throttle)로 구현하거나 직접 구현할 수 있다. 쓰로틀링 구현은 직접 구현할 경우 setTimeout을 통해 일정 시간동안 스크롤 이벤트를 실행시키고 쓰로틀링을 체크하는 boolean타입의 state를 함께 사용하여 구현할 수 있다. 또한 추가로 스크를 되는 컨텐츠 중 사용자가 보는 뷰포트 영역의 컨텐츠만 렌더링하기 위해 windowing 기법을 적용할 수 있다. windowing 기법을 편리하게 적용시키기 위한 react 라이브러리로는 react-window와 react-virtualized가 있다.
 
 ```javascript
 // 클리어 처리 예시
@@ -4756,7 +4770,7 @@ const DetailsComponent = () => (
 
 - eslint란?
 
-  eslint는 코드 구현 방식을 지정하여 에러를 사전에 방지하고 코드 퀄리티를 보장하도록 도와준다. 또한 코드 스타일과 관련 된 코드 포멧팅도 지원한다.
+  자바스크립트 언어와 소스코드를 분석하는 도구로 eslint 패키지를 설치해주면 코드에 특정 스타일과 규칙을 적용해 에러를 찾고 패턴을 적용시킬 수 있는 분석 툴이다. 즉 코드 구현 방식을 지정하여 에러를 사전에 방지하고 코드 퀄리티를 보장하도록 도와준다. 또한 prettier와 같이 코드 스타일과 관련 된 코드 포멧팅도 지원한다.
 
 <br>
 
@@ -4924,6 +4938,39 @@ const DetailsComponent = () => (
   ```javascript
   // Import only some of the utilities!
   import { unique, implode, explode } from "array-utils";
+  ```
+
+<br>
+
+### # JavaScript Module, ESM(ES Module)과 CJS(CommonJS)
+
+- 모듈 시스템이 생겨난 이유
+
+  모듈 시스템이 생기기 전 Javascript는 기본적으로 script 태그로 불려져 사용했었다. 하지만 script 태그로 불려진 여러 자바스크립트는 서로 관계가 없음에도 전역 객체 간에 의존성을 가지거나 스크립트 파일 로드 순서 등 여러 문제가 발생했다. 그래서 생겨난 것이 모듈 시스템이다. 모듈 시스템의 대표적인 포맷(문법)으로는 ESM(ES Module)과 CJS(CommonJS)가 있다.
+
+<br>
+
+- ESM(ES Module)과 CJS(CommonJS) 차이
+
+  (1) ES Module은 js 표준 모듈화 시스템이고 CommonJS는 표쥰 모듈화 시스템은 아니지만 nodejs에서 채택해서 사용하고 있다.
+
+  (2) CJS는 동기적으로, ESM은 비동기적으로 동작하며 CJS는 파일을 불러오는 동안 메인 스레드를 차단한다. 반면 ESM은 파일을 불러오는 동안 메인 스레드를 차단하지 않는다.
+
+  (3) 파일의 구분은 package.json type field 또는 확장자를 보고 알 수 있다. type field의 기본 값은 CommonJS이고 타입이 CommonJS인 경우 js는 CommonJS로 해석되고 module인 경우 ES Module로 해석된다. 또한 확장자는 cjs와 esm으로 구분된다.
+
+  (4) CommonJS의 module.export의 경우 동적(특정 조건에 따른) 실행에 아무 조건이 없는 반면 ESM의 export는 항상 최상위 스코프에서 사용할 수 있고 import path는 동적일 수 없다는 제약이 있다. 그렇기 때문에 빌드 단계에서 cjs의 경우 정적 분석하기가 어렵고 mjs는 정적 분석을 통해 모듈 간의 의존성을 파악하고 트리쉐이킹을 적용할 수 있다. 그렇기때문에 트리쉐이킹을 적용하는 경우 바벨 사용에도 주의해야한다. 만약 babel-preset-env를 사용한다면 mjs를 cjs로 변환하기 때문에 트리쉐이킹을 적용하기 어려워진다. 이를 위해 .babelrc에서 CommonJS로 변환하지 못하도록 설정을 추가해 줘야 한다.
+
+  ```json
+  {
+    "presets": [
+      [
+        "env",
+        {
+          "modules": false
+        }
+      ]
+    ]
+  }
   ```
 
 <br>
@@ -5269,7 +5316,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   두 번째 방법의 경우 각 컴포넌트가 렌더링 될 때 필요한 데이터만 가져와 보여줄 수 있다는 장점이 있지만 API 요청 수가 많고 부모 컴포넌트가 렌더링 된 후 API를 요청하여 응답을 받아올 때까지 자식 컴포넌트의 렌더링과 API 호출이 지연된다. 또한 호출 지연이 발생하는 경우 나타나는 `Waterfall`로 인해 사용자 경험은 떨어지게 되고 UI가 밀리는 `Layout Shift`가 발생할 수 있다.
 
-  또한 기존 Nextjs에서 SSR을 위해 getSeverSideProps를 사용했는데 getSeverSideProps는 최상위 컴포넌트에서만 사용이 가능했고 getSeverSideProps를 통해 받아온 데이터를 props 등으로 하위 컴포넌트로 내려주어야 한다는 문제가 있었다. 이러한 문제도 React Server Component 로 해결할 수 있다. RSC를 사용하면 서버와 클라이언트(브라우저)가 서로 협력하여 렌더링할 수 있다. 즉, 일부 컴포넌트는 브라우저에서, 일부 컴포넌트는 서버에서 렌더링할 수 있게 된다.
+  또한 기존 Nextjs에서 SSR을 위해 getSeverSideProps를 사용했는데 getSeverSideProps는 중첩 컴포넌트 중 탑 레벨 컴포넌트에서만 사용이 가능했고 getSeverSideProps를 통해 받아온 데이터를 props 등으로 하위 컴포넌트로 내려주어야 한다는 문제가 있었다. 이러한 문제도 React Server Component 로 해결할 수 있다. RSC를 사용하면 서버와 클라이언트(브라우저)가 서로 협력하여 렌더링할 수 있다. 즉, 일부 컴포넌트는 브라우저에서, 일부 컴포넌트는 서버에서 렌더링할 수 있게 된다.
 
   마지막으로 번들 사이즈 문제도 해결할 수 있다. UI를 렌더링할 때 UI를 렌더링하는 데에는 필요하지 않은 데이터 처리 과정에 필요한 모듈까지 함께 번들링 되기 때문에 큰 프로젝트의 경우 브라우저가 받아와야 하는 파일의 용량이 매우 높아진다. 이 불필요한 청크들을 받아오는 것을 막기 위해 Code splitting이나 Lazy Loading과 같은 기술을 이용하지만 반복되는 작업과 시간 투자가 불편함으로 작용했다. 이러한 문제점도 `React Server Component`를 통해 해결할 수 있다. RSC를 사용해서 인터렉션이 없는 부분에 번들이 추가되지 않도록 할 수 있다. (Zero-Bundle)
 
@@ -5321,7 +5368,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
     - 파일 네임 컨벤션
 
-      `*.server.js`
+      `*.server.js` 혹은 컴포넌트 파일 내부 최상단 `use server` 선언, 모든 컴포넌트는 서버 컴포넌트가 디폴트
 
   - 클라이언트 컴포넌트
 
@@ -5343,7 +5390,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
     - 파일 네임 컨벤션
 
-      `*.client.js`
+      `*.client.js` 컴포넌트 파일 내부 최상단 `use client` 선언, use client 에서 선언한 컴포넌트 아래 컴포넌트는 모두 클라이언트 컴포넌트로서 동작
 
   - 공유 컴포넌트
 
@@ -5420,11 +5467,33 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   - 서버 컴포넌트의 코드는 클라이언트로 전달되지 않는다. 하지만 서버 사이드 렌더링의 모든 컴포넌트의 코드는 자바스크립트 번들에 포함되어 클라이언트로 전송된다.
 
-  - 서버 컴포넌트는 페이지 레벨에 상관없이 모든 컴포넌트에서 서버에 접근 가능하다. 하지만 Next.js의 경우 가장 top level의 페이지에서만 `getServerProps()`나 `getInitialProps()`로 서버에 접근 가능하다.
+  - 서버 컴포넌트는 페이지 레벨에 상관없이 모든 컴포넌트에서 서버에 접근 가능하다. 하지만 Next.js의 경우 가장 top level의 페이지에서만 `getServerSideProps()`나 `getInitialProps()`로 서버에 접근 가능하다. 이로 인해 서버 컴포넌트 등장 전에는 페이지 단위로 서버 사이드 렌더링 전략을 세워야했지만 서버 컴포넌트 등장 이후로는 컴포넌트 단위로 서버 사이드 렌더링 전략을 세울 수 있게 되었다.
 
-  - 서버 컴포넌트는 클라이언트 상태를 유지하며 refetch 될 수 있다. 서버 컴포넌트는 HTML이 아닌 특별한 형태로 컴포넌트를 전달하기 때문에 필요한 경우 포커스, 인풋 입력값 같은 클라이언트 상태를 유지하며 여러 번 데이터를 가져오고 리렌더링하여 전달할 수 있다. 하지만 SSR의 경우 HTML로 전달되기 때문에 새로운 refetch가 필요한 경우 HTML 전체를 리렌더링 해야 하며 이로 인해 클라이언트 상태를 유지할 수 없다.
+  - 서버 컴포넌트는 클라이언트 상태를 유지하며 refetch 될 수 있다. 서버 컴포넌트는 HTML이 아닌 특별한 형태로 컴포넌트를 전달하기 때문에 필요한 경우 포커스, 인풋 입력값 같은 클라이언트 상태를 유지하며 여러 번 데이터를 가져오고 리렌더링하여 전달할 수 있다. 하지만 SSR의 경우 HTML로 전달되기 때문에 새로운 refetch가 필요한 경우 HTML 전체를 리렌더링 해야 하며 이로 인해 클라이언트 상태를 유지할 수 없다. 쉽게 말해 서버 사이드 렌더링의 경우 서버에서 렌더링하여 HTML을 보내지만 RSC의 경우 JSON 처럼 생긴 특별한 형태로 컴포넌트를 전달하기 때문에 내부 클라이언트 컴퍼넌트의 입력 값이나 상태를 유지시키며 데이터를 refetch 할 수 있다.
 
   - 서버 컴포넌트는 서버 사이드 렌더링 대체가 아닌 보완의 수단으로 사용할 수 있다. 서버 사이드 렌더링으로 초기 HTML 페이지를 빠르게 보여주고, 서버 컴포넌트로는 클라이언트로 전송되는 자바스크립트 번들 사이즈를 감소시킨다면 사용자에게 기존보다 훨씬 빠르게 인터랙팅한 페이지를 제공할 수 있을 것이다.
+
+<br>
+
+### # React 실행 순서
+
+1. 함수 컴포넌트 호출
+2. 구현부 실행
+   - props 취득, hook 실행, 내부 변수 및 함수 생성
+   - 단, hook 에 등록해둔 상태값, 부수함수 효과 등은 별도 메모리에 저장되어 관리된다.
+3. return 실행
+   - 렌더링 시작
+4. 렌더 단계 (Render Phase)
+   - 가상DOM을 생성한다.
+5. 커밋 단계 (Commit Phase)
+   - 실제 DOM에 반영한다.
+6. useLayoutEffect
+   - 브라우저가 화면에 Paint 하기 전에, useLayoutEffect에 등록해둔 effect(부수효과함수)가 '동기'로 실행된다.
+   - 이 때, state, redux store 등의 변경이 있다면 한번 더 재렌더링 된다.
+7. Paint
+   - 브라우저가 실제 DOM을 화면에 그린다. didMount가 완료된다.
+8. useEffect
+   - Mount되어 화면이 그려진 직후, useEffect에 등록해둔 effect(부수효과함수)가 '비동기'로 실행된다.
 
 <br><br><br>
 
@@ -5586,7 +5655,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   - ISR이란?
 
-    pre-rendering 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 의 revalidate 를 통해 구현할 수 있다. getStaticProps 와의 차이점은 revalidate 시간마다 호출되어 페이지를 업데이트할 수 있다. SSG의 단점을 보완한 방식으로, revalidate가 필요한 SSG 페이지(자주 변경되지 않는 동적인 컨텐츠를 일부 포함하는 경우)에 적합하다.
+    pre-rendering 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 의 revalidate 를 통해 구현할 수 있다. getStaticProps 와의 차이점은 revalidate 시간마다 호출되어 정적 페이지를 재생성하여 업데이트할 수 있다. SSG의 단점을 보완한 방식으로, revalidate가 필요한 SSG 페이지(자주 변경되지 않는 동적인 컨텐츠를 일부 포함하는 경우)에 적합하다.
 
   - 동작 방식
 
@@ -5614,7 +5683,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   SSG와 ISR을 나누는 기준은 return 객체의 revalidate 옵션이며 revalidate 없다면 SSG로 동작하여 빌드 시 딱 한번만 호출된다는 특징이 있다. 단, 데이터 업데이트를 위해서는 재빌드 및 배포가 필요하다는 단점이 있다.
 
-  revalidate가 존재하면 ISR로 동작하며 revalidate의 value 값에 따라 특정 주기마다 페이지를 재생성한다.
+  revalidate가 존재하면 ISR로 동작하며 revalidate의 value 값에 따라 특정 주기마다 Next.js의 백그라운드에서 정적 페이지를 재생성한다. 만약 재생성 실패 시 기존 정적 페이지를 제공한다.
 
 <br>
 
@@ -5762,6 +5831,18 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 3. 브라우저가 컴포넌트의 변경 사항이 적용된 DOM을 실제로 페이지에 그리는 페인트 단계 또한 역순으로 자식 컴포넌트부터 이루어지는 것을 알 수 있다. 이유는 위와 같이 부모 컴포넌트의 페이지가 그려지기 위해서는 자식 컴포넌트가 필요하기 때문인 것 같다. (위에 결과에서 브라우저의 페인트 단계 후 실행되는 useEffect가 inner → outer → app 순으로 실행되었다.)
 
 또한 추가로 컴포넌트가 app -> outer -> inner의 관계가 아닌 app -> outer -> outer의 children 과 같이 children props를 활용한 관계에서도 위와 동일한 순서로 코드가 실행된다.
+
+<br>
+
+### # Nextjs 13 변경점
+
+- data fetching
+
+  - getStaticProps : fetch(URL, { cache: 'force-cache' });
+
+  - getServerSideProps : fetch(URL, { cache: 'no-store' });
+
+  - getStaticProps + revalidate : fetch(URL, { next: { revalidate: 10 } });
 
 <br><br><br>
 
@@ -6844,6 +6925,12 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
+### # Oauth 2.0
+
+- Oauth2(Open Authorization 2.0)란 인증을 위한 표준 프로토콜이다. 이 프로토콜에서는 써드파티 프로그램에게 리소스 소유자를 대신해 리소스 서버에서 제공하는 자원에 대한 접근 권한을 위임하는 방식으로 작동된다. 구글, 페이스북 등 외부 소셜 계정을 기반으로 간편하게 인증하는 기능이다. 기존의 인증방식과 달리 인증을 중개해주는 방식이라고 생각하면 된다. Resource Owner(유저), Client(애플리케이션 서버), Authorization Server, Resource Server, Access Token, Refresh Token로 구성된다.
+
+<br>
+
 ### # **SOP정책과 CORS**
 
 <br>
@@ -6991,6 +7078,18 @@ function GenericReturnFunc<T>(arg: T): T {
 - 쿼리 파라미터(Query Parameter)
 
   `localhost:8000/products?limit=10&offset=5`에서 limit=10&offset=5와 같이 url 경로에서 물음표(?)로 시작하고 엔드(&)로 연결하는 텍스트가 바로 쿼리 파라미터이다. 키 벨류로 이루어져있으며 쿼리 스트링이라고도 불린다. 페이지네이션과 같이 정렬, 필터, 검색을 할 때 쿼리 파라미터를 사용한다.
+
+<br>
+
+- SDK란?
+
+  소프트웨어 개발 키트로 일반적으로 운영체제나 프로그래밍 언어 제작사 등이 제공하며 SDK를 활용한 개발을 위한 툴이나 리소스를 제공한다. 예를 들어 카카오톡 소셜 로그인 기능 구현 시 SDK를 script에 연결하여 구현하는 방식과 REST API를 활용하여 구현하는 방식 등으로 구분된다.
+
+<br>
+
+- SDK와 API 차이
+
+  API는 SDK에 비해 가볍지만 SDK가 더 많은 유틸리티 및 개발 도구를 포함하도 있어 API의 경우 특정 기능 및 데이터를 요청하기 위해 사용한다면 SDK는 특정 애플리케이션을 구축하거나 복잡한 기능을 수행하기 위해 사용할 수 있다. 이러한 점에서 API는 SDK의 일부가 될 수 있고 SDK가 API보다 더 큰 개념이라고 할 수 있다.
 
 <br>
 
@@ -7171,6 +7270,12 @@ function GenericReturnFunc<T>(arg: T): T {
   (4) 서버는 자신이 들고 있던 비밀키로 임시키를 복호화
 
   (5) 클라이언트와 서버는 임시키를 활용하여 대칭 키 생성한 후 생성 된 대칭 키로 암호화된 데이터를 주고 받으며 세션 종료 시 대칭 키 폐기
+
+<br>
+
+- HTTP와 HTTPS의 차이
+
+  HTTP는 서버/클라이언트 모델을 따라 데이터를 주고받기 위한 프로토콜이다. HTTPS는 HTTP에 데이터 암호화가 추가된 프로토콜이다. 공개키/개인키 암호화 방식을 이용해 데이터를 암호화한다. HTTP는 암호화가 추가되지 않았기 때문에 보안에 취약한 반면, HTTPS는 안전하게 데이터를 주고받을 수 있다. 하지만 HTTPS를 이용하면 암호화/복호화 과정이 필요하기 때문에 HTTP보다 속도가 느리다(그러나 실 사용에서는 크게 차이는 없다.) HTTPS는 인증서를 발급하고 유지하는데에 추가 비용이 발생한다. 개인정보와 같은 민감한 데이터를 주고 받는다면 HTTPS를 이용해야 하지만, 단순 정보 조회 같은 사이트는 HTTP를 적용하면 된다.
 
 <br>
 
@@ -8982,78 +9087,78 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 기술스택 : nextjs, vercel, aws s3, aws cloudfront, aws lambda, typescript, axios, graphql, baseui, styletron
 
+- 프로젝트 아키텍처 : 프론트는 react 기반 프레임워크인 nextjs를 활용했고 서버는 nodejs 기반 프레임워크인 nestjs를 활용했다. db는 mysql을 사용했다. 또한 캐시 서버인 redis를 사용했다. 그리고 파일 서버로 aws s3를 사용했고 cloudfront와 함께 사용했다. 그리고 파일 서버에서 이미지 제공 시 aws lambda를 통해서 이미지 리사이징 후 제공하였다. 또한 프론트 배포 및 ci/cd 구축은 vercel을 사용하였다. 백엔드 배포는 도커를 통해 도커라이징하여 이미지 생성 후 해당 이미지를 ec2를 통해 배포하였다.
+
 - 페이지별 기능 구현 방법
 
   - 공통
 
-    - UI 프레임워크 스타일 패키지 : UI 프레임워크로는 baseui 사용하였고 스타일 관련 패키지로는 styletron-react를 사용하였다. styletron-react는 css-in-js이고 atomic css로 클래스명을 고민하지 않아도 된다는 장점이 있다.
+    - 빌드 및 배포 : Vercel을 활용한 웹 배포, next-pwa와 bubble wrap을 활용한 안드로이드 apk 파일 빌드 및 앱 배포
+    - UI 구현 : UI 프레임워크 BaseUI, CSS 라이브러리 Styletron-react를 활용한 UI 구현
+    - Typescript 활용 : Typescript를 활용한 정적 타이핑으로 안정성 향상
+    - AWS S3와 Cloudfront 활용 : AWS S3를 활용한 파일 저장 및 Cloudfront를 활용한 데이터 캐싱 및 빠른 데이터 처리
+    - GraphQL 활용 : Apollo Client, GraphQL을 활용한 데이터 패칭 및 캐싱, 캐싱 데이터를 활용한 API 호출 최적화 (설명 : 쿼리를 생성 후 코드제너레이터를 돌려서 로컬 및 리모트 스키마에 대한 타입을 생성한 뒤 쿼리 도큐먼트를 아폴로 클라이언트에 useQuery 혹은 useMutation의 인자로 활용하여 api를 요청하였다. REST API에 비해 필요한 데이터만 적절히 요청해서 데이터 오버 패칭이나 언더 패칭이 없고 캐싱도 가능해서 편리하게 사용했던 것 같다. 캐싱의 경우 writeQuery, readQuery, modify 메소드를 활용하여 캐싱 데이터를 관리하였다.)
+    - SSG를 활용한 조건부 UI 처리 : getStaticProps를 활용한 header, bottom navigation 등 조건부 UI 핸들링 및 페이지 접근 권한 처리, 접근 권한 없는 경우 대체 페이지 노출
+    - Skeleton UI 적용 : 사용자 경험 향상 및 layout shift 방지를 위한 Skeleton UI 적용
+    - Code splitting 적용 : Dynamic import를 활용한 Code splitting 적용
+    - REST API 공통 herders 관리 : REST API 사용 시 Interceptor를 활용한 Content-type 및 Authorization 등 공통 headers 메타 데이터 관리
+    - ContextAPI 활용한 전역 상태 관리 : ContextAPI Custom hook을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리
+    - HOC를 활용한 Provider 래핑 : app 디렉토리 내부 Provider를 HOC로 래핑하여 가독성 향상
+    - SVG 컴포넌트 활용 : SVG 재사용성을 증가시키기 위해 @svgr/webpack 패키지를 활용하여 컴포넌트로 사용
+    - SEO 향상을 위한 동적 메타 태그 적용 : next-seo를 활용하여 기본 메타 태그 및 페이지 별 동적 메타 태그 적용
+    - Next API Routes 활용 : Next API Routes를 활용한 Offer API, Apply API, JWT 발급 및 검증 API, Video Upload API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹
+    - Debounce 적용 : 사용자 입력을 통한 API 요청 시 Debounce를 적용하여 API 호출 횟수 최적화
+    - useMemo, useCallback 활용 : 연산이 비용이 큰 값 혹은 함수의 경우 useMemo, useCallback을 활용한 메모이징
+    - userAgent를 활용한 조건부 모달 노출 : 지원하지 않는 브라우저의 경우 userAgent를 활용한 경고 모달 노출
+    - Mailchimp API 사용 : Mailchimp API를 활용한 유저 Offer, Apply 시 알림 메일 발송
+    - 웹 접근성 향상을 위한 aria 속성 및 alt 속성 활용 : 스크린 리더 사용자들을 위한 aria-label, aria-labelledby, aria-disabled 등의 속성 활용 및 이미지 태그의 alt 속성 활용
+    - OG Tag 적용 : 서비스 공유 및 마케팅 효과 향상을 위한 OG tag 적용
+    - 사용자 행동 추적 및 분석 : Amplitude의 analytics 활용 및 useAnalytics hook을 활용한 사용자 행동 추적
+    - 관련 스타일 utils 함수로 관리 : flex, font 등 묶어서 사용되는 스타일의 경우 utils 함수를 생성하여 관리
+    - ESLint : ESLint를 활용한 Airbnb 스타일 룰 적용 및 Airbnb javascript 스타일 가이드 참조
 
-    - 빌드 및 배포
+  - 메인 페이지
 
-      - 안드로이드 : next-pwa를 활용한 PWA 구현하고 버블랩을 통해 안드로이드 apk 파일로 빌드 후 구글 플레이 콘솔 안드로이드 마켓에 배포
+    - ISR을 활용한 정적 페이지 업데이트 : 빌드 타임에 getStaticProps로 패칭한 Apply/Offer 카운트, 방금 가입한 유저 목록 데이터 등을 업데이트 하기 위해 revalidate 속성을 활용한 정적 페이지 재생성
+    - 외부 링크 이동 시 새창 열림 : 외부 링크 이동 시 target 속성의 \_blank를 활용한 새창 열림으로 사용자 경험 향상
 
-      - IOS : 플러터 사용, 외주 개발 후 유지보수를 위해 교육 받음
+  - 검색 페이지
 
-      - 웹 : vercel 배포
+    - Google Map API 활용 : Google Map API를 활용한 좌표 추출 및 좌표를 활용한 마커 및 마커 클러스터 표시, 마커 클릭 시 해당 좌표를 가진 유저 카드 노출
+    - Query String을 활용한 필터 처리 : Query String을 활용한 검색 결과 필터 처리 및 사용자들간 URL을 통한 필터 결과 값 공유로 사용자 경험 향상
+    - 캐싱을 활용한 세부 옵션 값 유지 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 페이지 전환 후 되돌아오는 경우 세부 옵션 사항 유지
+    - Windowing 기법 적용 : 유저 카드 목록에 react-cool-virtual 패키지를 활용한 windowing 기법 적용으로 렌더링 최적화
 
-    - SVG 컴포넌트화 : @svgr/webpack 패키지를 사용하여 SVG를 컴포넌트로 가져와서 사용, 커스텀이 가능하기 때문에 재사용성이 증가
+  - 유저 상세 페이지
 
-    - 로그인
+    - 주소 공유 기능 구현 : navigator.clipboard.writeText을 활용한 URL Copy 기능 구현
 
-      - 일반 로그인 : 로그인 api 요청 후 받아온 액세스 토큰은 로컬스토리지에서 관리하였다.
+  - 포스트 상세 페이지
 
-      - 소셜 로그인 : 로그인 시도 시 환경변수에 저장 된 key를 사용하여 인증 페이지로 리다이렉트 후 해당 페이지에서 이미 가입 된 이메일 혹은 가입 해야하는 이메일을 체크한 뒤 문제가 없는 경우 정상적으로 로그인 되도록 구현
+    - 포스트 비디오 구현 : react-player의 ReactPlayer를 활용한 비디오 구현 및 마우스 혹은 키보드 입력에 따른 비디오 액션 커스텀
+    - 프로필 업데이트 구현 : react hook form을 활용하여 프로필 업데이트 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 step 별 form 데이터 일괄 업데이트
+    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 업로드한 포스트 이미지 제공 시 AWS lamdba를 활용한 이미지 리사이징으로 이미지 최적화
+    - 스크롤 이벤트 최적화 : 스크롤 이벤트 트리거 시 메모리 누수 방지를 위한 클린업 처리 및 throttling 적용으로 이벤트 호출 최적화
 
-    - REST API 호출 시 인터셉터 : window 객체의 fetch를 사용하여 api 호출 시 호출을 인터셉트하여 헤더 Authorization에 토큰을 심어줌
+  - 채팅 페이지
 
-    - GraphQL : 쿼리를 생성 후 코드제너레이터를 돌려서 로컬 및 리모트 스키마에 대한 타입을 생성한 뒤 쿼리 도큐먼트를 아폴로 클라이언트에 useQuery 혹은 useMutation의 인자로 활용하여 api를 요청하였다. REST API에 비해 필요한 데이터만 적절히 요청해서 데이터 오버 패칭이나 언더 패칭이 없고 캐싱도 가능해서 편리하게 사용했던 것 같다.
+    - getStream.io API를 활용한 채팅 페이지 구현, 채널 연결 시도 시 토큰 발급 후 채널 연결, 채팅방 나가는 경우 채널 연결 해제, 채팅 채널 개수 제한, 스타일 커스텀 등의 기능 구현
 
-    - 사용자 행동 데이터 추적 : amplitude라는 서비스를 활용하여 사용자 행동을 추적
+  - 로그인 페이지
 
-    - SEO : next-seo 패키지를 활용하여 기본 메타 태그 설정, 오지(오픈 그래프 메타 태그) 태그 설정 및 페이지 별 동적 메타 태그 설정
+    - 회원 가입 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 회원 가입 페이지 구현
+    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, Access token은 로컬 스토리지에서 관리
+    - 소셜 로그인 구현 : Oauth2 방식으로 소셜 로그인 구현 (설명 : Oauth2 방식으로 구현, 소셜 로그인 버튼 클릭 시 ${process.env.NEXT_PUBLIC_MATCHARK_API_ENDPOINT}/auth/apple 과 같은 소셜 아이디 로그인 페이지로 리다이렉트 -> 소셜 아이디 로그인 후 서버에서 빈 화면인 verify/sns?key=… 페이지로 인증 key를 담아서 리다이렉트 -> 빈 화면인 verify/sns?key… 페이지에서 useEffect를 통해 쿼리 파라미터에 담긴 key를 사용하여 사용자 인증 API 요청, 해당 사용자 인증 API는 이미 존재하는 유저인지 확인하여 boolean 값 응답, 존재하지 않는 다면 바로 쿼리 파라미터의 key를 활용하여 자동 회원가입이 되는 로그인 API 요청 -> 이미 존재하는 유저인 경우 로그인 타입을 소셜 타입으로 변경할 지 물어보는 모달 노출 및 확인 시 자동 로그인 타입이 변경되는 로그인 API 요청 -> 요청 완료 후 메인 페이지로 리다이렉트)
 
-    - 페이지 접근 권한 및 헤더 : getStaticProps를 활용하여 로그인 유저와 비로그인 유저 접근 권한 분기 처리 및 헤더 노출 처리, app에서 접근 권한 및 헤더 노출에 따른 디폴트 boolean 값을 하위 컴포넌트에 넘겨준 뒤 하위 컴포먼트에서는 해당 boolean 값을 getStaticProps를 통해 업데이트 하여 pre-render하는 방식으로 구현
+  - 프로필 수정 페이지
 
-    - 이미지 리사이징
-
-      - 유저 프로필 썸네일 : 유저가 프로필 이미지를 업로드하는 경우 캔버스를 활용하여 썸네일 크기에 맞는 이미지를 생성하고 압축률이 좋은 이미지 포맷으로 변경한 뒤 해당 이미지의 blob을 업로드하여 이미지를 저장하였다.
-
-      - 포스트 이미지 제공 : AWS S3에서 유저가 업로드한 게시물인 포스트 이미지 제공 시 AWS lamdba를 활용하여 이미지를 리사이징 한 뒤 제공하였다. 서버리스 환경으로 구성하여 서버에 부담을 줄이고 관리가 필요없도록 하였다. 또한 AWS S3의 데이터 제공 시 AWS cloudfront를 활용하여 CDN을 구축하고 물리적으로 가까운 위치에 있는 엣지 서버로 캐싱 된 데이터 요청하여 빠른 응답이 가능하도록 하였다.
-
-    - 공통 함수와 컴포넌트 : 모달이나 바텀 시트같은 공통 컴포넌트는 고차 컴포넌트로 만들어 재사용성을 증가시키고 페이지 별 공통적으로 적용되는 함수의 경우 커스텀 훅으로 작성하거나 별도의 함수로 분리하여 관리
-
-    - 레이아웃 시프트 방지 및 사용자 경험 향상을 위한 조건문 활용 스켈레톤 UI 적용
-
-    - 다이나믹 임폴트를 활용한 코드 스플리팅
-
-  - 메인
-
-  - 디테일 페이지
-
-    - 동적 라우팅 : 괄호를 사용한 동적 라우팅으로 구현
-
-    - 비디오 구현 : react-player의 ReactPlayer를 활용한 비디오 구현
-
-    - 주소 공유 : navigator.clipboard.writeText을 활용한 URL 복사
-
-  - 검색
-
-    - 구글맵을 활용한 post code 추출 및 post code를 활용한 마커 및 마커 클러스터 표시, 마커 및 마커 클러스터 클릭 시 확대 혹은 유저카드 표시
-
-    - 쿼리 파라미터를 활용한 필터 처리
-
-    - 높이 값을 계산하여 바텀 시트에 보이는 목록만 렌더링 되도록 windowing 기법 적용
-
-  - 대시보드
-
-  - 채팅
-
-    - 외부 패키지 getStream io api (솔루션) 사용하여 구현, 로그인 유저 판별 후 커넥션 연결, 채팅 채널 갯수 관리, 채팅방 나가는 경우 커넥션 연결 해제, 스타일 커스텀 등
-
-  - 마이페이지
-
-    - 프로필 업데이트 : react hook form을 활용하여 프로필 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 스탭 별 form 데이터 일괄 업데이트 및 useForm을 활용한 단일 페이지 form 데이터 관리
-
-    - 포스트 업로드 : 이미지와 비디오인 경우 분기 처리해서 업로드 진행, 공통적으로 캔버스를 활용한 썸네일 생성 후 AWS S3에 업로드, 그 후 이미지의 경우 캔버스를 활용한 이미지 리사이징 후 업로드 진행, 비디오의 경우 비디오 사이즈를 기준으로 잘라 멀티파트 업로드
+    - 프로필 수정 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 프로필 수정 페이지 구현
+    - 프로필 이미지 업로드 : 사용자 프로필 이미지 업데이트 시 이미지 영역에 맞는 크기의 이미지로 리사이징 후 업로드하여 이미지 최적화
+    - 포스트 업로드 구현
+      - 업로드 파일 사이즈 체크 : 포스트 업로드 시 blob을 활용하여 format, size 체크 후 경고 토스트 노출 및 업로드 진행
+      - 업로드 시 미리보기 제공 : 포스트 업로드 시 이미지 및 비디오를 분기 처리하여 이미지인 경우 createObjectURL을 활용한 미리보기 생성 및 노출, 비디오인 경우 썸네일 생성 후 video, canvas를 활용한 미리보기 생성 및 노출
+      - 이미지 리사이징 및 비디오 멀티파트 업로드 : 포스트 업로드 시 이미지의 경우 canvas를 활용한 이미지 리사이징 및 비디오의 경우 blob에서 비디오 크기 추출 후 비디오를 크기 기준으로 나누어 멀티파트 업로드
+      - 포스트 삭제 구현 : Next API routes를 활용하여 AWS S3에 해당 포스트를 삭제하는 API 생성
+    - 캐싱을 활용한 경고 모달 노출 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 프로필 수정 중인 경우 경고 모달 노출
 
 <br>
