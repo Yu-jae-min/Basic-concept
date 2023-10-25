@@ -532,6 +532,10 @@
 
 <br>
 
+### # javascript의 use strict mode
+
+<br>
+
 ### # **forEach 와 map함수의 차이는?**
 
 <br>
@@ -585,6 +589,12 @@
 <br>
 
 - event.target vs event.currentTarget 차이
+
+<br>
+
+### # 이벤트 바인딩
+
+- 이벤트 바인딩이란?
 
 <br>
 
@@ -941,6 +951,10 @@
 <br>
 
 - DOM
+
+<br>
+
+- HTML과 DOM의 차이
 
 <br>
 
@@ -1707,6 +1721,10 @@
 <br>
 
 - 옵션을 알고 사용하는가?
+
+<br>
+
+### # 자바스크립트 패키지 매니저
 
 <br>
 
@@ -3016,6 +3034,18 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
+- DBMS(Database Management System, 데이터베이스 관리 시스템)
+
+<br>
+
+- 대표적인 DBMS 종류
+
+<br>
+
+- DBMS 분류
+
+<br>
+
 - 관계형 데이터베이스(relational database)
 
 <br>
@@ -3025,6 +3055,10 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 <br>
 
 - 인덱스
+
+<br>
+
+- SQL
 
 <br><br><br>
 
