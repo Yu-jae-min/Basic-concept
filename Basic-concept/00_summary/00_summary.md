@@ -1294,6 +1294,12 @@
 
 <br>
 
+### # javascript의 use strict 모드
+
+- 자바스크립트 언어의 문법을 보다 엄격히 적용하여 기존에는 무시되던 오류를 발생시킬 가능성이 높거나 자바스크립트 엔진의 최적화 작업에 문제를 일으킬 수 있는 코드에 대해 명시적인 에러를 발생시킨다. 전역에서 선언하면 모든 소스코드가 대상이고, 로컬로 선언하면 함수 내에서만 대상이 된다. use strict 모드에서는 삭제가 불가능한 프로퍼티를 삭제하거나 함수의 매개변수를 중복해서 사용하는 것 등이 금지된다. use strict 모드를 사용하면 엄격한 동작으로 코드 작성 단계에서 에러를 사전에 발견할 수 있다는 장점과 디버깅이 쉬워진다는 장점이 있다. 하지만 use strict 모드를 지원하지 않는 브라우저에서는 엄격 모드의 코드가 다른 방식으로 동작할 수 있다는 단점이 있다.
+
+<br>
+
 ### # **forEach 와 map함수의 차이는?**
 
 <br>
@@ -1382,6 +1388,47 @@
   (1) event.target : 실제 이벤트가 발생하는 요소 `ex) <button onClick={onClick}><span>테스트</span></button> 일 때 span`
 
   (2) event.currentTarget : 이벤트 리스너가 달린 요소 `ex) <button onClick={onClick}><span>테스트</span></button> 일 때 button`
+
+<br>
+
+### # 이벤트 바인딩
+
+- 이벤트 바인딩이란?
+
+  이벤트가 발생한 요소와 이벤트(콜백 함수)를 연결해주는 것이 이벤트 바인딩이다. 이벤트 바인딩이는 총 3가지 방법이 있는데, HTML 이벤트 핸들러, DOM 이벤트 핸들러, DOM EventListener을 이용한 핸들러가있다.
+
+  HTML 이벤트 핸들러 방식은 HTML 요소의 이벤트 Attribute에 이벤트 핸들러를 대응시키는 방법이다. 이 방법은 HTML과 Javascript가 혼용이 되는데, 이 둘은 관심사가 다르기 때문에 같이 사용하는 것을 피해야 한다.
+
+  ```js
+  <button class="btn" onclick="myFunction()">
+  ```
+
+  DOM 이벤트 핸들러 방식은 DOM 요소에 이벤트를 바인딩하고 이벤트가 발생하면 실행될 코드를 함수로 작성하는 방법이다. HTML과 Javascript가 혼용되는 문제는 해결되었지만 이벤트 핸들러 하나의 하나의 콜백 함수만을 바인딩 할 수 있고 함수 인자를 전달할 수 없다는 문제가 있다.
+
+  ```js
+  <button id="myBtn">Click me</button>;
+
+  var myBtn = document.getElementById("myBtn");
+
+  // 첫번째 바인딩된 이벤트 핸들러 => 실행되지 않는다.
+  myBtn.onclick = function () {
+    alert("Button clicked 1");
+  };
+
+  // 두번째 바인딩된 이벤트 핸들러
+  myBtn.onclick = function () {
+    alert("Button clicked 2");
+  };
+  ```
+
+  DOM EventListener 방식은 addEventListener 함수를 이용하여 대상 요소(Event Target)에 이벤트를 바인딩하고, 해당 이벤트가 발생했을 때 실행될 콜백 함수를 지정하는 방식이다. addEventListener 함수의 인자는 이벤트 타입(ex onclick), 실행 될 콜백함수, 캡처링 사용여부 순으로 전달할 수 있다. DOM EventListener 방식은 하나의 이벤트에 여러 핸들러를 추가할 수 있고 버블링과 캡처링을 지원한다. 바닐라 스크립트 기준으로 가장 많이 사용되는 방식이다.
+
+  ```js
+  target.addEventListener(type, listener[, useCapture]);
+
+  var el = document.getElementById("outside");
+  el.addEventListener("click", function(){modifyText("four")}, false);
+  ```
 
 <br>
 
@@ -2083,11 +2130,9 @@
   factorial(3); // 6
 
   /*
-    1. factorial(3,1) 함수 컨텍스트 생성 -> factorial 호출문 만나면 실행 단계 중지 및 인자로 (2,3) 전달
-    2. factorial(2,3) 함수 컨텍스트 생성 -> factorial 호출문 만나면 실행 단계 중지 및 인자로 (1,6) 전달
-    3. factorial(1,6) 함수 컨텍스트 생성 -> n이 1이므로 파라미터로 전달받은 total 변수의 값인 6 출력 -> factorial(1,6) 함수 컨텍스트 제거
-    4. factorial(2,3) 함수 컨텍스트가 전달받은 호출 결과 6 출력 -> factorial(2,3) 함수 컨텍스트 제거
-    5. factorial(3,1) 함수 컨텍스트가 전달받은 호출 결과 6 출력 -> factorial(3,1) 함수 컨텍스트 제거
+    1. factorial(3,1) 함수 컨텍스트 생성 -> factorial 호출문 만나면 인자로 (2,3) 전달 및 호출하며 factorial(3,1) 함수 컨텍스트 제거
+    2. factorial(2,3) 함수 컨텍스트 생성 -> factorial 호출문 만나면 인자로 (1,6) 전달 및 호출하며 factorial(2,3) 함수 컨텍스트 제거
+    3. factorial(1,6) 함수 컨텍스트 생성 -> n이 1이므로 파라미터로 전달받은 total 변수의 값인 6 출력 후 factorial(1,6) 함수 컨텍스트 제거
   */
   ```
 
@@ -2331,6 +2376,12 @@
 - DOM(Document Object Model)
 
   DOM이란 문서 객체 모델이며 XML, HTML 문서의 각 항목을 계층으로 표현하여 생성, 변형, 삭제할 수 있도록 돕는 인터페이스이다. 브라우저의 렌더링 엔진은 HTML 문서를 로드한 후 브라우저가 해당 문서를 읽을 수 있도록 HTML 파싱 과정에서 계층화 된 트리 형식의 자료 구조인 DOM트리를 형성하여 메모리에 적재한다.
+
+<br>
+
+- HTML과 DOM의 차이
+
+  HTML은 단순히 규칙에 따라 정해진 태그, 속성값으로 이루어진 언어이며, DOM은 브라우저가 HTML 파싱한 후 생성되는 객체 모델이다.
 
 <br>
 
@@ -3985,9 +4036,9 @@
 
       웹 페이지의 로딩 속도 등 실제 성능을 측정
 
-    - Best practices
+    - Best practices (https://developer.chrome.com/docs/lighthouse/best-practices/)
 
-      Best practices를 따라 개발되었는지 확인
+      웹 페이지가 웹에 대한 표준 모범 사례(Best practices를 따라 개발되었는지)를 따르고 있는지 확인한다. 웹 애플리케이션을 가동할 때 콘솔에 오류가 출력되진 않는지, 더는 사용하지 않는 API를 호출하고 있지 않은지, HTTPS를 통해 해당 페이지에 접근할 수 있는지와 같은 항목을 확인한다.
 
     - Accessibility
 
@@ -4807,6 +4858,12 @@ const DetailsComponent = () => (
 (5) 이미지 태그의 onError 속성 : api로 이미지를 불러와 띄워줄 경우 이미지를 불러오지 못하는 경우(이미지 주소가 N/A로 오는 경우)가 발생할 수 있는데 이 때 이미지 태그의 onError를 사용하여 대체 이미지를 사용하여 에러 처리를 할 수 있다.
 
 (6) 쿼리 스트링 활용 : 검색 기능 구현 시 쿼리 스트링을 활용하면 사용자가 검색 결과를 다른 사용자들과 공유할 수 있다.
+
+<br>
+
+### # 자바스크립트 패키지 매니저
+
+- 작성 중
 
 <br>
 
@@ -8527,6 +8584,47 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
+- DBMS(Database Management System, 데이터베이스 관리 시스템)
+
+  데이터베이스를 ‘데이터의 집합’이라고 정의한다면, 이런 데이터베이스를 관리하고 운영하는 소프트웨어를 DBMS(Database Management System)라고 힌디. 데이터베이스를 운영하고 관리하는 소프트웨어로 계층형, 망형, 관계형 DBMS 중 대부분의 DBMS가 테이블로 구성된 관계형 DBMS(RDMBS)형태로 사용된다.
+
+<br>
+
+- 대표적인 DBMS 종류
+
+  데이터베이스를 사용하기 위해서도 소프트웨어, 즉 DBMS를 설치해야 하는데 대표적으로 MySQL, 오라클(Oracle), SQL 서버, MariaDB 등이 있습니다.
+
+  | DBMS       | 제작사     | 작동 운영체제             | 기타                                           |
+  | :--------- | :--------- | :------------------------ | :--------------------------------------------- |
+  | MySQL      | Oracle     | Unix, Linux, Windows, Mac | 오픈 소스(무료), 상용                          |
+  | MariaDB    | MariaDB    | Unix, Linux, Windows      | 오픈 소스(무료), 초기 개발자들이 독립해서 만듦 |
+  | PostgreSQL | PostgreSQL | Unix, Linux, Windows, Mac | 오픈 소스(무료)                                |
+  | Oracle     | Oracle     | Unix, Linux, Windows      | 상용 시장 점유율 1위                           |
+  | SQL Server | Microsoft  | Windows                   | 주로 중/대형급 시장에서 사용                   |
+  | DB2        | IBM        | Unix, Linux, Windows      | 메인프레임 시장 점유율 1위                     |
+  | Access     | Microsoft  | Windows                   | PC용                                           |
+  | SQLite     | SQLite     | Android, iOS              | 모바일 전용, 오픈 소스(무료)                   |
+
+<br>
+
+- DBMS 분류
+
+  - DBMS의 유형은 계층형(Hierarchical), 망형(Network), 관계형(Relational), 객체지향형(Object-Oriented), 객체관계형(Object-Relational) 등으로 분류됩니다. 현재 사용되는 DBMS 중에는 관계형 DBMS가 가장 많은 부분을 차지하며, MySQL도 관계형 DBMS에 포함됩니다.
+
+  - 계층형 DBMS : 계층형 DBMS(Hierarchical DBMS)는 처음으로 등장한 DBMS 개념으로 1960년대에 시작되었다. 아래 그림과 같이 각 계층은 트리tree 형태를 갖습니다. 사장 1명에 이사 3명이 연결되어 있는 구조이다. 계층형 DBMS의 문제는 처음 구성을 완료한 후에 이를 변경하기가 상당히 까다롭다는 것이다. 또한 다른 구성원을 찾아가는 것이 비효율적이다. 예를 들어 재무2팀에서 회계팀으로 연결하려면 재무이사 → 사장 → 회계이사 → 회계팀과 같이 여러 단계를 거쳐야 한다. 지금은 사용하지 않는 형태이다.
+
+    ![데이터베이스_계층형DBMS](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/5caea3a1-703a-407b-8cd8-9bd684e9c9c9)
+
+  - 망형 DBMS : 망형 DBMS(Network DBMS)는 계층형 DBMS의 문제점을 개선하기 위해 1970년대에 등장했다. 다음 그림을 보면 하위에 있는 구성원끼리도 연결된 유연한 구조이다. 예를 들어 재무2팀에서 바로 회계팀으로 연결이 가능하다. 하지만 망형 DBMS를 잘 활용하려면 프로그래머가 모든 구조를 이해해야만 프로그램 작성이 가능하다는 단점이 존재한다. 역시 지금은 거의 사용하지 않는 형태이다.
+
+    ![데이터베이스_망형DBMS](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/65ea40a3-0a60-4837-b568-3deb8f4ab2bb)
+
+  - 관계형 DBMS : 관계형 DBMS(Relational DBMS)는 줄여서 RDBMS라고 부른다. MySQL뿐만 아니라, 대부분의 DBMS가 RDBMS 형태로 사용된다. RDBMS의 데이터베이스는 테이블(table)이라는 최소 단위로 구성되며, 이 테이블은 하나 이상의 열(column)과 행(row)으로 이루어져 있다. RDBMS에서는 모든 데이터가 테이블에 저장된다. 이 구조가 가장 기본적이고 중요한 구성이기 때문에 RDBMS는 테이블로 이루어져 있으며, 테이블은 열과 행으로 구성되어 있다는 것을 파악했다면 RDBMS를 어느정도 이해했다고 할 수 있다.
+
+    ![데이터베이스_sql_table](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/0e9935c2-82b3-4709-85cc-d04f8ae291f7)
+
+<br>
+
 - 관계형 데이터베이스(relational database)
 
   데이터 사이의 관계에 기초를 둔 데이터베이스 시스템을 말하고 2차원 테이블로 표현한다. 원투원(두 테이블이 서로가 서로의 오로지 한 로우에만 연결), 원투매니(한 테이블의 로우 하나에 다른 테이블의 로우 여러개가 연결), 매니투매니(중간테이블로 연결, 하나에 다른 테이블의 로우 여러개가 연결)의 관계로 테이블을 연결하며 식별 정보를 나타내는 프라이머리 키와 테이블 관계를 나타내는 폴인 키를 활용하여 각 테이블의 값을 참조한다.
@@ -8542,6 +8640,14 @@ function GenericReturnFunc<T>(arg: T): T {
 - 인덱스
 
   추가적인 쓰기 작업과 저장 공간을 활용하여 데이터베이스 테이블의 검색 속도를 향상시키기 위한 자료구조이다.
+
+<br>
+
+- SQL
+
+  - 구조화된 질의 언어라는 뜻으로 관계형 데이터베이스에서 사용되는 언어. 표준 SQL을 배우면 대부분의 DBMS를 사용할 수 있다. 즉 DBMS에서 사용하는 언어이다.
+
+  - SQL(Structured Query Language)은 관계형 데이터베이스에서 사용되는 언어로, ‘에스큐엘’ 또는 ‘시퀄’로 읽는다. 관계형 DBMS 중 MySQL를 배우려면 SQL을 필수로 익혀야 한다. SQL이 데이터베이스를 조작하는 ‘언어’이긴 하지만 일반적인 프로그래밍 언어(C, 자바, 파이썬 등)와는 조금 다른 특성을 갖는다. SQL은 특정 회사에서 만드는 것이 아니라 국제표준화기구에서 SQL에 대한 표준을 정해서 발표하고 있다. 이를 표준 SQL이라고 한다. 그런데 문제는 SQL을 사용하는 DBMS를 만드는 회사가 여러 곳이기 때문에 표준 SQL이 각 회사 제품의 특성을 모두 포용하지 못한다는 점이다. 그래서 DBMS를 만드는 회사에서는 되도록 표준 SQL을 준수하되, 각 제품의 특성을 반영한 SQL을 사용한다. 3가지 DBMS 제품(오라클, SQL 서버, MySQL)이 모두 표준 SQL을 포함하고 있다. 그래서 표준 SQL을 익히면 대부분의 DBMS에 공통적으로 적용할 수 있다. 각 DBMS는 추가로 자신만의 기능도 가지고 있어서 이렇게 변경된 SQL을 오라클은 PL/SQL, SQL서버는 T-SQL, MySQL은 SQL로 부른다.
 
 <br><br><br>
 
