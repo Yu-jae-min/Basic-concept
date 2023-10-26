@@ -1992,6 +1992,10 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 - data fetching
 
+<br>
+
+### # Nextjs 13 둘러보기
+
 <br><br><br>
 
 ## # Typescript

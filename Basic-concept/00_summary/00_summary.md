@@ -5901,6 +5901,45 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
   - getStaticProps + revalidate : fetch(URL, { next: { revalidate: 10 } });
 
+<br>
+
+### # Nextjs 13 둘러보기
+
+- Building Your Application
+
+  - Routing
+
+    - 계층 구조 용어
+      ![Next13_Building_Your_Application_Routing_01](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/1a57f48d-802c-430d-9eac-cb77f3cf2689)
+    - URL 구조 (예 abc.com/dashboard/settings)
+      - URL Segment: 슬래시로 구분된 URL 경로, 위에 dashboard 혹은 settings 모두가 URL 세그먼트
+      - URL Path: 도메인 뒤에 오는 부분, 세그먼트로 구성되어있다. 위 예시중 도메인 abc.com 뒤 dashboard/settings가 URL 패쓰
+    - app 라우터와 page 라우터 둘 다 존재 시 app 라우터가 우선 순위가 높고 동일한 경로 존재 시 빌드 에러가 발생한다.
+    - 기본적으로 모든 컴포넌트는 서버 컴포넌트이다.
+
+- Pages and Layouts
+
+- Linking and Navigating
+
+  - router prefetch : router preuseRouter를 사용하여 페이지를 이동할 때 프리페치를 위해 useRouter 리턴 객체의 메소드인 prefetch를 사용할 수 있다.
+  - Link태그의 프리페치 방식
+    - 정적 경로는 프리페치가 기본적으로 true, 모든 경로가 프리페치되고 캐시됨다.
+    - 동적 경로는 프리페치가 기본적으로 automatic, 첫 번째 loading.js 파일이 프리페치되고 30초 동안 캐시될 때까지 공유 레이아웃만 다운된다. 이렇게 하면 전체 동적 경로를 가져오는 비용이 줄고 로딩 화몀을 표시함으로서 사용자에게 더 나은 시각적 피드백을 제공할 수 있다.
+    - Link태그의 프리페치는 프로덕션 모드에서만 활성화된다.
+  - Next.js에는 라우터 캐시라는 인메모리 클라이언트 측 캐시가 있다. 사용자가 앱을 탐색할 때 미리 가져온 경로 세그먼트와 방문한 경로의 React 서버 컴포넌트 페이로드가 캐시에 저장된다.
+  - 부분 렌더링(partial rendering) : 부분 렌더링은 내비게이션에서 변경되는 경로 구간만 클라이언트에서 다시 렌더링하는 것을 의미한다. 모든 공유 구간은 유지된다. 예를 들어 /dashboard/settings와 /dashboard/analytics 경로에 컴포넌트들이 있을 때 setting 페이지에서 analytics 페이지로 전환한다고 했을 때 dashboard 하위 컴포넌트가 공유하는 layout.tsx 부분은 유지되며 analytics 컴포넌트만 부분 렌더링된다. 전체 페이지를 다시 렌더링하는 것이 아니기 때문에 서버 비용과 렌더링 비용이 감소한다.
+  - 소프트 네비게이션 : 기본적으로 브라우저는 페이지 간 하드 네비게이션을 수행한다. 즉, 브라우저는 페이지를 다시 로드하고 앱의 사용 상태 후크와 같은 React 상태와 사용자의 스크롤 위치 또는 포커싱된 요소와 같은 브라우저 상태를 재설정한다. 하지만 Next.js에서 앱 라우터는 소프트 내비게이션을 사용한다. 즉, React는 React와 브라우저 상태를 유지하면서 변경된 세그먼트만 렌더링하며 전체 페이지를 다시 로드하지 않는다.
+  - 뒤로가기 앞으로가기 탐색 : 기본적으로 Next.js는 뒤로 및 앞으로 탐색을 위한 스크롤 위치를 유지하고 라우터 캐시에서 경로 세그먼트를 재사용한다.
+
+- Route Groups
+
+  - 일반적으로 app내의 디렉토리는 URL에 매핑되지만 ()를 사용하면 관련 페이지를 그룹으로 묶어 사용할 수 있다. ()로 작성된 디렉토리는 URL에 매핑되지 않고 그룹을 나눌 때 사용할 수 있다.
+  - ()로 나누어진 그룹은 그룹 내에서만 사용하는 layout.js를 사용할 수 있다. 그룹이 다르거나 그룹 외부 컴포넌트는 해당 레이아웃을 공유할 수 없다.
+  - 여러 LootLayout을 생성하려면 최상위 layout.js 파일을 제거하고 각 경로 그룹 내에 layout.js 파일을 추가한다. 이는 완전히 다른 UI나 경험을 가진 섹션으로 애플리케이션을 분할하는 데 유용하다. `<html>` 및 `<body>` 태그를 각 루트 레이아웃에 추가해야 한다. (html 및 body는 루트레이아웃에만 존재할 수 있으며 존재해야한다.) 즉 그룹별 자체 루트레이아웃을 적용시키는 것이다.
+  - 경로 그룹을 포함하는 경로는 다른 경로와 동일한 URL 경로로 해석되어서는 안된다. 예를 들어 경로 그룹은 URL 구조에 영향을 주지 않으므로 (marketing)/about/page.js 및 (shop)/about/page.js는 모두 /about으로 확인되어 오류를 발생시킨다.
+  - 최상위 layout.js 파일 없이 여러 루트 레이아웃을 사용하는 경우 메인이 되는 page.js 파일은 경로 그룹 중 하나에 정의되어야 한다. (예: app/(marketing)/page.js).
+  - 그룹별 별도의 루트 레이아웃을 사용하는 경우 그룹이 다른 페이지로 페이지 전환 시 부분 렌더링이 아닌 전체 렌더링이 발생한다.
+
 <br><br><br>
 
 ## # Typescript
