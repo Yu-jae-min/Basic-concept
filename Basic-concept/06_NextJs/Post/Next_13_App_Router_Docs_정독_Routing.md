@@ -616,7 +616,7 @@
 
 - 같은 폴더에서 loading.js는 layout.js 안에 중첩된다. 그러면 page.js 파일과 그 아래의 모든 하위 파일이 Suspense 컴포넌트 경계로 자동 래핑된다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_10](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/397150ac-b9e2-458c-8b46-e941165e7c94)
+  ![Next_13_App_Router_Docs_정독_Routing_11](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/f228d496-ec51-466c-870a-40cb75f83668)
 
 - 서버 중심 라우팅을 사용하더라도 즉각적인 탐색이 가능하다.
 
@@ -646,11 +646,11 @@
 
   - (5) 마지막으로 React는 사용자 인터페이스에 수분을 공급(hydrates)하여 대화형(interactive) 인터페이스로 만든다.
 
-    ![Next_13_App_Router_Docs_정독_Routing_11](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/8fd40f8a-17e7-4202-a7c9-0f2aa629c9a7)
+    ![Next_13_App_Router_Docs_정독_Routing_12](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/e132ea5a-6f42-4bb2-a42c-4afbc3c7149e)
 
 - 위와 같은 단계는 순차적이고 차단적이므로 서버는 모든 데이터를 가져온 후에만 페이지의 HTML을 렌더링할 수 있다. 그리고 클라이언트에서는 페이지의 모든 컴포넌트에 대한 코드가 다운로드 된 후에야 React가 UI에 수분을 공급(hydrates)할 수 있다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_12](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/a2035ac1-889d-497c-b249-7335bd5079d3)
+  ![Next_13_App_Router_Docs_정독_Routing_13](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/c01c3eb7-af89-4a48-97f7-7a0ed9128021)
 
 - 이러한 단점에도 SSR을 사용했던 이유는 사용자에게 비대화형 페이지를 최대한 빨리 보여줌으로서 체감 로딩 성능을 개선하려고 했다.
 
@@ -658,13 +658,13 @@
 
 - `스트리밍`을 사용하면 페이지의 HTML을 더 작은 청크로 나누고 해당 청크를 서버에서 클라이언트로 점진적으로 전송할 수 있다. 이렇게 하면 UI가 렌더링되기 전에 모든 데이터가 로드될 때까지 기다리지 않고 페이지의 일부를 더 빨리 표시할 수 있다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_13](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/2fe03d74-e2a9-4470-8ab8-d788acd59b6a)
+  ![Next_13_App_Router_Docs_정독_Routing_14](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/fdb69faf-41d7-45ef-88fb-a3d2bcf8d543)
 
 - 스트리밍은 각 컴포넌트를 하나의 청크로 간주한다. 우선순위가 높거나(예: 제품 정보) 데이터에 의존하지 않는 컴포넌트를 먼저 전송할 수 있고 React의 하이드레이션을 더 일찍 시작할 수 있다. 우선순위가 낮은(예: 리뷰, 관련 제품) 컴포넌트는 데이터를 가져온 후 동일한 서버 요청으로 전송할 수 있다.
 
 - 스트리밍은 긴 데이터 요청으로 인해 페이지 렌더링이 차단되는 것을 방지할 때 특히 유용하다. 스트리밍은 [Time To First Byte (TTFB)](https://web.dev/ttfb/)와 [First Contentful Paint (FCP)](https://web.dev/first-contentful-paint/)를 줄일 수 있기 때문이다. 또한 특히 느린 디바이스에서 [Time to Interactive (TTI)](https://developer.chrome.com/en/docs/lighthouse/performance/interactive/)를 개선하는데 도움이 된다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_14](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3fdcdc72-7184-40fc-bae2-02868a17a971)
+  ![Next_13_App_Router_Docs_정독_Routing_15](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/ea9a6c3b-97a6-4e78-ba78-1f73db187bdf)
 
 <br>
 
@@ -729,7 +729,7 @@
 
 - 경로 세그먼트 내에 error.js 파일을 추가하고 React 컴포넌트를 내보내서 오류 UI를 생성한다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_15](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/99ee11ca-1fca-4fbb-92d1-ead2765441f2)
+  ![Next_13_App_Router_Docs_정독_Routing_16](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/4aefa9fb-0cbc-40a0-b4eb-7f3475ec8328)
 
   ```tsx
   // app/dashboard/error.tsx
@@ -769,7 +769,7 @@
 
 ## 8-1. [How `error.js` Works](https://nextjs.org/docs/app/building-your-application/routing/error-handling#how-errorjs-works)
 
-![Next_13_App_Router_Docs_정독_Routing_16](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/9c6e22a5-4d8d-491a-80d8-2df0e61941a8)
+![Next_13_App_Router_Docs_정독_Routing_17](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/0dec1975-5776-4f6e-b4a4-46dceaf4b82e)
 
 - error.js는 중첩된 자식 세그먼트 또는 page.js 컴포넌트를 감싸는 React Error Boundary를 자동으로 생성한다.
 
@@ -814,7 +814,7 @@
 
 - 예를 들어 layout.js 파일과 error.js 파일이 모두 포함된 두 개의 세그먼트가 있는 중첩된 경로는 다음과 같은 단순화된 컴포넌트 계층 구조로 렌더링된다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_17](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/7c14d8d5-087f-4a76-81f4-792b9f78af13)
+  ![Next_13_App_Router_Docs_정독_Routing_18](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/29687cad-a33a-4c9b-b9c9-92bc064f0efd)
 
 - 중첩된 컴포넌트 계층 구조는 중첩된 경로에서 error.js 파일의 동작에 영향을 미친다.
 
@@ -893,15 +893,15 @@ export default function GlobalError({
 
 - 예를 들어 팀 페이지와 분석 페이지를 동시에 렌더링할 수 있다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_18](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/02351e54-a8e9-4145-aae8-669572d8d49a)
+  ![Next_13_App_Router_Docs_정독_Routing_19](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/5140cdf5-cf25-4e6d-ab4d-d31aca2ea6eb)
 
 - 병렬 라우팅을 사용하면 각 경로가 독립적으로 스트리밍 될 때 각 경로에 대해 독립적인 에러 및 로딩 상태를 정의할 수 있다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_19](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/7eff656d-b0ff-41bb-bf62-5d7c9ff550cd)
+  ![Next_13_App_Router_Docs_정독_Routing_20](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/5d21d110-1a97-4ba5-ac7b-c96dfcb728a0)
 
 - 병렬 라우팅을 사용하면 인증 상태와 같은 특정 조건에 따라 조건부로 슬롯을 렌더링할 수도 있다. 이를 통해 동일한 URL에서 완전히 분리된 코드를 사용할 수 있다.
 
-  ![Next_13_App_Router_Docs_정독_Routing_20](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3982bddd-e7ff-49d5-af09-965c7f1317d5)
+  ![Next_13_App_Router_Docs_정독_Routing_21](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/124f0dcb-7748-46e4-9ef3-2324693e51dd)
 
 <br>
 
