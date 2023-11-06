@@ -3525,13 +3525,13 @@
 
 - 리덕스 미들웨어가 무엇인가?
 
-  리덕스 미들웨어를 사용하면 액션이 디스패치 된 다음, 리듀서에서 해당 액션을 받아와서 업데이트하기 전에 추가적인 작업을 할 수 있다. 보통 리덕스에서 미들웨어를 사용하는 주된 사용 용도는 비동기 작업을 처리 할 때 사용한다. 리덕스 미들웨어 라이브러리로는 redux-thunk, redux-saga, redux-observable, redux-promise-middleware 등이 있다.
+  리덕스 미들웨어를 사용하면 액션이 디스패치 된 다음, 리듀서에서 해당 액션을 받아와서 업데이트하기 전에 추가적인 작업을 할 수 있다. 즉 디스패치 함수를 결합해서 새로운 디스패치 함수를 반환하는 고차함수를 만들어낸다. 리듀서에서는 비동기 로직이 존재할 수 없기 때문에 비동기 작업을 처리하기 위해 미들웨어를 사용한다. 리덕스 미들웨어 라이브러리로는 redux-thunk, redux-saga, redux-observable, redux-promise-middleware 등이 있다.
 
 <br>
 
 - redux-thunk, redux-saga 설명
 
-  (1) redux-thunk : 특정 작업을 나중에 할 수 있도록 미루기 위해 객체가 아닌 함수 형태의 액션을 디스패치할 수 있게 해준다. 보통 thunk 함수를 사용하여 비동기 api 사용 시 사용한다. redux toolkit에서는 비동기 api 사용 시 createAsyncThunk 사용한다.
+  (1) redux-thunk : redux-thunk는 리덕스를 사용하는 어플리케이션에서 비동기 작업을 처리할 때 사용하는 미들웨어 중 하나이다. thunk는 특정 작업을 나중에 하도록 미루기 위해서 함수 형태로 감싼 것을 칭한다. redux-thunk는 객체 대신 함수를 생성하는 액션 생성함수를 작성할 수 있게 해준다. 리덕스에서는 기본적으로 액션 객체를 디스패치하는데, 일반 액션 생성자는 파라미터로 액션 객체를 생성하는 작업만 한다. thunk를 이용하면 특정 액션이 몇 초 뒤에 실행되게 하거나, 조건이 충족되는 경우에만 dispatch 할 수 있다. 함수를 디스패치 할 때에는 dispatch와 getState를 매개변수로 두고, 해당 함수를 만들어주는 함수가 thunk 인 것이다. thunk를 사용한 이유는 리덕스가 비동기처리를 하지 못하여 미들웨어인 thunk를 이용해 API를 호출하고, 비동기 액션을 처리하기 위함이었다. redux toolkit에서는 비동기 api 사용 시 createAsyncThunk 사용한다.
 
   ```js
   // 참고 : https://react.vlpt.us/redux-middleware/04-redux-thunk.html
