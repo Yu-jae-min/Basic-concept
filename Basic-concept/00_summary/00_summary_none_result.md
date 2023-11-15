@@ -162,6 +162,8 @@
 
 - grid와 flex의 차이
 
+- grid 영역 구분
+
 - 그리드 용어
 
   - 그리드 컨테이너 (Grid Container)
