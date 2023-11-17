@@ -792,7 +792,11 @@
 
 <br>
 
-### # **자바스크립트 개발에 어떤 디버깅 툴을 사용하는지?**
+### # 사용하는 디버깅 툴
+
+<br>
+
+### # 객체 관련 메소드
 
 <br>
 
@@ -1056,7 +1060,7 @@
 
 <br>
 
-- 사용하는 테스팅 라이브러리 및 프레임워크
+- 대표적인 테스팅 라이브러리 및 프레임워크
 
 <br>
 
@@ -1164,11 +1168,11 @@
 
 <br>
 
-- react의 setState를 왜 사용하는지
+- componentDidMount 와 render 중 무엇이 먼저 실행되는지?
 
 <br>
 
-- componentDidMount 와 render 중 무엇이 먼저 실행되는지?
+### # useEffect hook
 
 <br>
 
@@ -1200,11 +1204,7 @@
 
 <br>
 
-- 리액트에서 setState는 비동기 동작인가요, 동기 동작인가요?
-
-<br>
-
-- setState가 비동기 동작을 취했을 때 얻을 수 있는 이점은 무엇인가요?
+- 리액트에서 setState는 비동기 동작인가요, 동기 동작인가요? (+ react batch update)
 
 <br>
 
@@ -1238,7 +1238,7 @@
 
   - children이란?
 
-  - 부모 리렌더링 시 children이 리렌더링 되지 않는 이유
+  - children을 사용하는 컴포넌트에서 리렌더링 발생 시 children은 리렌더링 하지 않는 이유
 
   - children은 언제 사용하는 것이 좋을까?
 
@@ -1463,6 +1463,10 @@
     - SI (Speed Index), 10%
 
     - TTI (Time To Interactive), 10%
+
+- LCP 최적화 방법
+
+- FCP 최적화 방법
 
 - Next.js에서 Lighthouse 사용하기
 
@@ -3181,6 +3185,10 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 <br><br><br>
 
 ## # ETC
+
+<br>
+
+### # 웹 최적화 방법 정리
 
 <br>
 
