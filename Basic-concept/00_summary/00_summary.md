@@ -9520,52 +9520,81 @@ function GenericReturnFunc<T>(arg: T): T {
 
   - 공통
 
-    - 빌드 및 배포 : Vercel을 활용한 웹 배포, next-pwa와 bubble wrap을 활용한 안드로이드 apk 파일 빌드 및 앱 배포
-    - UI 구현 : UI 프레임워크 BaseUI, CSS 라이브러리 Styletron-react를 활용한 UI 구현
-    - Typescript 활용 : Typescript를 활용한 정적 타이핑으로 안정성 향상
-    - AWS S3와 Cloudfront 활용 : AWS S3를 활용한 파일 저장 및 Cloudfront를 활용한 데이터 캐싱 및 빠른 데이터 처리
-    - GraphQL 활용 : Apollo Client, GraphQL을 활용한 데이터 패칭 및 캐싱, 캐싱 데이터를 활용한 API 호출 최적화 (설명 : 쿼리를 생성 후 코드제너레이터를 돌려서 로컬 및 리모트 스키마에 대한 타입을 생성한 뒤 쿼리 도큐먼트를 아폴로 클라이언트에 useQuery 혹은 useMutation의 인자로 활용하여 api를 요청하였다. REST API에 비해 필요한 데이터만 적절히 요청해서 데이터 오버 패칭이나 언더 패칭이 없고 캐싱도 가능해서 편리하게 사용했던 것 같다. 캐싱의 경우 writeQuery, readQuery, modify 메소드를 활용하여 캐싱 데이터를 관리하였다.)
-    - SSG를 활용한 조건부 UI 처리 : getStaticProps를 활용한 header, bottom navigation 등 조건부 UI 핸들링 및 페이지 접근 권한 처리, 접근 권한 없는 경우 대체 페이지 노출
-    - Skeleton UI 적용 : 사용자 경험 향상 및 layout shift 방지를 위한 Skeleton UI 적용
-    - Code splitting 적용 : Dynamic import를 활용한 Code splitting 적용
-    - REST API 공통 herders 관리 : REST API 사용 시 Interceptor를 활용한 Content-type 및 Authorization 등 공통 headers 메타 데이터 관리
-    - ContextAPI 활용한 전역 상태 관리 : ContextAPI Custom hook을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리
-    - HOC를 활용한 Provider 래핑 : app 디렉토리 내부 Provider를 HOC로 래핑하여 가독성 향상
-    - SVG 컴포넌트 활용 : SVG 재사용성을 증가시키기 위해 @svgr/webpack 패키지를 활용하여 컴포넌트로 사용
+    - 빌드 및 배포 : 프론트 웹은 버셀을 활용하여 적용하였다. 버셀을 활용하는 경우 CI/CD가 자동으로 적용되기 때문에 PR 생성 시 빌드 및 테스트를 자동화할 수 있었고 연결된 레파지토리 메인 브랜치에 머지 시 자동으로 배포할 수 있었다. 또한 앱의 경우 next-pwa와 bubble wrap을 활용한 안드로이드 apk 파일 빌드 후 배포하였다.
+
+    - UI 구현 : UI 프레임워크는 BaseUI를 사용하였고 CSS 라이브러리는 css-in-js인 Styletron-react를 활용하였다. 자주 묶어서 사용되는 flex, font와 같은 스타일의 경우는 스타일 객체를 반환하는 유틸 함수로 생성하여 공통적으로 사용하였다.
+
+    - Typescript 활용 : Typescript를 활용한 정적 타이핑으로 안정성 향상시켰다.
+
+    - AWS S3와 Cloudfront 활용 : AWS 파일 서버인 S3를 활용하여 유저 업로드 이미지나 비디오를 관리하였고 AWS의 CDN인 Cloudfront를 활용하여 가까운 리전(지리적 분포 서버)의 엣지 서버에서 데이터를 제공해주어 빠르게 데이터가 제공되도록 하였다.
+
+    - GraphQL 활용 : Apollo Client, GraphQL을 활용한 데이터 패칭 및 캐싱을 통해 데이터 오버 패칭이나 언더 패칭을 해결하고 API 호출을 최적화하였다. 또한 로컬 스키마를 생성하고 캐싱하여 전역 상태 관리 라이브러리를 대체하여 사용하였다. (설명 : 쿼리를 생성 후 코드제너레이터를 돌려서 로컬 및 리모트 스키마에 대한 타입을 생성한 뒤 쿼리 도큐먼트를 아폴로 클라이언트에 useQuery 혹은 useMutation의 인자로 활용하여 api를 요청하였다. REST API에 비해 필요한 데이터만 적절히 요청해서 데이터 오버 패칭이나 언더 패칭이 없고 캐싱도 가능해서 편리하게 사용했던 것 같다. 캐싱의 경우 writeQuery, readQuery, modify 메소드를 활용하여 캐싱 데이터를 관리하였다.)
+
+    - SSG를 활용한 조건부 UI 처리 : getStaticProps를 활용한 header, bottom navigation 등 조건부 UI 핸들링 및 페이지 접근 권한 처리, 접근 권한 없는 경우 대체 페이지 노출하였다. 초기 값은 app 디렉토리에 컴포넌트의 props로 내려주고 이 props를 빌드 타임에 업데이트 시키는 방식으로 구현하였다.
+
+    - Skeleton UI 적용 : 사용자 경험 향상 및 layout shift 방지를 위한 Skeleton UI 적용하였다. if문 혹은 삼항 연산자 등을 활용하여 패칭 된 데이터가 유효하지 않은 경우 대체 UI로 제공하였다. 이 부분에서 스켈레톤 UI를 컴포넌트 단위로 적용한 점에서 아쉬운 것 같다. 전체 페이지의 데이터가 로드될 때 까지 스크롤 없는 스켈레톤 UI를 적용한다면 사용자 경험이 더 좋아졌을 것 같다.
+
+    - Code splitting 적용 : 다이나믹 임포트를 활용한 코드 스플리팅 적용, 기본적으로 next js에서는 페이지 디렉토리 내의 페이지들은 자동 코드스플리팅을 적용하기 때문에 그 외에 페이지 디렉토리 외부에 있는 공통 컴포넌트를 사용하는 경우 다이나믹 임포트를 통해 코드 스플리팅을 적용시켰다.
+
+    - REST API 공통 herders 관리 : REST API 사용 시 Interceptor를 활용한 Content-type 및 Authorization 등 공통 headers 메타 데이터 관리하였고 switch 문과 같은 추가적인 내부 로직을 사용하여 토큰이 필요한 요청의 경우 토큰을 심어주고 기타 다른 추가 데이터가 필요한 요청 등을 묶어서 관리하였다. (ex window.fetch = () = { … })
+
+    - ContextAPI 활용한 전역 상태 관리 : 컨텍스트 API 커스텀 훅을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리하였다. app 디렉토리 내부에 모든 컴포넌트를 감싸는 고차 컴포넌트를 만들었고 해당 컴포넌트 내부에서 프로바이더를 연결하고 컨텍스트 API의 값을 생성하여 공유하도록 하였다.
+
+    - HOC를 활용한 Provider 래핑 : app 디렉토리 내부에 여러 프로바이더 연결 시 props로 인해 가독성이 저하될 수 있는데 각 프로바이더를 HOC 만들고 래핑하여 가독성이 향상되도록 하였다.
+
+    - SVG 컴포넌트 활용 : SVG 재사용성을 증가시키기 위해 @svgr/webpack 패키지를 활용하여 컴포넌트로 사용하였다. svg 파일을 컴포넌트 내부로 import 할 때 컴포넌트 형태로 import 할 수 있다.
+
     - SEO 향상을 위한 동적 메타 태그 적용 : next-seo를 활용하여 기본 메타 태그 및 페이지 별 동적 메타 태그 적용
-    - Next API Routes 활용 : Next API Routes를 활용한 Offer API, Apply API, JWT 발급 및 검증 API, Video Upload API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹
-    - Debounce 적용 : 사용자 입력을 통한 API 요청 시 Debounce를 적용하여 API 호출 횟수 최적화
-    - useMemo, useCallback 활용 : 연산이 비용이 큰 값 혹은 함수의 경우 useMemo, useCallback을 활용한 메모이징
-    - userAgent를 활용한 조건부 모달 노출 : 지원하지 않는 브라우저의 경우 userAgent를 활용한 경고 모달 노출
+
+    - Next API Routes 활용 : Next API Routes를 활용한 Offer API, Apply API, JWT 발급 및 검증 API, Video Upload API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹 처리 등을 하였다. 페이지 디렉토리 내부 api 디렉토리에 생성하고 해당 파일의 경로를 api url로 사용하여 호출하였다. (ex /api/jwtSign/)
+
+    - Debounce 적용 : 사용자 입력을 통한 API 요청 시 Debounce를 적용하여 API 호출 횟수 최적화하였다. lodash에 debounce를 사용하였다. 사용법은 debounce로 콜백 함수를 인자로 넘겨주기만 하면 된다. (ex debounce(() => {}))
+
+    - useMemo, useCallback 활용 : 연산이 비용이 큰 값 혹은 함수의 경우 useMemo, useCallback을 활용한 메모이징하였다. 예를 들어 검색 페이지에 경우 클라이언트에서 처리 시 연산이 매우 컸는데 이러한 경우 메모이징하여 사용하였다.
+
+    - userAgent를 활용한 조건부 모달 노출 : 지원하지 않는 브라우저의 경우 userAgent를 활용한 경고 모달 노출, 점진적으로 대응하여 제거된 기능이지만 사파리 브라우저를 사용하는 빈도가 적었기 때문에 이러한 방식으로 대응하였었다.
+
     - Mailchimp API 사용 : Mailchimp API를 활용한 유저 Offer, Apply 시 알림 메일 발송
+
     - 웹 접근성 향상을 위한 aria 속성 및 alt 속성 활용 : 스크린 리더 사용자들을 위한 aria-label, aria-labelledby, aria-disabled 등의 속성 활용 및 이미지 태그의 alt 속성 활용
-    - OG Tag 적용 : 서비스 공유 및 마케팅 효과 향상을 위한 OG tag 적용
+
+    - OG Tag 적용 : 서비스 공유 및 마케팅 효과 향상을 위한 OG tag 적용 (ex `<meta property="og:url" content=https://${NEXT_PUBLIC_DOMAIN}.com>`, `<meta property="og:image" content=https://${NEXT_PUBLIC_DOMAIN}.com/images/>static/og-image.png>`)
+
     - 사용자 행동 추적 및 분석 : Amplitude의 analytics 활용 및 useAnalytics hook을 활용한 사용자 행동 추적
-    - 관련 스타일 utils 함수로 관리 : flex, font 등 묶어서 사용되는 스타일의 경우 utils 함수를 생성하여 관리
+
     - ESLint : ESLint를 활용한 Airbnb 스타일 룰 적용 및 Airbnb javascript 스타일 가이드 참조
 
   - 메인 페이지
 
-    - ISR을 활용한 정적 페이지 업데이트 : 빌드 타임에 getStaticProps로 패칭한 Apply/Offer 카운트, 방금 가입한 유저 목록 데이터 등을 업데이트 하기 위해 revalidate 속성을 활용한 정적 페이지 재생성
-    - 외부 링크 이동 시 새창 열림 : 외부 링크 이동 시 target 속성의 \_blank를 활용한 새창 열림으로 사용자 경험 향상
+    - ISR을 활용한 정적 페이지 업데이트 : 빌드 타임에 getStaticProps로 패칭한 Apply/Offer 카운트, 방금 가입한 유저 목록 데이터 등을 업데이트 하기 위해 revalidate 속성을 활용한 정적 페이지 재생성하였다. getStaticProps의 revalidate 속성을 활용하였다. 빌드 주기는 60초로 설정했었다.
+
+    - 외부 링크 이동 시 새창 열림 : 외부 링크 이동 시 target 속성의 `_blank`를 활용한 새창 열림으로 사용자 경험 향상시켰다.
 
   - 검색 페이지
 
     - Google Map API 활용 : Google Map API를 활용한 좌표 추출 및 좌표를 활용한 마커 및 마커 클러스터 표시, 마커 클릭 시 해당 좌표를 가진 유저 카드 노출
+
     - Query String을 활용한 필터 처리 : Query String을 활용한 검색 결과 필터 처리 및 사용자들간 URL을 통한 필터 결과 값 공유로 사용자 경험 향상
-    - 캐싱을 활용한 세부 옵션 값 유지 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 페이지 전환 후 되돌아오는 경우 세부 옵션 사항 유지
-    - Windowing 기법 적용 : 유저 카드 목록에 react-cool-virtual 패키지를 활용한 windowing 기법 적용으로 렌더링 최적화
+
+    - 캐싱을 활용한 세부 옵션 값 유지 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 페이지 전환 후 되돌아오는 경우 세부 옵션 사항 유지하였다. 예를 들어 유저 상세 옵션을 지정하고 유저 상세 페이지를 본 뒤 다시 검색 페이지로 돌아왔을 때 세부 옵션 값이 유지되도록 하였다. 세부 옵션 값을 유지하는 조건은 페이지 히스토리를 체크하여 이전 페이지가 유저 상세 페이지인 경우에만 유지되도록 하였다.
+
+    - Windowing 기법 적용 : 유저 카드 목록에 react-cool-virtual 패키지를 활용한 windowing 기법 적용으로 렌더링 최적화하였다. react-cool-virtual의 useVirtual hook이 반환하는 OuterRef와 InnerRef를 윈도우윙에 적용시킬 DOM에 ref와 연결하여 구현하였다.
 
   - 유저 상세 페이지
 
     - 주소 공유 기능 구현 : navigator.clipboard.writeText을 활용한 URL Copy 기능 구현
 
+    - 동적 페이지 SSR 적용 : getStaticPath 속성을 blocking으로 설정하여 프리 렌더되지 않은 동적 페이지에 접근 시 SSR로 동작하게끔 하고 이후 접근 시 프리 렌더된 페이지를 재활용하였다.
+
   - 포스트 상세 페이지
 
-    - 포스트 비디오 구현 : react-player의 ReactPlayer를 활용한 비디오 구현 및 마우스 혹은 키보드 입력에 따른 비디오 액션 커스텀
-    - 프로필 업데이트 구현 : react hook form을 활용하여 프로필 업데이트 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 step 별 form 데이터 일괄 업데이트
-    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 업로드한 포스트 이미지 제공 시 AWS lamdba를 활용한 이미지 리사이징으로 이미지 최적화
-    - 스크롤 이벤트 최적화 : 스크롤 이벤트 트리거 시 메모리 누수 방지를 위한 클린업 처리 및 throttling 적용으로 이벤트 호출 최적화
+    - 포스트 비디오 구현 : react-player의 ReactPlayer를 활용한 비디오 구현 및 마우스 혹은 키보드 입력에 따른 비디오 액션 커스텀, 아쉽게도 머지되지 않았다. 리액트플레이어 컴포넌트의 파라미터인 onReady, onProgess와 같이 비디오가 준비 되었을 때, 비디오가 실행 중일 때 등의 조건이나 비디오의 시간을 제어할 수 있는 seekTo 메소드 등을 이용하여 구현하였다.
+
+    - 프로필 업데이트 구현 : react hook form을 활용하여 프로필 업데이트 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 step 별 form 데이터 일괄 업데이트하였다. 단일 페이지의 form의 경우 useForm의 control으로 컨트롤러를 해당 폼에 등록하여 사용하고 FormProvider로 외부를 래핑한 후 별도의 컴포넌트 등에서 useFormContext을 통해 해당 form에 현재 상태를 조회하고 Controller로 해당 form을 업데이트 시킬 수 있게 하였다. 또한 form의 상태는 watch(컨트롤러에 작성 중인 값), resetField, getValues(폼에 저장된 값을 가져옴), setValue, formState의 dirtyFields, isValid, isDirty, errors 등을 통해 핸들링하였다.
+
+    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 업로드한 포스트 이미지 요청 시 AWS lamdba를 활용한 이미지 리사이징으로 이미지 최적화
+
+    - 스크롤 이벤트 최적화 : 포스트 상세 페이지의 풀페이지 기능에 적용 된 스크롤 이벤트 트리거 시 메모리 누수 방지를 위한 클린업 처리 및 throttling 적용으로 이벤트 호출 최적화, lodash의 thottle 사용, useEffect의 경우 return으로 클린업 처리
 
   - 채팅 페이지
 
@@ -9574,19 +9603,34 @@ function GenericReturnFunc<T>(arg: T): T {
   - 로그인 페이지
 
     - 회원 가입 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 회원 가입 페이지 구현
-    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, Access token은 로컬 스토리지에서 관리
+
+    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, 액세스 토큰은 로컬 스토리지에서 관리하였으며 리프레쉬 토큰은 쿠키로 관리하였다. 로그인 API 요청이 완료된 후 로컬 스트로지에 액세스 토큰을 저장하고 리프레시 토큰은 set-Cookie로 응답 헤더에 포함되어 쿠키에 저장되었다. 그 후 app 디렉토리 내부에 래핑 된 인증 관련 HOC 내부에서 state를 생성하여 관리하였다.
+
     - 소셜 로그인 구현 : Oauth2 방식으로 소셜 로그인 구현 (설명 : Oauth2 방식으로 구현, 소셜 로그인 버튼 클릭 시 ${process.env.NEXT_PUBLIC_MATCHARK_API_ENDPOINT}/auth/apple 과 같은 소셜 아이디 로그인 페이지로 리다이렉트 -> 소셜 아이디 로그인 후 서버에서 빈 화면인 verify/sns?key=… 페이지로 인증 key를 담아서 리다이렉트 -> 빈 화면인 verify/sns?key… 페이지에서 useEffect를 통해 쿼리 파라미터에 담긴 key를 사용하여 사용자 인증 API 요청, 해당 사용자 인증 API는 이미 존재하는 유저인지 확인하여 boolean 값 응답, 존재하지 않는 다면 바로 쿼리 파라미터의 key를 활용하여 자동 회원가입이 되는 로그인 API 요청 -> 이미 존재하는 유저인 경우 로그인 타입을 소셜 타입으로 변경할 지 물어보는 모달 노출 및 확인 시 자동 로그인 타입이 변경되는 로그인 API 요청 -> 요청 완료 후 메인 페이지로 리다이렉트)
 
   - 프로필 수정 페이지
 
     - 프로필 수정 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 프로필 수정 페이지 구현
-    - 프로필 이미지 업로드 : 사용자 프로필 이미지 업데이트 시 이미지 영역에 맞는 크기의 이미지로 리사이징 후 업로드하여 이미지 최적화
+
+    - 프로필 이미지 업로드 : 사용자 프로필 이미지 업데이트 시 이미지 영역에 맞는 크기의 이미지로 리사이징 후 업로드하여 이미지 최적화, 사용자가 업로드 시도 시 해당 이미지에 블랍을 전달받고 createObjectURL로 임시 URL 생성한다. 그 후 createElement로 이미지 엘리먼트 생성 후 해당 엘리먼트의 src 어트리뷰트로 해당 임시 URL을 지정해준 뒤 해당 엘리먼트의 load 이벤트 리스너를 걸어 이미지 로드가 완료되면 캔버스를 통해 새로 이미지를 그린 후 해당 이미지의 블랍을 뮤테이션으로 전달하여 업로드하였다. 업로드 과정은 AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드로 업로드 하였다.
+
     - 포스트 업로드 구현
+
+      - 포스트 업로드 구현 : AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드로 업로드 하였고 비디오의 경우 abortMultipartUpload 메소드로 업로드 하였다. 또한 useMutaion을 활용하여 DB에는 해당 포스트에 대한 정보를 함께 저장하였다.
+
       - 업로드 파일 사이즈 체크 : 포스트 업로드 시 blob을 활용하여 format, size 체크 후 경고 토스트 노출 및 업로드 진행
-      - 업로드 시 미리보기 제공 : 포스트 업로드 시 이미지 및 비디오를 분기 처리하여 이미지인 경우 createObjectURL을 활용한 미리보기 생성 및 노출, 비디오인 경우 썸네일 생성 후 video, canvas를 활용한 미리보기 생성 및 노출
-      - 이미지 리사이징 및 비디오 멀티파트 업로드 : 포스트 업로드 시 이미지의 경우 canvas를 활용한 이미지 리사이징 및 비디오의 경우 blob에서 비디오 크기 추출 후 비디오를 크기 기준으로 나누어 멀티파트 업로드
-      - 포스트 삭제 구현 : Next API routes를 활용하여 AWS S3에 해당 포스트를 삭제하는 API 생성
-    - 캐싱을 활용한 경고 모달 노출 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 프로필 수정 중인 경우 경고 모달 노출
+
+      - 업로드 시 미리보기 제공 : 포스트 업로드 시 이미지 및 비디오를 분기 처리하여 이미지인 경우 createObjectURL을 활용한 미리보기 생성 및 노출, 비디오인 경우 썸네일 생성 후 video, canvas를 활용한 미리보기 생성 및 노출하였다.
+
+      - 이미지 리사이징 및 비디오 멀티파트 업로드 : 포스트 업로드 시 이미지의 경우 canvas를 활용한 이미지 리사이징 및 비디오의 경우 blob에서 비디오 크기 추출 후 비디오를 크기 기준으로 나누어 멀티파트 업로드하였다.
+
+      - 포스트 삭제 구현 : Next API routes를 활용하여 AWS S3에 해당 포스트를 삭제하는 API 생성, aws-sdk 패키지의 AWS 객체로 AWS 클라이언트를 생성하고 해당 객체 내부에서 S3 클라이언트, 클라우드프론트 클라이언트를 각각 생성하였다. 그 후 생성한 S3 클라이언트를 통해 S3 객체를 생성하는데 인증 액세스 키와 인증 시크릿 키를 함께 전달하여 생성한다. 그 후 S3 객체의 deleteObject 메소드의 파라미터로 버킷 이름과 이미지 URL을 넘겨주어 삭제한다.
+
+    - 캐싱을 활용한 경고 모달 노출 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 프로필 수정 중인 경우 경고 모달 노출, 프로필 수정 페이지에서 사용하는 useForm의 isDirty가 true가 되는 경우 로컬 스키마로 생성한 사용자 입력 수정 중임을 나타내는 boolean 값을 true로 업데이트하여 캐싱한 후 사용자가 페이지 벗어나려고 하는 경우 cache-only를 통해 해당 값을 체크하여 경고창을 노출
+
+  - 비밀번호 설정 페이지
+
+    - SSR을 활용한 동적 쿼리 접근 : 비밀번호 재설정 페이지의 경우 유저에게 확인 이메일을 보낸 후 해당 이메일 내의 버튼을 이용하여 비밀번호 재설정 페이지로 접근하는데 이 때 쿼리 스트링에 컨펌 토큰을 포함해서 접근하게 된다. 이 토큰은 매 요청 시 변하는 해쉬 값이기 때문에 동적 쿼리 스트링을 받아올 수 없는 getStaticProps 대신 getServerSideProps를 사용하였다. 만약 사용자가 페이지 접근 시 쿼리 스트링에 토큰이 포함되어 있지 않은 경우 해당 페이지에 접근을 막고 대체 페이지를 제공해주기 위해 getServerSideProps의 파라미터로 쿼리에 담긴 토큰을 받아 검증 후 대체 페이지가 노출되도록 하였다. useEffect가 아닌 getServerSideProps를 사용한 이유는 useEffect는 컴포넌트 마운트 후 실행되기 때문에 잠시동안 사용자가 페이지를 볼 수도 있기 떄문에 getServerSideProps를 사용하였다.
 
 - 프로젝트에서 기술적으로 어려웠던 점과 해결 방법에 대해 설명해주세요. (작성 중)
 
@@ -9598,14 +9642,14 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 프로젝트에서 아쉬웠던 부분에 대해 설명해주세요.
 
-  - 우선 로그인 플로우에 대한 아쉬움이 있습니다. 일반 로그인 플로우의 경우 토큰 인증 방식을 활용하여 구현되었는데 클라이언트로 받아온 액세스 토큰을 로컬 스토리지에서 관리하며 만료 시 재로그인을 유도하는 방식으로 구현이 되었습니다. 이 때 만료 기간을 거의 일주일 정도로 지정해놓았던 것 같습니다. 이 방식으로 구현하는 경우 탈취되었을 때 엑세스 토큰의 만료 기간이 길기 때문에 사용자 정보가 노출될 수 있다는 문제가 있다고 생각했습니다. 이러한 로그인 플로우보다는 리프레시 토큰을 함께 활용하는 방식으로 바꾸는 것이 더 좋았을 것 같습니다. 액세스 토큰은 매 요청 시 새로 발급하는 방식을 활용하고 유효 기간을 매우 짧게 설정하여 탈취 당하더라도 공격자가 사용할 수 없도록 하며 액세스 토큰 만료 시에는 클라이언트에서 가지고 있는 리프레시 토큰을 활용하여 액세스 토큰을 새로 발급받는 방식으로 바꿀 수 있을 것 같습니다.
+  - 검색 결과 필터 시 클라이언트에서 모두 처리 : 또한 유저 검색 기능 중 필터 처리에 대한 아쉬움이 있습니다. 유저 검색 기능 중 필터 처리를 통해 유저를 필터링 하는 로직이 있었는데 해당 부분을 프론트 단에서 모두 처리하다보니 필터 처리 후 유저 목록 및 구글 맵 마커 노출이 늦는다는 단점이 있었습니다. 해당 부분을 필터 요청 시 API를 통해 필터 처리 된 목록을 요청하는 방식으로 변경한다면 더 빠르게 처리가 가능할 수 있을 것이라는 생각이 들었습니다.
 
-  - 또한 유저 검색 기능 중 필터 처리에 대한 아쉬움이 있습니다. 유저 검색 기능 중 필터 처리를 통해 유저를 필터링 하는 로직이 있었는데 해당 부분을 프론트 단에서 모두 처리하다보니 필터 처리 후 유저 목록 및 구글 맵 마커 노출이 늦는다는 단점이 있었습니다. 해당 부분을 필터 요청 시 API를 통해 필터 처리 된 목록을 요청하는 방식으로 변경한다면 더 빠르게 처리가 가능할 수 있을 것이라는 생각이 들었습니다.
+  - 포스트 디테일 윈도우윙 미적용 : 포스트 디테일 페이지에 윈도우윙 기법을 적용하지 못한 아쉬움이 있습니다. 검색 페이지에서는 윈도우윙이 적용되어 사용자에게 노출되는 부분만 유저 목록이 렌더링 되도록 최적화가 되어있었는데 포스트 디테일 페이지에서는 윈도우윙이 적용되지 않아 불필요한 컨텐츠들이 모두 렌더링된다는 문제점이 있었습니다. 해당 부분에 윈도우윙 기법이 적용되었다면 렌더링 최적화에 도움이 되었을 것이라고 생각됩니다.
 
-  - 포스트 디테일 페이지에 윈도우윙 기법을 적용하지 못한 아쉬움이 있습니다. 검색 페이지에서는 윈도우윙이 적용되어 사용자에게 노출되는 부분만 유저 목록이 렌더링 되도록 최적화가 되어있었는데 포스트 디테일 페이지에서는 윈도우윙이 적용되지 않아 불필요한 컨텐츠들이 모두 렌더링된다는 문제점이 있었습니다. 해당 부분에 윈도우윙 기법이 적용되었다면 렌더링 최적화에 도움이 되었을 것이라고 생각됩니다.
+  - 스타일 린트 미사용 : 스타일 컨벤션에 관한 아쉬움이 있었습니다. 컴포넌트를 스타일링할 때 스타일 속성 순서를 정해놓지않고 스타일링하였는데 개인 작업에서는 항상 가독성 향상을 위해 속성의 순서를 정해놓고 스타일링을 하였습니다. (모질라에서 제안한 CSS속성 기술 순서 : display(객체의 노출여부/표현방식), list-style, position(위치/좌표), float, clear, width/height(크기/여백), padding/margin, border/background(윤곽/배경), color/font(글자/정렬), text-decoration, text-align/vertical-align, white-space, other text, content (내용))
 
-  - 스타일 컨벤션에 관한 아쉬움이 있었습니다. 컴포넌트를 스타일링할 때 스타일 속성 순서를 정해놓지않고 스타일링하였는데 개인 작업에서는 항상 가독성 향상을 위해 속성의 순서를 정해놓고 스타일링을 하였습니다. (모질라에서 제안한 CSS속성 기술 순서 : display(객체의 노출여부/표현방식), list-style, position(위치/좌표), float, clear, width/height(크기/여백), padding/margin, border/background(윤곽/배경), color/font(글자/정렬), text-decoration, text-align/vertical-align, white-space, other text, content (내용))
+  - 외부 폰트 사용 시 그대로 사용 : 외부 폰트 사용 시 폰트를 그대로 사용했었는데 불필요한 글자를 제거한 서브셋 폰트를 사용하였다면 폰트 경량화가 가능했을 것 같습니다.
 
-  - 외부 폰트 사용 시 폰트를 그대로 사용했었는데 불필요한 글자를 제거한 서브셋 폰트를 사용하였다면 폰트 경량화가 가능했을 것 같습니다.
+  - 스켈레톤 UI 적용 시 컴포넌트 별 적용 : 컴포넌트 별로 적용하는 것보다 전체 페이지에 대해 적용시키는 것이 사용자 경험에 더 좋을 것 같다.
 
 <br>
