@@ -8397,6 +8397,24 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
+### # presigned URL
+
+- AWS의 presigned URL은 미리 서명된 URL을 통해 접근 권한이 없는 S3 버킷에 특정 유효기간동안 get, put이 가능하도록 하는 것이다. presigned URL을 생성하기 위한 createPresignedPost 메소드를 활용할 수 있다.
+
+- 동작 방식
+
+  1. 사용자가 이미지 업로드를 한다.
+
+  2. 클라이언트는 서버에 filename을 보내며 PresignedUrl 요청을 보낸다.
+
+  3. 서버는 응답값으로 PresignedUrl과 파일 이름뒤에 날짜가 추가된 filename을 보낸다.
+
+  4. 클라이언트는 PresignedUrl에 Put 메소드로 file을 함께 넘겨주면 업로드가 완료된다.
+
+  5. 업로드 후 받은 이미지 경로를 String 형태로 서버에 전달한다.
+
+<br>
+
 ### # **서버리스 아키텍처**
 
 <br>
@@ -9512,7 +9530,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 서비스 소개 : 잉글랜드 9부 리그 이하 아마추어 클럽과 플레이어를 매칭시켜주는 서비스
 
-- 기술스택 : nextjs, vercel, aws s3, aws cloudfront, aws lambda, typescript, axios, graphql, baseui, styletron
+- 기술스택 : Next.js, Typescript, Apollo Client, GraphQL, BaseUI, Styletron-react, Vercel, next-pwa, react-hook-form, AWS S3, AWS Cloudfront, AWS Lambda, analytics/amplitude
 
 - 프로젝트 아키텍처 : 프론트는 react 기반 프레임워크인 nextjs를 활용했고 서버는 nodejs 기반 프레임워크인 nestjs를 활용했다. db는 mysql을 사용했다. 또한 캐시 서버인 redis를 사용했다. 그리고 파일 서버로 aws s3를 사용했고 cloudfront와 함께 사용했다. 그리고 파일 서버에서 이미지 제공 시 aws lambda를 통해서 이미지 리사이징 후 제공하였다. 또한 프론트 배포 및 ci/cd 구축은 vercel을 사용하였다. 백엔드 배포는 도커를 통해 도커라이징하여 이미지 생성 후 해당 이미지를 ec2를 통해 배포하였다.
 
@@ -9538,7 +9556,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - REST API 공통 herders 관리 : REST API 사용 시 Interceptor를 활용한 Content-type 및 Authorization 등 공통 headers 메타 데이터 관리하였고 switch 문과 같은 추가적인 내부 로직을 사용하여 토큰이 필요한 요청의 경우 토큰을 심어주고 기타 다른 추가 데이터가 필요한 요청 등을 묶어서 관리하였다. (ex window.fetch = () = { … })
 
-    - ContextAPI 활용한 전역 상태 관리 : 컨텍스트 API 커스텀 훅을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리하였다. app 디렉토리 내부에 모든 컴포넌트를 감싸는 고차 컴포넌트를 만들었고 해당 컴포넌트 내부에서 프로바이더를 연결하고 컨텍스트 API의 값을 생성하여 공유하도록 하였다.
+    - Context API과 HOC를 활용한 전역 상태 관리 : Context API 커스텀 훅을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리하였다. 구현 방법은 재사용 가능한 Context API 훅을 만들고 제네릭 타입을 할당한 뒤 Context의 값과 프로바이더를 배열로 반환하도록 하였다. 그 후 app 디렉토리 내부 컴포넌트를 감싸는 전역 상태 관리를 담당하는 고차 컴포넌트 내부에서 해당 Context API 훅을 사용하는데 이 때 제네릭 타입의 인자로 전역 state로 사용할 state들을 interface 타입으로 묶어 전달하여 프로바이더가 관리할 값의 타입을 지정하였다. 그 후 고차 컴포넌트 내부에서 로그인, 로그아웃 등 필요 조건에 따라 전역적으로 사용되는 state를 업데이트하였고 이 state를 Context API 훅이 반환하는 프로바이더의 value로 넘겨주어 프로바이더가 최신 값을 반환할 수 있게 하였다. 여기까지 프로바이더가 반환하는 값의 세팅을 마친 후 고차 컴포넌트 내부에 있는 Context API 훅이 반환하는 Context의 값을 export 하여 모든 컴포넌트에서 import로 해당 state를 참조할 수 있게 하였다.
 
     - HOC를 활용한 Provider 래핑 : app 디렉토리 내부에 여러 프로바이더 연결 시 props로 인해 가독성이 저하될 수 있는데 각 프로바이더를 HOC 만들고 래핑하여 가독성이 향상되도록 하였다.
 
@@ -9546,7 +9564,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - SEO 향상을 위한 동적 메타 태그 적용 : next-seo를 활용하여 기본 메타 태그 및 페이지 별 동적 메타 태그 적용
 
-    - Next API Routes 활용 : Next API Routes를 활용한 Offer API, Apply API, JWT 발급 및 검증 API, Video Upload API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹 처리 등을 하였다. 페이지 디렉토리 내부 api 디렉토리에 생성하고 해당 파일의 경로를 api url로 사용하여 호출하였다. (ex /api/jwtSign/)
+    - Next API Routes 활용 : Next API Routes를 활용한 Apply/Offer API, Apply/Offer 시 필요한 JWT 발급 및 검증 API, S3 파일 업로드 API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹 처리 등을 하였다. 페이지 디렉토리 내부 api 디렉토리에 생성하고 해당 파일의 경로를 api url로 사용하여 호출하였다. (ex /api/jwtSign/)
 
     - Debounce 적용 : 사용자 입력을 통한 API 요청 시 Debounce를 적용하여 API 호출 횟수 최적화하였다. lodash에 debounce를 사용하였다. 사용법은 debounce로 콜백 함수를 인자로 넘겨주기만 하면 된다. (ex debounce(() => {}))
 
@@ -9604,7 +9622,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - 회원 가입 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 회원 가입 페이지 구현
 
-    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, 액세스 토큰은 로컬 스토리지에서 관리하였으며 리프레쉬 토큰은 쿠키로 관리하였다. 로그인 API 요청이 완료된 후 로컬 스트로지에 액세스 토큰을 저장하고 리프레시 토큰은 set-Cookie로 응답 헤더에 포함되어 쿠키에 저장되었다. 그 후 app 디렉토리 내부에 래핑 된 인증 관련 HOC 내부에서 state를 생성하여 관리하였다.
+    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, 액세스 토큰은 로컬 스토리지에서 관리하였으며 리프레쉬 토큰은 쿠키로 관리하였다. 액세스 토큰 만료 시 리프레쉬 토큰을 활용하여 재발급 받았다. 로그인 API 요청이 완료된 후 로컬 스트로지에 액세스 토큰을 저장하고 리프레시 토큰은 set-Cookie로 응답 헤더에 포함되어 쿠키에 저장되었다. 그 후 app 디렉토리 내부에 래핑 된 인증 관련 HOC 내부에서 state를 생성하여 관리하였다.
 
     - 소셜 로그인 구현 : Oauth2 방식으로 소셜 로그인 구현 (설명 : Oauth2 방식으로 구현, 소셜 로그인 버튼 클릭 시 ${process.env.NEXT_PUBLIC_MATCHARK_API_ENDPOINT}/auth/apple 과 같은 소셜 아이디 로그인 페이지로 리다이렉트 -> 소셜 아이디 로그인 후 서버에서 빈 화면인 verify/sns?key=… 페이지로 인증 key를 담아서 리다이렉트 -> 빈 화면인 verify/sns?key… 페이지에서 useEffect를 통해 쿼리 파라미터에 담긴 key를 사용하여 사용자 인증 API 요청, 해당 사용자 인증 API는 이미 존재하는 유저인지 확인하여 boolean 값 응답, 존재하지 않는 다면 바로 쿼리 파라미터의 key를 활용하여 자동 회원가입이 되는 로그인 API 요청 -> 이미 존재하는 유저인 경우 로그인 타입을 소셜 타입으로 변경할 지 물어보는 모달 노출 및 확인 시 자동 로그인 타입이 변경되는 로그인 API 요청 -> 요청 완료 후 메인 페이지로 리다이렉트)
 
@@ -9616,19 +9634,17 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - 포스트 업로드 구현
 
-      - 포스트 업로드 구현 : AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드로 업로드 하였고 비디오의 경우 abortMultipartUpload 메소드로 업로드 하였다. 또한 useMutaion을 활용하여 DB에는 해당 포스트에 대한 정보를 함께 저장하였다.
-
       - 업로드 파일 사이즈 체크 : 포스트 업로드 시 blob을 활용하여 format, size 체크 후 경고 토스트 노출 및 업로드 진행
 
       - 업로드 시 미리보기 제공 : 포스트 업로드 시 이미지 및 비디오를 분기 처리하여 이미지인 경우 createObjectURL을 활용한 미리보기 생성 및 노출, 비디오인 경우 썸네일 생성 후 video, canvas를 활용한 미리보기 생성 및 노출하였다.
 
-      - 이미지 리사이징 및 비디오 멀티파트 업로드 : 포스트 업로드 시 이미지의 경우 포스트 이미지 원본을 업로드 후 이미지 파일 제공 시 AWS Lambda를 통해 리사이징 후 제공하였고 비디오의 경우 업로드 시 blob에서 비디오 크기 추출 후 비디오를 크기 기준으로 나누어 멀티파트 업로드하였다.
+      - 포스트 업로드 구현 : AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드를 활용하여 presigned URL 방식을 활용한 포스트 이미지 업로드를 구현하였고 포스트 비디오 업로드의 경우 abortMultipartUpload 메소드를 활용하여 Multiipart Upload 방식을 활용한 포스트 비디오 업로드를 구현하였다. 또한 업로드 시 useMutaion을 활용하여 DB에는 해당 포스트에 대한 정보를 함께 저장하였다.
 
       - 포스트 삭제 구현 : Next API routes를 활용하여 AWS S3에 해당 포스트를 삭제하는 API 생성, aws-sdk 패키지의 AWS 객체로 AWS 클라이언트를 생성하고 해당 객체 내부에서 S3 클라이언트, 클라우드프론트 클라이언트를 각각 생성하였다. 그 후 생성한 S3 클라이언트를 통해 S3 객체를 생성하는데 인증 액세스 키와 인증 시크릿 키를 함께 전달하여 생성한다. 그 후 S3 객체의 deleteObject 메소드의 파라미터로 버킷 이름과 이미지 URL을 넘겨주어 삭제한다.
 
     - 캐싱을 활용한 경고 모달 노출 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 프로필 수정 중인 경우 경고 모달 노출, 프로필 수정 페이지에서 사용하는 useForm의 isDirty가 true가 되는 경우 로컬 스키마로 생성한 사용자 입력 수정 중임을 나타내는 boolean 값을 true로 업데이트하여 캐싱한 후 사용자가 페이지 벗어나려고 하는 경우 cache-only를 통해 해당 값을 체크하여 경고창을 노출
 
-  - 비밀번호 설정 페이지
+  - 비밀번호 재설정 페이지
 
     - SSR을 활용한 동적 쿼리 접근 : 비밀번호 재설정 페이지의 경우 유저에게 확인 이메일을 보낸 후 해당 이메일 내의 버튼을 이용하여 비밀번호 재설정 페이지로 접근하는데 이 때 쿼리 스트링에 컨펌 토큰을 포함해서 접근하게 된다. 이 토큰은 매 요청 시 변하는 해쉬 값이기 때문에 동적 쿼리 스트링을 받아올 수 없는 getStaticProps 대신 getServerSideProps를 사용하였다. 만약 사용자가 페이지 접근 시 쿼리 스트링에 토큰이 포함되어 있지 않은 경우 해당 페이지에 접근을 막고 대체 페이지를 제공해주기 위해 getServerSideProps의 파라미터로 쿼리에 담긴 토큰을 받아 검증 후 대체 페이지가 노출되도록 하였다. useEffect가 아닌 getServerSideProps를 사용한 이유는 useEffect는 컴포넌트 마운트 후 실행되기 때문에 잠시동안 사용자가 페이지를 볼 수도 있기 떄문에 getServerSideProps를 사용하였다.
 
