@@ -813,6 +813,22 @@
 
 - (5) Misc Properties (cursor, overflow, z-index)
 
+<br>
+
+### # Runtime CSS-in-JS vs Zero Runtime CSS-in-JS
+
+- Runtime CSS-in-JS
+
+  Runtime CSS-in-JS는 런타임에서 javascript를 통해 동적으로 스타일을 생성한다. 대표적인 라이브러리로는 styled-components, emotion 등이 있다. 개발모드에서는 디버깅에 이점이 있는 `<style>` 태그에 style을 추가하는 방식을 사용하고 배포 모드에서는 성능상의 이점이 있는 stylesSheet을 CSSStylesSheet.insertRule 통해 바로 CSSOM에 주입하는 방식을 사용한다. CSS 파일을 생성하지 않기에 webpack에서 css-loader가 필요 없고 매우 복잡한 애니메이션 구현 시 런타임 오버헤드가 발생할 수 있다.
+
+- Zero Runtime CSS-in-JS
+
+  Zero Runtime CSS-in-JS는 런타임에 CSS를 생성하지 않고 빌드 타임에 javascript 파일 내부에 작성된 CSS를 별도의 .css 파일을 생성한다. 그리고 브라우저는 해당 스타일을 읽고 웹 페이지에 적용하는 방식으로 동작한다. props 변화에 따른 동적인 스타일은 css 변수를 통해 적용한다. 대표적인 라이브러리로는 vanilla-extract가 있다. CSS가 JS와 동일한 번들에 있는 Runtime CSS-in-JS와 달리 CSS와 JavaScript를 병렬로 로드할 수 있으므로 로드 시간이 향상되고 CSS 구문 분석과 같은 추가 작업이 런타임에 수행될 필요가 없기 때문에 런타임 성능이 향상된다. 하지만 Runtime CSS-in-JS의 경우 js 번들 로드 시 js 번들에 포함된 style을 로드하면서 로딩 화면과 같은 UI를 띄워주는 paint를 수행할 수 있지만 Zero Runtime CSS-in-JS는 css가 모두 로드된 후 paint를 수행한다는 차이가 있다. 또한 빌드 타임에 CSS를 생성하기 때문에 Babel이나 Webpack을 사용 시 직접 webpack 설정을 변경해줘야 한다. 만약 CRA를 사용하고 있다면 eject를 해주고 loader를 설치해서 설정을 해줘야 하기 때문에 번거로울 수 있고 runtime에서 css polyfill를 사용할 수 없어 브라우저 버전 이슈가 있을 수 있다.
+
+- 오버헤드
+
+  프로그램(런타임 혹은 빌드타임)의 실행흐름 도중에 동떨어진 위치의 코드를 실행시켜야 할 때 , 추가적으로 시간,메모리,자원이 사용되는 현상이다. 한마디로 정의하자면,  오버 헤드는 특정 기능을 수행하는데 드는 간접적인 시간, 메모리 등 자원을 말한다. 예를들어,  10초 걸리는 기능이 간접적인 원인으로 20초걸린다면 오버헤드는 10초가 되는것이다.
+
 <br><br><br>
 
 ## # Javascript
@@ -5954,6 +5970,10 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
     전통적인 방식으로 서버에서 데이터가 포함된 정적인(non-interactive) HTML을 받아와 우선적으로 view를 보여준 뒤 js 번들 다운 후 하이드레이션하여 interaction이 가능하도록 한다.
 
+  - Next.js에서 SSR 동작 방식
+
+    서버 사이드 렌더링은 완성된 HTML을 클라이언트에 전송해주는 것이라고 알고 있다. 여기서 HTML을 완성해서 보내주는 서버는 프론트엔드 정적 페이지를 배포하는 웹서버가 아닌 Next.js 자체 Node.js 서버를 말한다. Next.js는 이와 같이 Node.js 기반의 서버에서 동작하며 React.js와 달리 서버 사이드 렌더링을 지원할 수 있다. 결론은 Next.js 애플리케이션을 실행하면 자체 Node.js 서버도 함께 구동되고 이 곳에서 서버 사이드 렌더링을 처리한다. 즉 서버 사이드 렌더링 페이지 요청 시 브라우저 환경이 아닌 곳에서 자바스크립트를 실행할 수 있게 해주는 Node.js 자체 서버에서 서버 사이드 렌더링을 수행하며 컴포넌트가 return하는 React.createElement를 호출하여 React DOM을 생성하고 runtime CSS in js의 경우 CSS를 심어주는 것이다. 그렇기 때문에 렌더링의 일부분, 즉 DOM트리와 CSSOM 트리를 생성하는 파싱과 스타일 단계를 서버에게 위임하여 서버 사이드 렌더링이라고 지칭하는 것이다.
+
   - 장점
 
     - 초기 로딩 속도 및 사용자 경험 향상 : HTML을 먼저 받아오기 때문에 초기 로딩 속도가 빠르고 js 번들을 다운로드하며 병렬적으로 view를 보여주기 때문에 사용자 경험이 향상된다.
@@ -9540,7 +9560,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - 빌드 및 배포 : 프론트 웹은 버셀을 활용하여 적용하였다. 버셀을 활용하는 경우 CI/CD가 자동으로 적용되기 때문에 PR 생성 시 빌드 및 테스트를 자동화할 수 있었고 연결된 레파지토리 메인 브랜치에 머지 시 자동으로 배포할 수 있었다. 또한 앱의 경우 next-pwa와 bubble wrap을 활용한 안드로이드 apk 파일 빌드 후 배포하였다.
 
-    - UI 구현 : UI 프레임워크는 BaseUI를 사용하였고 CSS 라이브러리는 css-in-js인 Styletron-react를 활용하였다. 자주 묶어서 사용되는 flex, font와 같은 스타일의 경우는 스타일 객체를 반환하는 유틸 함수로 생성하여 공통적으로 사용하였다. styletron-react를 사용한 이유 중 가장 큰 이유는 SSR에 최적화되어있다. 서버 사이드 렌더링 시 HTML에 스타일 태그 내부에 각 스타일을 유일한 클래스로 지정하고 인라인 태그로 필요한 부분에 CSS를 적용시켜 클라이언트로 보낸다. 개발자 도구 네트워크 탭에서 도큐먼트를 확인해보면 CSS를 포함하여 보내는 것을 볼 수 있다. 또한 아토믹 CSS를 사용하기 때문에 또한 아토믹 CSS를 채택하여 각 스타일이 유일한 클래스로 지정되어 중첩된 스타일 시트를 방지한다. 스타일 적용 시 자동으로 클래스가 부여된다.
+    - UI 구현 : UI 프레임워크는 BaseUI를 사용하였고 CSS 라이브러리는 css-in-js인 Styletron-react를 활용하였다. 자주 묶어서 사용되는 flex, font와 같은 스타일의 경우는 스타일 객체를 반환하는 유틸 함수로 생성하여 공통적으로 사용하였다. styletron-react를 사용한 이유 중 가장 큰 이유는 SSR에 최적화되어있다. 서버 사이드 렌더링 시 HTML에 스타일 태그 내부에 각 스타일을 유일한 클래스로 지정하고 각 태그마다 필요한 클래스를 할당하여 클라이언트로 보낸다. 개발자 도구 네트워크 탭에서 페이지 로드 시 전달받은 도큐먼트 프리뷰를 확인해보면 클래스를 할당하여 보내는 것을 볼 수 있다. 또한 아토믹 CSS 방식을 채택하여 사용하기 때문에 각 스타일이 유일한 클래스로 지정되어 중첩된 스타일 시트를 방지하며 스타일 적용 시 자동으로 클래스가 부여된다.
 
     - Typescript 활용 : Typescript를 활용한 정적 타이핑으로 안정성 향상시켰다.
 
