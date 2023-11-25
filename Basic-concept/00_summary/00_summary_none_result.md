@@ -324,6 +324,16 @@
 
 ### # 사용했던 CSS 속성 순서 컨벤션
 
+<br>
+
+### # Runtime CSS-in-JS vs Zero Runtime CSS-in-JS
+
+- Runtime CSS-in-JS
+
+- Zero Runtime CSS-in-JS
+
+- 오버헤드
+
 <br><br><br>
 
 ## # Javascript
@@ -1913,6 +1923,8 @@
   - SSR이란?
 
   - 동작 방식
+
+  - Next.js에서 SSR 동작 방식
 
   - 장점
 
