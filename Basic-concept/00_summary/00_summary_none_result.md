@@ -3036,7 +3036,27 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
-- 관계형 데이터베이스(relational database)
+### # 관계형 데이터베이스(relational database)
+
+- 관계형 데이터베이스(Relational Database)
+
+- 관계형 데이터베이스 매니지먼트 시스템(RDBMS, Relational DataBase Managenet System)
+
+<br>
+
+### # ERD(Entity-Relationship)
+
+- ERD란?
+
+- ERD의 3요소
+
+- ERD의 표기법
+
+- ERD의 관계(Relationship) 차수
+
+- ERD 설계 단계
+
+- ERD(Entity-Relationship) 작성
 
 <br>
 
