@@ -3018,13 +3018,13 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 ### # **데이터베이스**
 
-<br>
-
 - 데이터베이스(Database)
 
 <br>
 
-- DBMS(Database Management System, 데이터베이스 관리 시스템)
+### # DBMS(Database Management System, 데이터베이스 관리 시스템)
+
+- DBMS란?
 
 <br>
 
@@ -3060,15 +3060,15 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
-- 정규화
+### # 정규화
 
 <br>
 
-- 인덱스
+### # 인덱스
 
 <br>
 
-- SQL
+### # SQL
 
 <br><br><br>
 
