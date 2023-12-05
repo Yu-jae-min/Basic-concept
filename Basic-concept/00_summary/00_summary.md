@@ -32,7 +32,7 @@
 
 - 웹 표준 이란?
 
-  웹 표준이란 웹에서 표준적으로 사용되는 기술이나 규칙을 뜻하며 표준화 단체인 W3C가 권고한 표준안에 따라 웹사이트를 작성할 때 이용하는 HTML, CSS, JavaScript 등에 대한 규정이 담겨 있다. 소스 통일화, 접근성, 호환성, 유지보수, 검색엔진 최적화 등의 이유로 웹 표준을 준수하여야 한다. 웹 표준을 준수한다는 것은 웹 표준 기술(XHTML, CSS, DOM, ECMAScript 등)을 올바르게 사용하는 것을 의미한다. 예를 들어 인라인 요소안에 블록 요소를 사용하지 않기, 태그 사용 후 필수적으로 태그 닫아주기 등이 있다.
+  웹 표준이란 브라우저 종류 및 버전에 따른 기능 차이에 대하여 호환이 가능하도록 제시된 표준으로 웹에서 표준적으로 사용되는 기술이나 규칙을 뜻하며 표준화 단체인 W3C가 권고한 표준안에 따라 웹사이트를 작성할 때 이용하는 HTML, CSS, JavaScript 등에 대한 규정이 담겨 있다. 소스 통일화, 접근성, 호환성, 유지보수, 검색엔진 최적화 등의 이유로 웹 표준을 준수하여야 한다. 웹 표준을 준수한다는 것은 웹 표준 기술(XHTML, CSS, DOM, ECMAScript 등)을 올바르게 사용하는 것을 의미한다. 예를 들어 인라인 요소안에 블록 요소를 사용하지 않기, 태그 사용 후 필수적으로 태그 닫아주기 등이 있다.
 
   > - W3C : 월드 와이드 웹 표준안 개발 및 장려 조직
 
@@ -9718,7 +9718,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 기술스택 : Next.js, Typescript, Apollo Client, GraphQL, BaseUI, Styletron-react, Vercel, next-pwa, react-hook-form, AWS S3, AWS Cloudfront, AWS Lambda, analytics/amplitude
 
-- 프로젝트 아키텍처 : 프론트는 react 기반 프레임워크인 nextjs를 활용했고 서버는 nodejs 기반 프레임워크인 nestjs를 활용했다. db는 mysql을 사용했다. 또한 캐시 서버인 redis를 사용했다. 그리고 파일 서버로 aws s3를 사용했고 cloudfront와 함께 사용했다. 그리고 파일 서버에서 이미지 제공 시 aws lambda를 통해서 이미지 리사이징 후 제공하였다. 또한 프론트 배포 및 ci/cd 구축은 vercel을 사용하였다. 백엔드 배포는 도커를 통해 도커라이징하여 이미지 생성 후 해당 이미지를 ec2를 통해 배포하였다.
+- 프로젝트 아키텍처 : 프론트는 react 기반 프레임워크인 nextjs를 활용했고 서버는 nodejs 기반 프레임워크인 nestjs를 활용했다. db는 mysql을 사용했다. 또한 캐시 서버인 redis를 사용했다. 그리고 파일 서버로 aws s3를 사용했고 cloudfront와 함께 사용했다. 그리고 유저가 이미지 업로드 시 aws lambda를 통해서 이미지를 리사이징하였고 S3 파일 서버에서 이미지 제공 시 리사이징된 이미지를 제공하였다. 또한 프론트 배포 및 ci/cd 구축은 vercel을 사용하였다. 백엔드 배포는 도커를 통해 도커라이징하여 이미지 생성 후 해당 이미지를 ec2를 통해 배포하였다.
 
 - 페이지별 기능 구현 방법
 
@@ -9796,7 +9796,7 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - 프로필 업데이트 구현 : react hook form을 활용하여 프로필 업데이트 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 step 별 form 데이터 일괄 업데이트하였다. 단일 페이지의 form의 경우 useForm의 control으로 컨트롤러를 해당 폼에 등록하여 사용하고 FormProvider로 외부를 래핑한 후 별도의 컴포넌트 등에서 useFormContext을 통해 해당 form에 현재 상태를 조회하고 Controller로 해당 form을 업데이트 시킬 수 있게 하였다. 또한 form의 상태는 watch(컨트롤러에 작성 중인 값), resetField, getValues(폼에 저장된 값을 가져옴), setValue, formState의 dirtyFields, isValid, isDirty, errors 등을 통해 핸들링하였다.
 
-    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 업로드한 포스트 이미지 요청 시 AWS lamdba를 활용한 이미지 리사이징으로 이미지 최적화
+    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 썸네일 혹은 포스트 이미지 업로드 시 AWS lamdba를 활용하여 이미지 리사이징 후 요청 시 해당 리사이징 파일 제공 -> 이미지 리사이징 방법이 개선되어야 할 것 같다. 리사이징 이미지를 생성해서 S3에 저장한 후 제공하는 것이 아닌 이미지 요청 시 리사이징 이미지를 생성해서 제공하는 방법도 있다. 해당 방식을 사용하면 S3에 원본만 저장하면 되기 때문에 더 효율적으로 관리가 가능하다.
 
     - 스크롤 이벤트 최적화 : 포스트 상세 페이지의 풀페이지 기능에 적용 된 스크롤 이벤트 트리거 시 메모리 누수 방지를 위한 클린업 처리 및 throttling 적용으로 이벤트 호출 최적화, lodash의 thottle 사용, useEffect의 경우 return으로 클린업 처리
 
