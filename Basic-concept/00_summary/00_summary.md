@@ -5956,7 +5956,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
     - 초기 로딩 속도 및 빈 화면 노출 : js를 통해 컴포넌트를 전환하여 view를 렌더링하므로 js 번들 크기가 크면 초기 로딩 속도가 느릴 수 있고 로딩하는 동안 사용자가 빈 화면을 보게 된다.
 
-    - SEO 불리 : 빈 HTML을 사용하므로 SEO에 불리하다.
+    - SEO 불리 : 빈 HTML을 사용하므로 SEO에 불리하다. 하지만 이 부분은 검색엔진마다 다를 수 있다. 일부 검색엔진의 크롤러는 Javascript를 지원하지 않지만 구글 크롤러는 ES5+ Javasciprt를 지원한다. 그렇기 때문에 CRS는 SEO가 불가능한 것이 아닌 상대적으로 불리한 것이다.
 
 <br>
 
@@ -9298,9 +9298,9 @@ function GenericReturnFunc<T>(arg: T): T {
 
   (1) git merge : merge는 일반적인 병합 방법이다. 모든 커밋이 시간 순서대로 병합된다. 충돌이 일어났을 경우 맨 마지막 커밋에 머지 커밋을 추가하여 해결한다.
 
-  (2) git squash : squash 병합은 여러 개의 커밋을 하나의 커밋으로 합친 후 merge하는 방식이다. 충돌이 일어났을 경우 충돌 해결 후 squash 병합을 진행하므로 마지막에 머지 커밋이 추가되지 않는다.
+  (2) git squash : squash 병합은 여러 개의 커밋을 하나의 커밋으로 합친 후 merge하는 방식이다. 충돌이 일어났을 경우 충돌 해결 후 squash 병합을 진행하므로 마지막에 머지 커밋이 추가되지 않는다. 이러한 방식은 feature branch에서 develop branch로 머지할 때 적합하다. 기능 단위로 개발된 feature의 commit을 하나로 모아줌으로써 기능 단위의 commit을 만들어 develop branch에 머지하는 것이다. 이러한 방식을 통해 이슈를 추적하기가 용이해진다.
 
-  (3) git rebase : rebase는 커밋의 시간에 관계없이 마지막에 merge 되는 branch의 commit을 가장 뒤로 병합된다. 충돌이 연쇄적으로 발생할 수 있기 때문에 주의해서 병합해야한다. 또한 브랜치 병합 시 머지 커밋 기록이 남지 않는다. 따라서 마치 하나의 브랜치에서 작업한 것처럼 보여진다.
+  (3) git rebase : rebase는 커밋의 시간에 관계없이 마지막에 merge 되는 branch의 commit을 가장 뒤로 병합된다. 충돌이 연쇄적으로 발생할 수 있기 때문에 주의해서 병합해야한다. 또한 브랜치 병합 시 머지 커밋 기록이 남지 않는다. 따라서 마치 하나의 브랜치에서 작업한 것처럼 보여진다. 쉽게 말해서 rebase는 이름과 같이 base commit을 재정의하고 재정의한 base commit 뒤에 해당 commit들을 이어붙힌다. 이어붙히기 때문에 연쇄적 충돌이 발생할 수 있는 것이다. 이러한 방식은 develop branch에서 main branch로 머지할 때 적합하다. main branch의 마지막 commit에 develop의 commit을 이어붙히는 것이다. 만약 이런 경우 squash를 해버리면 develop의 commit이 하나로 합쳐지기 때문에 이슈를 추적하기가 어려워질 수 있다.
 
 <br>
 
