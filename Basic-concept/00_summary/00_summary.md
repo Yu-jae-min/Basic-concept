@@ -5768,7 +5768,13 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-- 기존 SSR의 동작 방식은 브라우저가 서버에서 렌더링이 완료된 HTML 파일(static)을 받아온 뒤 이 HTML 파일을 파싱한 후 사용자에게 우선적으로 보여준다. 그 후 JS가 로드되면 하이드레이션을 통해 사용자와 상호작용 가능하도록 한다. 이 때 서버에서 렌더링이 지연될 경우 TTFB(Time to first byte)가 늦어져 FCP와 TTI도 함께 느려져 사용자 경험이 좋지 않아질 수 있다. 이러한 상황을 개선하고자 React 18에서는 Streaming SSR가 추가되었다. Streaming SSR이란 서버에서 HTML을 여러 청크로 나눠 렌더링 하고, 렌더링이 완료된 부분만 먼저 클라이언트에 응답하는 기술이라고 할 수 있다. 이를 통해 TTFB를 빠르게 한다. 또한 브라우저에서는 전달받은 HTML 청크를 먼저 렌더링하고 렌더링이 완료된 부분 먼저 하이드레이션을 수행한다.
+- 기존 SSR의 동작 방식은 브라우저가 서버에서 렌더링이 완료된 HTML 파일(static)을 받아온 뒤 이 HTML 파일을 파싱한 후 사용자에게 우선적으로 보여준다. 그 후 javascript가 로드되면 하이드레이션을 통해 사용자와 상호작용 가능하도록 한다. 이 때 서버에서 렌더링이 지연될 경우 TTFB가 늦어지고 이어서 FCP도 느려질 수 있다. 또한 javascript 로드가 지연되는 경우 하이드레이션이 지연되어 TTI(사용자와 상호작용 시간)가 느려져 사용자 경험이 좋지 않아질 수도 있다. 이러한 상황을 개선하고자 React 18에서는 Streaming SSR가 추가되었다. Streaming SSR이란 Suspense 컴포넌트를 기준으로 서버에서 HTML을 여러 청크로 나눠 렌더링 하고, 렌더링이 완료된 부분 먼저 스트리밍 형태로 클라이언트에 응답하고 하이드레이션 또한 우선적으로 처리한다. 이러한 방식을 통해 TTFB, FCP, TTI를 개선하였다.
+
+  - TTFB(Time to first byte) : 브라우저가 HTTP 요청 후 첫 번째 응답 byte를 받는 시간
+
+  - FCP(First Contentful Paint) : 첫 번째 의미있는 컨텐츠가 렌더링되는 시간
+
+  - TTI(Time to Interation) : 컨텐츠가 렌더링된 후 js 로드가 되고 하이드레이션하여 사용자와 상호작용하는 시간
 
 <br>
 
@@ -6088,7 +6094,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   - 동작 방식
 
-    전통적인 방식으로 서버에서 데이터가 포함된 정적인(non-interactive) HTML을 받아와 우선적으로 view를 보여준 뒤 js 번들 다운 후 하이드레이션하여 interaction이 가능하도록 한다.
+    전통적인 방식으로 서버에서 데이터가 포함된 정적인(non-interactive) HTML을 받아와 우선적으로 view를 보여준 뒤 js 번들 다운 후 하이드레이션하여 interaction이 가능하도록 한다. 다만 SSR은 고전적인 static wep site와 같은 MPA에서 사용하던 렌더링 방식은 맞지만 SSR로 렌더링 되는 페이지가 무조건 MPA는 아니다. 페이지 요청 시 매번 페이지를 다시 생성하여 데이터를 넘겨주는 렌더링 방식이 SSR이다.
 
   - Next.js에서 SSR 동작 방식
 
