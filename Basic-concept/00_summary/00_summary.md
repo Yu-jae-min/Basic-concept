@@ -5978,9 +5978,9 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-### # React 실행 순서 퀴즈 (with 패니지먼트 면접 문제)
+### # React 실행 순서 퀴즈 (with 패니지먼트 면접 시 시험지 문제)
 
-- 첫 번째 문제
+- 첫 번째 문제 : useEffect 관련
 
   ```jsx
   import { useEffect, useState } from "react";
@@ -5991,7 +5991,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
     console.log(state);
 
     useEffect(() => {
-      setState(1);
+      setState(1); // 참고 사항 : 만약 setState(0)인 경우 콘솔에 0 -> useEffect 0까지 총 2번만 출력 됨
       console.log("useEffect", state);
 
       return () => {
@@ -6009,11 +6009,51 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   export default Main;
   ```
 
+  ![react_실행_순서_패니지먼트_01-1](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/99ac2f3b-5038-42d3-93ab-b0aa47d44d97)
+
   결과는 0 -> "useEffect" 0 -> 1 -> "clean up" 0 -> "useEffect" 1 -> 1 순으로 출력된다. 즉 6번의 console log가 찍히게 된다. 왜 그런지 하나씩 살펴보자.
 
-  1. 작성 중
+  1. 첫 번째 0의 경우 컴포넌트 마운트 시 컴포넌트 몸체 부분이 실행되어 출력된다.
+  2. 컴포넌트 마운트 후 페인트 단계까지 완료되면 useEffect가 실행된다. 이 때 useEffect 내부에 setState가 존재하는데 setState는 비동기로 처리되기 때문에 백그라운드로 넘어가고 console.log("useEffect", state)가 먼저 실행되어 "useEffect" 0이 찍힌다.
+  3. setState 처리 시 이전 값 0에서 1로 변경하기 때문에 리렌더링이 발생하게 된다.
+  4. 리렌더링이 발생하여 컴포넌트 몸체 부분의 console.log(state)가 실행되고 1을 출력한다.
+  5. useEffect의 dependency가 변경되었기 때문에 useEffect가 실행된다. 이 때 setState의 경우 비동기로 처리되기 때문에 백그라운드로 넘어가고 return 문 안에 클린업 함수가 존재하기 때문에 이전 useEffect 대한 클린업 함수를 실행한다. 즉 console.log("clean up", state) 실행 시 state는 이전 값을 가리키기 때문에 console.log("clean up", state)의 경우 clean up 0을 출력한다.
+  6. useEffect 내부에 console.log("useEffect", state)가 실행되어 "useEffect" 1이 찍힌다.
+  7. setState 처리 시 이전 값 1에서 1로 변경되기 때문에 원시 타입의 경우 불변성을 가지고 있어 새로운 메모리를 할당하는 것이 아닌 이전 값과 최신 값이 동일한 참조를 가리켜 리렌더링이 발생하지 않는 것이 맞지만 동일한 값이더라도 함수 몸체 부분은 한번 더 실행된다. 즉 비교하는 시점에서 함수 몸체 부분이 한번 더 실행되지만 실제 리렌더링은 발생하지 않는다. 그리고 그 후속 리렌더링은 건너뛰게 된다.
 
-- 두 번째 문제
+  - 참고 : https://legacy.reactjs.org/docs/hooks-reference.html
+  - If your update function returns the exact same value as the current state, the subsequent rerender will be skipped completely.
+  - If you update a State Hook to the same value as the current state, React will bail out without rendering the children or firing effects. (React uses the Object.is comparison algorithm.)
+
+  아래 예시도 살펴보자.
+
+  ```jsx
+  import { useEffect, useState } from "react";
+
+  const Main = () => {
+    const [state, setState] = useState(0);
+
+    console.log(state);
+
+    return (
+      <div className="wrap">
+        <button onClick={() => setState(1)}>test</button>
+      </div>
+    );
+  };
+
+  export default Main;
+  ```
+
+  ![react_실행_순서_패니지먼트_01-2](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3d964440-09b4-4a1b-9030-be7160a6285d)
+
+  위 코드는 첫 번째 예시에서 같은 값으로 setState 했음에도 불구하고 함수 몸체 부분이 실행되어 마지막 콘솔이 한번 더 출력되는 과정을 테스트해보기 위한 코드이다. 위 코드에서 버튼을 10번 클릭했다고 가정해보자. 결과는 0 -> 1 -> 1 순으로 출력된다. 즉 3번의 console log가 찍히게 되고 그 이후로는 찍히지 않는다. 왜 그런지 하나씩 살펴보자.
+
+  1. 첫 번째 컴포넌트 마운트 시 console.log(state)가 실행되고 useState의 초기 값인 0을 출력한다.
+  2. 첫 번째 버튼 클릭 시 setState(1)이 동작하여 이전 값과 최신 값은 다른 참조를 가리키게 되어 리렌더링이 발생한다. 리렌더링 발생 시 함수 몸체 부분에 console.log(state)가 실행되고 업데이트 된 값이 1을 출력한다.
+  3. 두 번째 버튼 클릭 시 setState(1)가 동작한다. 이 때 이전 값과 최신 값은 같은 참조를 가리키고 있어 리렌더링이 발생하지 않아야한다. 하지만 리렌더링이 발생하는 것처럼 함수 몸체 부분이 실행되어 콘솔에 1이 한번 더 출력된다. 즉 같은 값인 경우 비교하는 시점에 함수 몸체는 한번 더 실행하게 되고 그 이후 렌더링부터는 출력하지 않는 것을 알 수 있다. (더 자세한 내용은 추후에 다시 서칭해보자...)
+
+- 두 번째 문제 : useEffect 관련
 
   ```jsx
   import { useEffect, useState } from "react";
@@ -6042,10 +6082,49 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   export default Main;
   ```
 
+  ![react_실행_순서_패니지먼트_02](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/a4dfd90a-f652-4b38-8094-8b0bb6ad3659)
+
   결과는 0 -> "useEffect" 0 -> "useEffect" 0 -> "useEffect" 0 -> 3 -> "useEffect" 3 -> "useEffect" 3 -> "useEffect" 3 -> 3 순으로 출력된다. 즉 9번의 console log가 찍히게 된다. 왜 그런지 하나씩 살펴보자.
 
   1. 컴포넌트가 마운트되면 로직단 상단에 console.log(state)가 우선 실행된다. state의 초기 값은 0이기 때문에 0을 출력한다.
-  2. 작성 중
+  2. 브라우저 페인트 단계가 완료되면 useEffect가 실행된다. 이 때 내부 setState의 경우 비동기로 동작하기 때문에 백그라운드로 넘어가고 남은 console.log 3개가 찍히게 된다. 그렇기 때문에 "useEffect" 0이 연달아 3번 찍힌다.
+  3. setState 처리 시 react는 batch update를 통해 일정 간격에 setState를 몰아서 처리하는데 가장 최종 setState 값이 3이기 때문에 3으로 변경된다. 하지만 위 예시의 경우 setState의 로직이 단순하기 때문에 3으로 처리되었지만 서로 복잡도가 다른 경우 비동기로 동작하기 때문에 결과를 보장할 수는 없다. 어쨋든 위 코드에서는 이전 값 0에서 3으로 변경되기 때문에 리렌더링이 발생하게 된다.
+  4. 리렌더링이 발생하여 컴포넌트 몸체 부분의 console.log(state)가 실행되고 3을 출력한다.
+  5. useEffect의 dependency가 변경되었기 때문에 useEffect가 실행된다. 이 때 setState의 경우 비동기로 처리되기 때문에 백그라운드로 넘어가고 남은 console.log 3개가 찍히게 된다. 그렇기 때문에 "useEffect" 3이 연달아 3번 찍힌다.
+  6. setState 처리 시 이전 값 3에서 3으로 변경되기 때문에 원시 타입의 경우 불변성을 가지고 있어 새로운 메모리를 할당하는 것이 아닌 이전 값과 최신 값이 동일한 참조를 가리켜 리렌더링이 발생하지 않는 것이 맞지만 동일한 값이더라도 함수 몸체 부분은 한번 더 실행된다. 즉 비교하는 시점에서 함수 몸체 부분이 한번 더 실행되지만 실제 리렌더링은 발생하지 않는다. 그리고 그 후속 리렌더링은 건너뛰게 된다. (첫 번째 문제 7번과 동일한 내용)
+
+- 세 번째 문제 : 자체적으로 만들어 봄
+
+  ```jsx
+  import { useEffect, useState } from "react";
+
+  const Main = () => {
+    const [state, setState] = useState(0);
+
+    console.log(state);
+
+    useEffect(() => {
+      const a = new Array(40000000).fill("test");
+      console.log(1);
+    }, []);
+
+    useEffect(() => {
+      console.log(2);
+    }, []);
+
+    return (
+      <div className="wrap">
+        <span>test1</span>
+      </div>
+    );
+  };
+
+  export default Main;
+  ```
+
+  ![react_실행_순서_패니지먼트_03](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3615eb74-21c3-4661-9f48-d49dadd41e68)
+
+  결과는 0 -> 1 -> 2 순으로 출력된다. 즉 첫 번째 useEffect는 배열을 400만개 만들어 'test' 문구를 채우는 무거운 작업을 하고 있는데도 두 번째 useEffect 보다 먼저 실행된다. 여기서 알 수 있는 점은 useEffect는 setState와 같이 비동기로 동작하여 백그라운드에 넘어가 큐에 쌓인 뒤 콜스택으로 들어오는 비동기 함수가 아니라는 점이다. 즉 페인트 이후 호출되는 특수한 함수라고 보면 된다. 위에서도 알 수 있듯이 useEffect가 여러 개인 경우 useEffect의 콜백 함수를 동기적으로 호출하고 실행하는 것을 알 수 있다. 이런 점에서 javascript의 일반 함수 흐름과 동일하게 동작하는 것을 확인할 수 있다.
 
 <br><br><br>
 
