@@ -1890,6 +1890,10 @@
 
 ### # React 실행 순서
 
+<br>
+
+### # React 실행 순서 퀴즈 (with 패니지먼트 면접 문제)
+
 <br><br><br>
 
 ## # Next.js
@@ -2322,6 +2326,10 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
+### # 아폴로 클라이언트(Apollo Client)
+
+<br>
+
 - SDK란?
 
 <br>
@@ -2346,7 +2354,9 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
 
 <br>
 
-- HTTP 프로토콜 header와 body의 역할
+- HTTP 프로토콜 구조 설명
+
+  - start line
 
   - header
 
