@@ -6009,6 +6009,8 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   export default Main;
   ```
 
+  ![react_실행_순서_패니지먼트_01-1](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/99ac2f3b-5038-42d3-93ab-b0aa47d44d97)
+
   결과는 0 -> "useEffect" 0 -> 1 -> "clean up" 0 -> "useEffect" 1 -> 1 순으로 출력된다. 즉 6번의 console log가 찍히게 된다. 왜 그런지 하나씩 살펴보자.
 
   1. 첫 번째 0의 경우 컴포넌트 마운트 시 컴포넌트 몸체 부분이 실행되어 출력된다.
@@ -6042,6 +6044,8 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   export default Main;
   ```
+
+  ![react_실행_순서_패니지먼트_01-2](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3d964440-09b4-4a1b-9030-be7160a6285d)
 
   위 코드는 첫 번째 예시에서 같은 값으로 setState 했음에도 불구하고 함수 몸체 부분이 실행되어 마지막 콘솔이 한번 더 출력되는 과정을 테스트해보기 위한 코드이다. 위 코드에서 버튼을 10번 클릭했다고 가정해보자. 결과는 0 -> 1 -> 1 순으로 출력된다. 즉 3번의 console log가 찍히게 되고 그 이후로는 찍히지 않는다. 왜 그런지 하나씩 살펴보자.
 
@@ -6077,6 +6081,8 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   export default Main;
   ```
+
+  ![react_실행_순서_패니지먼트_02](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/a4dfd90a-f652-4b38-8094-8b0bb6ad3659)
 
   결과는 0 -> "useEffect" 0 -> "useEffect" 0 -> "useEffect" 0 -> 3 -> "useEffect" 3 -> "useEffect" 3 -> "useEffect" 3 -> 3 순으로 출력된다. 즉 9번의 console log가 찍히게 된다. 왜 그런지 하나씩 살펴보자.
 
@@ -6115,6 +6121,8 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   export default Main;
   ```
+
+  ![react_실행_순서_패니지먼트_03](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3615eb74-21c3-4661-9f48-d49dadd41e68)
 
   결과는 0 -> 1 -> 2 순으로 출력된다. 즉 첫 번째 useEffect는 배열을 400만개 만들어 'test' 문구를 채우는 무거운 작업을 하고 있는데도 두 번째 useEffect 보다 먼저 실행된다. 여기서 알 수 있는 점은 useEffect는 setState와 같이 비동기로 동작하여 백그라운드에 넘어가 큐에 쌓인 뒤 콜스택으로 들어오는 비동기 함수가 아니라는 점이다. 즉 페인트 이후 호출되는 특수한 함수라고 보면 된다. 위에서도 알 수 있듯이 useEffect가 여러 개인 경우 useEffect의 콜백 함수를 동기적으로 호출하고 실행하는 것을 알 수 있다. 이런 점에서 javascript의 일반 함수 흐름과 동일하게 동작하는 것을 확인할 수 있다.
 
