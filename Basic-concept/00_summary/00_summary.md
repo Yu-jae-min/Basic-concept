@@ -6051,9 +6051,17 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   1. 첫 번째 컴포넌트 마운트 시 console.log(state)가 실행되고 useState의 초기 값인 0을 출력한다.
   2. 첫 번째 버튼 클릭 시 setState(1)이 동작하여 이전 값과 최신 값은 다른 참조를 가리키게 되어 리렌더링이 발생한다. 리렌더링 발생 시 함수 몸체 부분에 console.log(state)가 실행되고 업데이트 된 값이 1을 출력한다.
-  3. 두 번째 버튼 클릭 시 setState(1)가 동작한다. 이 때 이전 값과 최신 값은 같은 참조를 가리키고 있어 리렌더링이 발생하지 않아야한다. 하지만 리렌더링이 발생하는 것처럼 함수 몸체 부분이 실행되어 콘솔에 1이 한번 더 출력된다. 즉 같은 값인 경우 비교하는 시점에 함수 몸체는 한번 더 실행하게 되고 그 이후 렌더링부터는 출력하지 않는 것을 알 수 있다. (더 자세한 내용은 추후에 다시 서칭해보자...)
+  3. 두 번째 버튼 클릭 시 setState(1)가 동작한다. 이 때 이전 값과 최신 값은 같은 참조를 가리키고 있어 리렌더링이 발생하지 않아야한다. 하지만 리렌더링이 발생하는 것처럼 함수 몸체 부분이 실행되어 콘솔에 1이 한번 더 출력된다. 즉 같은 값인 경우 비교하는 시점에 함수 몸체는 한번 더 실행하게 되고 그 이후 렌더링부터는 출력하지 않는 것을 알 수 있다. 용빈님이 보내주신 자료를 참고해보면 리액트에서 setState를 실행할 때 무조건 리렌더링을 수행하며 이전 값과 최신 값은 setState 호출 시에 비교하는 것이 아니라 리렌더링 후 큐에 보내졌던 setState 값을 useState hook을 통해 가져와 비교하는 것 같다. (더 자세한 내용은 아래 링크를 참고하여 더 찾아보자.. 어렵다..) 그렇기 때문에 첫번째 변경 시에는 새로운 값으로 업데이트 되었기 때문에 콘솔에 1이 한번 출력되고, 두번째 변경 시에도 같은 값이지만 우선 리렌더링이 되었기 때문에 함수 몸체 부분이 실행되어 한번 더 콘솔에 1이 출력되는 것이다. 하지만 그 이후에는 최적화를 위해 실행하지 않는다. 사실 잘 이해가 안된다.. ㅠ
 
-- 두 번째 문제 : useEffect 관련
+  - 참고 (용빈님 답변)
+
+    - 관련 질문 : https://github.com/facebook/react/issues/20817#issuecomment-778672150
+
+    - 관련 코드 : https://github.com/facebook/react/blob/main/packages/react-reconciler/src/ReactFiberHooks.js#L3200-L3203
+
+    - 스택오버플로우 : https://stackoverflow.com/questions/58208727/why-react-needs-another-render-to-bail-out-state-updates
+
+- 두 번째 문제 : useEffect 내부 동시 setState
 
   ```jsx
   import { useEffect, useState } from "react";
@@ -6093,7 +6101,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   5. useEffect의 dependency가 변경되었기 때문에 useEffect가 실행된다. 이 때 setState의 경우 비동기로 처리되기 때문에 백그라운드로 넘어가고 남은 console.log 3개가 찍히게 된다. 그렇기 때문에 "useEffect" 3이 연달아 3번 찍힌다.
   6. setState 처리 시 이전 값 3에서 3으로 변경되기 때문에 원시 타입의 경우 불변성을 가지고 있어 새로운 메모리를 할당하는 것이 아닌 이전 값과 최신 값이 동일한 참조를 가리켜 리렌더링이 발생하지 않는 것이 맞지만 동일한 값이더라도 함수 몸체 부분은 한번 더 실행된다. 즉 비교하는 시점에서 함수 몸체 부분이 한번 더 실행되지만 실제 리렌더링은 발생하지 않는다. 그리고 그 후속 리렌더링은 건너뛰게 된다. (첫 번째 문제 7번과 동일한 내용)
 
-- 세 번째 문제 : 자체적으로 만들어 봄
+- 세 번째 문제 : 자체적으로 만들어 봄, useEffect 동기 실행
 
   ```jsx
   import { useEffect, useState } from "react";
@@ -6125,6 +6133,118 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   ![react_실행_순서_패니지먼트_03](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/3615eb74-21c3-4661-9f48-d49dadd41e68)
 
   결과는 0 -> 1 -> 2 순으로 출력된다. 즉 첫 번째 useEffect는 배열을 400만개 만들어 'test' 문구를 채우는 무거운 작업을 하고 있는데도 두 번째 useEffect 보다 먼저 실행된다. 여기서 알 수 있는 점은 useEffect는 setState와 같이 비동기로 동작하여 백그라운드에 넘어가 큐에 쌓인 뒤 콜스택으로 들어오는 비동기 함수가 아니라는 점이다. 즉 페인트 이후 호출되는 특수한 함수라고 보면 된다. 위에서도 알 수 있듯이 useEffect가 여러 개인 경우 useEffect의 콜백 함수를 동기적으로 호출하고 실행하는 것을 알 수 있다. 이런 점에서 javascript의 일반 함수 흐름과 동일하게 동작하는 것을 확인할 수 있다.
+
+  - 네 번째 문제 : 자체적으로 만들어 봄, useEffect와 자식 컴포넌트
+
+    ```jsx
+    // RenderParent.tsx
+    import { useEffect, useState } from "react";
+    import RenderChild1 from "./RenderChild1";
+    import RenderChild2 from "./RenderChild2";
+    import RenderChild3 from "./RenderChild3";
+    import RenderChild4 from "./RenderChild4";
+
+    const RenderParent = () => {
+      console.log("render Parent");
+
+      const [artistId, setArtistId] = useState("");
+
+      useEffect(() => {
+        console.log(`useEffect parent : ${artistId}`);
+        setArtistId("테스트");
+      }, [artistId]);
+
+      return (
+        <div>
+          <RenderChild1 artistId={artistId}>
+            <RenderChild2 artistId={artistId}>
+              <RenderChild3 artistId={artistId} />
+            </RenderChild2>
+          </RenderChild1>
+          <RenderChild4 artistId={artistId} />
+        </div>
+      );
+    };
+
+    export default RenderParent;
+    ```
+
+    ```jsx
+    // RenderChild1.tsx
+    import { useEffect } from "react";
+
+    const RenderChild1 = ({ artistId, children }: any) => {
+      console.log("render Child1");
+
+      useEffect(() => {
+        console.log(`useEffect 1 : ${artistId}`);
+      }, [artistId]);
+
+      return <div>{children}</div>;
+    };
+
+    export default RenderChild1;
+    ```
+
+    ```jsx
+    // RenderChild2.tsx
+    import { useEffect } from "react";
+
+    const RenderChild2 = ({ artistId, children }: any) => {
+      console.log("render Child2");
+
+      useEffect(() => {
+        console.log(`useEffect 2 : ${artistId}`);
+      }, [artistId]);
+
+      return <div>{children}</div>;
+    };
+
+    export default RenderChild2;
+    ```
+
+    ```jsx
+    // RenderChild3.jsx
+    import { useEffect } from "react";
+
+    const RenderChild3 = ({ artistId }: any) => {
+      console.log("render Child3");
+
+      useEffect(() => {
+        console.log(`useEffect 3 : ${artistId}`);
+      }, [artistId]);
+
+      return <div />;
+    };
+
+    export default RenderChild3;
+    ```
+
+    ```jsx
+    // RenderChild4.tsx
+    import { useEffect } from "react";
+
+    const RenderChild4 = ({ artistId, children }: any) => {
+      console.log("render Child4");
+
+      useEffect(() => {
+        console.log(`useEffect 4 : ${artistId}`);
+      }, [artistId]);
+
+      return <div>{children}</div>;
+    };
+
+    export default RenderChild4;
+    ```
+
+    ![react_실행_순서_패니지먼트_04](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/edc8d826-f909-480e-b95a-5e26c6c3cbdd)
+
+    위 코드는 RenderParent 컴포넌트 내부에 RenderChild1, RenderChild2, RenderChild3, RenderChild4를 자식 컴포넌트로 받아 렌더링하고 있다. 이 때 RenderChild1은 children props로 RenderChild2를 받고 있고 RenderChild2 또한 RenderChild3을 children props로 받고 있다. 이 때 콘솔 출력 결과는 위와 같다.
+
+    1. 가장 상위 컴포넌트인 RenderParent 부터 시작해서 함수 몸체 부분의 콘솔이 찍힌다. 그리고 자식 컴포넌트들도 순차적으로 몸체 부분이 실행된다.
+    2. useEffect는 가상 돔의 변화를 실제 돔에 적용시키는 Commit Phase 단계 후 브라우저 페인트 단계까지 마치고 나서 실행된다고 알고 있다. 그렇기 때문에 자식 컴포넌트를 가지고 있는 경우 자식 컴포넌트가 우선적으로 컴포넌트 렌더링 되어 리액트 엘리먼트 객체를 반환해야하므로 자식 컴포넌트의 컴포넌트 렌더링이 먼저 처리된다. 위 1번과 같은 함수 몸체 부분은 리액트 엘리먼트 객체를 반환하는 것이 아닌 몸체 부분만 실행하는 것이기 때문에 우선적으로 실행되는 것이다. 그렇기 때문에 자식 컴포넌트의 리액트 엘리먼트 객체를 반환하는 작업이 완료가 되면 자식 컴포넌트 먼저 useEffect가 돌기 때문에 useEffect는 3 -> 2 -> 1 -> 4 -> parent 순으로 실행이 된다. 이유는 useEffect는 동기적으로 실행되지만 1과 4는 같은 레벨을 가지고 있고 1의 자식으로 2와 3을 받고 있기 때문에 1의 자식 컴포넌트들의 리액트 엘리먼트 객체들이 먼저 반환되기 때문에 useEffect도 우선적으로 처리된다. depth가 가장 깊은 3이 먼저 실행되는 것을 확인할 수 있다. 그렇게 자식 컴포넌트인 3과 2가 먼저 실행된 후 렌더링 단에서 상위에 위치한 1이 실행되고 그 후 4가 실행되는 것을 볼 수 있다. 그리고 자식 컴포넌트들의 useEffect가 모두 완료된 후 최상위 부모의 useEffect가 실행된다.
+    3. 최상위 부모의 useEffect가 실행되고 setState는 비동기로 동작하여 콜스택이 비어있을 때 state를 업데이트시키는데 state 업데이트가 완료되면 리렌더링이 발생한다. 그렇기 때문에 위 1 ~ 2번 과정을 반복한다. 다만 차이점은 2번에서 발생하는데 초기에 props는 비어있는 상태였다가 state가 변경되었기 때문에 props로 전달받은 state의 최신 값인 "테스트"라는 문구가 추가된 것을 볼 수 있다.
+    4. 또한 추가로 최상위 부모의 useEffect는 state 변경으로 인해
 
 <br><br><br>
 
