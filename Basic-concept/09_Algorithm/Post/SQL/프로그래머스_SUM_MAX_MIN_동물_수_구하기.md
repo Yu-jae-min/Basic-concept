@@ -14,7 +14,6 @@
 # 2. 나의 풀이
 
 ```sql
-
 SELECT COUNT(*) FROM ANIMAL_INS
 ```
 
