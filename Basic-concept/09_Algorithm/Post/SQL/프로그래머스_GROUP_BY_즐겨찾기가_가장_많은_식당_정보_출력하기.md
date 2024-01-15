@@ -1,4 +1,4 @@
-# [Algorithm-SQL] 프로그래머스 - SUM, MAX, MIN - 즐겨찾기가 가장 많은 식당 정보 출력하기
+# [Algorithm-SQL] 프로그래머스 - GROUP BY - 즐겨찾기가 가장 많은 식당 정보 출력하기
 
 2024년 01월 03일
 
