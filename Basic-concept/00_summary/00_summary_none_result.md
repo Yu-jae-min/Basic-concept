@@ -26,8 +26,6 @@
 
 - 검색 엔진의 동작 순서
 
-- SEO(검색 엔진 최적화) 적용 사례
-
 - SEO(검색 엔진 최적화) 방법 정리
 
 <br>
@@ -84,14 +82,6 @@
 
 <br>
 
-### # CSS 핵(hack)이란?
-
-- CSS hack 이란?
-
-- CSS hack 종류
-
-<br>
-
 ### # CSS 전처리기
 
 - CSS 전처리기란?
@@ -112,15 +102,13 @@
 
 <br>
 
-### # CSS framework를 사용해본 적이 있으신가요? 실무에서 사용해보았다면 어떤 이점이 있었나요?
-
-<br>
-
 ### # **SCSS vs styled-components**
 
 - 각각의 차이점
 
-- 둘 중 무엇을 주로 쓰고 쓰는 이유는?
+<br>
+
+### # CSS framework 사용경험
 
 <br>
 
@@ -222,95 +210,63 @@
 
 <br>
 
-### # **float 속성을 어떨 때 쓰고, 또 clear하는 방법을 알고 있는가?**
+### # 이미지 파일 최적화 방법
 
 <br>
 
-### # **이미지 파일 최적화 방법?**
+### # CSS의 attribute selector
 
 <br>
 
-### # **CSS에서 attribute selector란 무엇인가요?**
+### # 박스형 모델
 
 <br>
 
-### # **CSS에서 Element의 위치를 조정할 수 있는 속성들은 무엇이 있을까요?**
+### # CSS 적용 우선순위
 
 <br>
 
-### # **css의 박스형 모델에 대해서 설명해주세요**
+### # 네이밍 설계 규칙 BEM 방식
 
 <br>
 
-### # css 적용 순서
+### # Element 숨기는 방법
 
 <br>
 
-### # **BEM 방식**
+### # CSS selector 동작원리
 
 <br>
 
-### # **Element를 숨길 수 있는 방법을 설명해주세요**
+### # CSS 결합자 종류
 
 <br>
 
-### # **CSS selector 동작원리**
+### # CSS 크기 지정 종류
 
 <br>
 
-### # **CSS 결합자 종류**
+### # CSS 애니메이션 vs JavaScript 애니메이션
 
 <br>
 
-### # **CSS 단위**
-
-<br>
-
-### # **스타일 파일 분할 관련**
-
-<br>
-
-### # **CSS 애니메이션과 JavaScript 애니메이션의 차이점**
-
-<br>
-
-- CSS 애니메이션
-
-<br>
-
-- JS 애니메이션
-
-<br>
-
-### # **Image Replacement에 대해 설명해주세요**
-
-<br>
+### # 이미지 리플레이스먼트(Image Replacement)
 
 - Image Replacement 기법이란?
-
-<br>
 
 - Image Replacement 기법 적용 방법
 
 <br>
 
-### # **브라우저 스펙 차이에 따른 스타일링 이슈를 수정하기 위해서 어떻게 접근하나요?**
+### # 브라우저 스펙 차이에 따른 스타일링 이슈 처리
 
 <br>
 
-### # **기능이 제약된 브라우저를 위해서 어떤 방식으로 페이지를 만드나요?**
+### # CSS(Cascading Style Sheets)에서 Cascading에 의미
 
 <br>
 
-### # **CSS에서 'C’는 Cascading을 의미합니다. Cascading에 관해서 설명해주세요. 또 cascading system의 장점은 무엇인가요?**
-
-<br>
-
-### # **css 그리드 사용해보았는가?**
-
-<br>
-
-### # 다크모드 구현 방법
+### # root 선택자
 
 <br>
 
@@ -340,7 +296,7 @@
 
 <br>
 
-### # **컴파일러 인터프리터 링커 차이**
+### # 컴파일러 인터프리터 링커 차이
 
 <br>
 
