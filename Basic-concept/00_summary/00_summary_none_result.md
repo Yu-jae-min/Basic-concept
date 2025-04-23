@@ -296,119 +296,89 @@
 
 <br>
 
-### # 컴파일러 인터프리터 링커 차이
-
-<br>
+### # 프로그램 실행 과정
 
 - 프로그램 실행 과정
 
-<br>
-
 - 컴파일
 
-<br>
+- 링커
 
-- 링커란?
-
-<br>
-
-- 빌드란?
-
-<br>
-
-- 로더란?
-
-<br>
+- 로더
 
 - 런타임
 
-<br>
-
-- 빌드 절차
+- 빌드
 
 <br>
+
+### # 컴파일러 vs 인터프리터
 
 - 어셈블리어
 
-<br>
-
 - 컴파일러 인터프리터 차이
-
-<br>
 
 - 자바스크립트는 컴파일러일까 인터프리터일까?
 
-<br>
-
-- V8엔진의 AJITC(Adaptive Just In Time Compiler) 동작 원리
+- V8엔진의 JITC(Just In Time Compiler)
 
 <br>
 
 ### # 바이너리 코드, 기계어, 바이트 코드
 
-<br>
-
 - 바이너리 코드
 
-<br>
-
 - 기계어
-
-<br>
 
 - 바이트 코드
 
 <br>
 
-### # **window 객체란 무엇인가요?**
+### # window 객체
 
 <br>
 
-### # **getElementById vs querySelector 차이**
-
-<br>
+### # 선택자 메소드 종류
 
 - getElementById
 
-<br>
+- getElementsByClassName
 
 - querySelector
 
-<br>
-
-### # **HTMLCollection vs NodeList 차이**
+- querySelectorAll
 
 <br>
+
+### # Node, Element, HTMLCollection, NodeList
 
 - Node 객체
 
-<br>
-
 - Element 객체
 
-<br>
-
 - HTMLCollection 객체
-
-<br>
 
 - NodeList 객체
 
 <br>
 
-### # **크로스 브라우징**
-
-<br>
+### # 크로스 브라우징
 
 - 크로스 브라우징이란?
 
-<br>
-
-- 크로스 브라우징 대응이 되게 하는 것으로 어떤 노력을 해봤는가?
+- 크로스 브라우징 대응 방법 예시
 
 <br>
 
-### # **브라우저 렌더링 원리**
+### # 브라우저 렌더링 원리
+
+<br>
+
+### # Reflow(레이아웃 재계산) 발생 예시
+
+<br>
+
+### # Repaint(화면 재그리기) 발생 예시
 
 <br>
 
