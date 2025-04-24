@@ -382,59 +382,45 @@
 
 <br>
 
-### # **브라우저 렌더링 최적화 기법?**
+### # 브라우저 렌더링 최적화 기법
 
 <br>
 
-### # **Promise**
+### # Promise
+
+- Promise
+
+- 콜백 패턴 vs promise
+
+- Promise.all
+
+- Promise.race
 
 <br>
 
-- Promise에 대해 아는대로 말해보시오
+### # async/await
 
 <br>
 
-- 콜백 패턴과 promise의 차이는?
-
-<br>
-
-- Promise.all 과 Promise.race 왜쓰나 어떨때 쓰냐?
-
-<br>
-
-- async/await
-
-<br>
-
-### # **var, let, const**
-
-<br>
+### # var, let, const
 
 - var, let, const 기본적인 차이
 
-<br>
+- 변수가 메모리에 저장될 때 var, let, const의 차이
 
-- 변수가 메모리에 저장될 때, let const var 각각의 차이
-
-<br>
-
-- Hoisting과 Temporal Dead Zone(TDZ)
+- Hoisting과 Temporal Dead Zone(TDZ) 관점에서 var, let, const의 차이
 
 <br>
 
-### # **Prototype**
-
-<br>
+### # Prototype
 
 - 프로토타입이란?
-
-<br>
 
 - 프로토타입 체인이란?
 
 <br>
 
-### # **Closure**
+### # Closure
 
 <br>
 
