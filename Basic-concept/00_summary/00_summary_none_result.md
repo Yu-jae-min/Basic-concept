@@ -424,33 +424,19 @@
 
 <br>
 
-### # **this에 대해 설명해주세요**
-
-<br>
+### # this
 
 - this란 무엇인가?
 
-<br>
-
 - this 바인딩 메소드 bind, call, apply
 
-<br>
-
-- 일반함수의 this와 화살표 함수의 this는 어떻게 다른가?
+- 일반함수의 this vs 화살표 함수의 this
 
 <br>
 
-- use strict모드에서의 this?
-
-<br>
-
-### # **일반 함수와 화살표 함수의 차이**
-
-<br>
+### # 일반 함수 vs 화살표 함수
 
 - 일반 함수와 화살표 함수의 차이
-
-<br>
 
 - 화살표 함수 사용 이유
 
@@ -460,57 +446,31 @@
 
 <br>
 
-### # **forEach 와 map함수의 차이는?**
+### # ECMAScript 와 JavaScript 의 차이
 
 <br>
 
-### # **ECMAScript 와 JavaScript 의 차이**
-
-<br>
-
-### # **순수함수**
-
-<br>
+### # 순수 함수
 
 - 순수 함수란?
-
-<br>
 
 - 순수 함수를 사용하는 이유
 
 <br>
 
-### # **Scope**
-
-<br>
+### # 스코프(Scope)
 
 - 스코프란?
 
-<br>
-
-- 전역 스코프 / 지역 스코프
-
-<br>
-
-- 함수 레벨 스코프 / 블록 레벨 스코프
-
-<br>
-
-- 렉시컬 스코프
-
-<br>
+- 전역 스코프 / 함수 레벨 스코프 / 블록 레벨 스코프 / 렉시컬 스코프
 
 - 스코프 체인
 
 <br>
 
-### # **이벤트 전파**
-
-<br>
+### # 이벤트 전파
 
 - 이벤트 전파란?
-
-<br>
 
 - event.target vs event.currentTarget 차이
 
@@ -522,17 +482,11 @@
 
 <br>
 
-### # **undefined / undeclared / null 차이점은?**
-
-<br>
+### # undefined / undeclared / null 차이점
 
 - undefined
 
-<br>
-
 - undeclared
-
-<br>
 
 - null
 
