@@ -5329,59 +5329,267 @@ useEffect(() => {
 
 <br>
 
-### # **Webpack과 babel**
-
-<br>
+### # Webpack
 
 - 웹팩
 
-  최신 프론트엔드 프레임워크에서 가장 많이 사용되는 모듈 번들러이다. 모듈 번들러란 웹 애플리케이션을 구성하는 자원(HTML, CSS, Javscript, Images 등)을 모두 각각의 모듈로 보고 이를 압축하고 병합해서 하나의 번들 파일을 만드는 도구를 의미한다. 또한 모듈 번들러의 종류로는 웹팩 이 외에도 rollup, vite, esbuild 등이 있다.
-
-<br>
+  최신 프론트엔드 프레임워크에서 가장 많이 사용되는 모듈 번들러이다. 모듈 번들러란 웹 애플리케이션을 구성하는 자원(HTML, CSS, Javscript, Images 등)을 모두 각각의 모듈로 보고 이를 압축하고 병합해서 하나의 번들 파일을 만드는 도구를 의미한다. 또한 모듈 번들러의 종류로는 웹팩 이 외에도 rollup, vite, esbuild 등이 있다. 모듈 시스템의 한계로 인해 등장하게 되었다.
 
 - 웹팩 사용 이유
 
   웹 페이지를 구성하기 위해 HTTP 요청으로 html, css, js, 이미지, 웹 폰트, json 데이터 등 많은 파일을 받아오게 되는데 받아오는 파일이 많을수록 HTTP 요청이 많아지고 주로 사용하는 HTTP 1.1에서는 하나의 커넥션에서 하나의 요청이 끝난 후 다음 요청을 보낼 수 있으므로 HTTP 요청이 많아지면 성능 저하가 발생할 수 있다. 이런 경우 웹팩을 통해 js, css, 이미지 등을 하나로 압축하여 번들 파일을 만들어 파일의 크기를 줄이고 HTTP 요청 횟수를 줄일 수 있다. (물론 브라우저에서 HTTP1.1에 추가된 파이프라이닝이라는 기술로 요청을 여러 개씩 보낼 수 있는데 그것도 동시에 6개 정도 뿐이고, 근본적인 해결 방법은 아니다) 즉 웹팩을 사용하면 html, css, js 등의 모듈화와 코드 축소, 이미지 압축으로 인한 네트워크 비용 감소 및 요청 회수 감소 등에 장점이 있다.
 
+  웹팩을 사용하지 않았을 경우 발생하는 문제에 대해 더 자세한 예시를 보자. 과거 ES6 모듈 시스템이 등장하기 전에는 a.js, b.js, c,js의 각 javasciprt 파일이 있다고 했을 때 이 javascript 파일들을 각 script 태그로 나누어 모듈처럼 사용하였다. 하지만 이러한 경우 전역을 공유하는 문제가 발생하였다.
+
+  이러한 문제를 해결하기 위해 ES6 모듈 시스템이 등장하였다. ES6 모듈 시스템을 적용하는 경우 위와 같이 script 태그로 나뉘는 것이 아닌 하나의 script 태그 내부에서 a.js, b.js, c,js의 각 javasciprt 파일을 import문을 통해 가져오는 구조가 된다. 그렇게 되면 javascript 파일들은 각각의 모듈이 되는 것이다. 하지만 이 경우에도 문제가 발생한다. 해당 프로젝트의 구조 전체를 정적으로 배포한다고 했을 때 모듈로 나뉘어진 javascript 파일을 각각 요청해서 받아오게 된다. 이로 인해 네트워크 요청이 많아져 퍼포먼스가 떨어지는 문제가 발생하게 된다.
+
+  그러면 여기서 생기는 의문이 하나의 javascript 파일에 모든 코드를 작성하면 되지 않느냐는 의문이 생길 수 있다. 이런 방식은 과거 ES6 모듈 시스템이 추가된 이유를 생각해보면 된다. 만약 하나의 javascript에 모든 javascript를 작성한다면 파일 크기가 매우 커지고 유지 보수가 어려워지며 코드 재사용 또한 어려워지는 문제가 발생할 수 있다.
+
+  이와 같은 문제들로 인해 웹팩이나 vite 같은 번들러는 필수적으로 사용해야한다.
+
+- 웹팩의 기본 옵션
+
+  - Entry
+
+    앱이 번들 처리를 시작할 지점. index.js부터 시작해서 import문을 따라서 빌드를 진행
+
+  - Output
+
+    - output.path
+
+      빌드된 파일이 디스크에 저장될 물리 경로 (Node.js 기준)
+
+    - output.filename
+
+      빌드 결과물 파일 이름
+
+    - output.publicPath
+
+      브라우저가 정적 파일을 불러올 때 사용되는 base URL 경로 (HTML, JS 내 동적 로딩 등에서 사용), prefix와 같이 동작한다.
+
+      ```js
+      // publicPath: '/static/';
+      <script src="/static/bundle.js"></script>
+      ```
+
+  - resolve
+
+    resolve 옵션은 모듈을 import하거나 require할 때 Webpack이 해당 모듈의 위치를 어떻게 찾을지 결정하는 설정이다. 즉, 파일을 찾는 규칙, 확장자, 별칭(alias) 등을 지정해서 모듈 경로 해석을 커스터마이징할 수 있다.
+
+    - resolve.extensions
+
+      import 시 확장자를 생략할 수 있게 한다.
+
+      ```js
+      // webpack 설정
+      resolve: {
+        extensions: [".js", ".jsx"];
+      }
+
+      // 위 설정이 있는 경우
+      import App from "./App"; // 실제는 ./App.js 또는 ./App.jsx
+      ```
+
+    - resolve.alias
+
+      긴 경로를 짧고 의미 있는 이름으로 치환할 수 있게 한다.
+
+      ```js
+      // webpack 설정
+      alias: {
+        '@utils': path.resolve(__dirname, 'src/utils')
+      }
+
+      // 위 설정이 있는 경우
+      import { formatDate } from '@utils/date';
+      ```
+
+    - resolve.modules
+
+      Webpack이 모듈을 찾을 디렉토리 목록을 지정
+
+      ```js
+      // webpack 설정
+      // 기본값은 ['node_modules']. 아래처럼 설정하면, import X from 'myLib' 시 src/ 폴더부터 먼저 찾는다.
+      modules: ["src", "node_modules"];
+      ```
+
+    - resolve.mainFiles
+
+      디렉토리를 import할 경우 찾을 기본 파일 이름을 지정
+
+      ```js
+      // webpack 설정
+      // import Foo from './foo'일 때, 실제로는 ./foo/index.js 또는 ./foo/main.js가 된다.
+      mainFiles: ["index", "main"];
+      ```
+
+  - loader
+
+    기본적으로 Webpack은 Javascript(`.js`) 및 JSON(`.json`) 파일만 해석 가능하다. 하지만 loader를 사용하면 다른 포멧의 파일들(예: TypeScript, SCSS, 이미지 등)을 처리하고 JavaScript 모듈로 변환할 수 있다. 즉 그 외 파일들은 loader가 있어야 import 가능하다.
+
+    ```js
+    // 웹팩 설정 예시
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/, // .ts, .tsx 파일을
+          use: "ts-loader", // ts-loader로 처리
+          exclude: /node_modules/, // node_modules는 제외
+        },
+      ];
+    }
+    ```
+
+    ```js
+    // use 배열 예시 (체이닝), 아래처럼 순서는 오른쪽 → 왼쪽 (아래 → 위) 로 적용
+    module: {
+      rules: [
+        {
+          test: /\.scss$/,
+          use: [
+            "style-loader", // 3. 스타일을 <style> 태그로 삽입
+            "css-loader", // 2. CSS 파일을 JS 모듈로 변환
+            "sass-loader", // 1. SCSS → CSS 변환
+          ],
+        },
+      ];
+    }
+    ```
+
+    ```js
+    // import 예시
+    import "./main.scss"; // SCSS? 브라우저도 JS도 이해 못 함
+    import img from "./logo.png"; // PNG도 마찬가지
+    ```
+
+    - rules.test
+
+      어떤 파일에 로더를 적용할지 정규식으로 지정
+
+    - rules.use
+
+      어떤 로더를 사용할지 명시 (string 또는 배열 가능)
+
+    - rules.import / exclude
+
+      적용 대상 제외 또는 포함 경로
+
+    - loader 종류
+
+      1. CSS : style-loader + css-loader
+      2. File : file-loader, raw-loader, url-loader, asset modules
+      3. Typescript : ts-loader, babel-loader + @babel/preset-typescript
+      4. Babel : babel-loader
+
+  - plugin
+
+    로더가 파일 단위로 처리한다면, plugin은 주로 빌드 전체 과정에 개입해서 번들된 결과물을 처리한다.
+
+    ```js
+    // index.html 파일을 기반으로 자동으로 <script src="bundle.js">를 삽입한 HTML 파일을 생성하는 코드
+    const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+    module.exports = {
+      plugins: [
+        new HtmlWebpackPlugin({
+          template: "./public/index.html",
+        }),
+      ],
+    };
+    ```
+
+    - plugin 종류
+
+      1. HtmlWebpackPlugin : HTML 파일 자동 생성 및 번들 삽입
+      2. DefinePlugin : 전역 상수 정의 (예: process.env.NODE_ENV)
+      3. MiniCssExtractPlugin : CSS를 별도 파일로 분리
+      4. CleanWebpackPlugin : 빌드 전에 dist 폴더 정리
+      5. BundleAnalyzerPlugin : 번들 사이즈 시각화
+      6. CopyWebpackPlugin : 정적 파일 복사 (예: public/assets 등)
+
+  - externals
+
+    externals 옵션은 특정 모듈을 번들에서 제외하고 외부에서(예: CDN, 전역 변수 등) 참조하도록 설정하는 기능이다. 즉, Webpack이 그 모듈을 직접 번들에 포함하지 않도록 하여 번들 사이즈를 줄이고 로딩 속도를 높일 수 있게 한다. 예를 들어 우리 코드가 의존하고 있지만 빌드 과정에는 포함하지 않아도 되는 axios, jQuery 같은 써드파티 라이브러리를 이 externals에 명시하면 빌드 프로세스에 포함되지 않는다. 단, 제외된 모듈은 HTML에서 `<script>` 태그 등을 통해 직접 로딩해야 하며, 그렇지 않으면 런타임 오류가 발생한다.
+
+    ```js
+    // axios와 같은 써드파티 라이브러리는 패키지로 제공될때 이미 빌드 과정을 거쳤기 때문에 빌드 프로세스에서 제외하는 것이 좋다.
+    // axios는 이미 node_modules에 위치해 있기 때문에 이를 웹팩 아웃풋 폴더에 옮기고 index.html에서 로딩해야한다.
+    // 파일을 복사하는 CopyWebpackPlugin을 설치한다. 플러그인을 사용해서 라이브러리를 복사한다.
+    const CopyPlugin = require("copy-webpack-plugin");
+
+    module.exports = {
+      plugins: [
+        new CopyPlugin([
+          {
+            from: "./node_modules/axios/dist/axios.min.js",
+            to: "./axios.min.js", // 목적지 파일에 들어간다
+          },
+        ]),
+      ],
+    };
+    ```
+
+    ```html
+    <!-- index.html에서는 axios를 로딩하는 코드를 추가한다. -->
+    <!-- src/index.html -->
+    <html>
+      <body>
+        ...
+        <script type="text/javascript" src="axios.min.js"></script>
+      </body>
+    </html>
+    ```
+
+  - performance
+
+    번들 크기와 관련된 경고 메시지를 제어하는 설정이다. 이 설정은 실제 성능 최적화를 수행하지는 않지만, 큰 파일이 감지될 때 개발자에게 경고를 줘서 문제를 인식하게 해주는 용도이다.
+
+    ```js
+    performance: {
+      hints: 'warning',            // 'warning' | 'error' | false
+      maxEntrypointSize: 512000,   // entry point(예: main.js)의 최대 크기 (bytes), 512000 -> 약 500KB
+      maxAssetSize: 244000,        // 개별 에셋의 최대 크기 (bytes)
+    }
+    ```
+
+- 웹팩 최적화
+
+  - 번들 사이즈를 줄여야 하는 이유
+
+    1. 네트워크 비용 : 파일 용량이 클수록 네트워크 통신이 더 오래 걸린다.
+
+    2. 파싱 및 컴파일 비용 : 브라우저에서 javascript 파일의 크기가 큰 경우 파싱 및 컴파일 하는데 시간이 오래 걸리고 하이드레이션이 지연되어 사용자 상호 작용이 지연될 수 있다.
+
+    3. 메모리 비용 : 실행되지 않는 JS도 브라우저 메모리에 올라가 RAM을 차지하여 메모리를 낭비하게 된다.
+
+  - 번들 사이즈 줄이기
+
+    - webpack mode
+
+    - source map
+
+    - code splitting
+
+    - tree shaking
+
+  - 빌드 속도 줄이기
+
 <br>
 
-- cra 사용하지 않은 초기 설정 방법
-
-  (0) tsconfig.json에 컴파일 옵션을 설정해준다.
-
-  (1) webpack, webpack-cli, webpack-dev-server, babel-loader, css-loader, file-loader, html-loader, html-webpack-plugin, style-loader, url-loader 등 웹팩 관련 패키지를 설치한다.
-
-  (2) @babel/core, @babel/preset-env, @babel/preset-react, @babel/preset-typescript 등 바벨 관련 패키지를 설치한다.
-
-  (3) 루트 디렉토리 경로에 .babelrc 파일을 만들어준 뒤 presets 속성에 설치한 패키지들을 추가해준다.
-
-  (4) 루트 디렉토리에 webpack.config.js 파일을 생성
-
-  (5) entry 속성에 리액트 파일을 지정하고 output 속성에 웹팩 빌드 후 번들 파일명과 번들 파일의 위치를 지정해준다.
-
-  (6) module 속성 내부에 rules 속성에 각각의 로더들이 컴파일 할 확장자와 제외할 디렉토리를 지정해주고 plugins 속성 내부에 template 속성에 index.html을 지정하여 index.html과 번들 파일을 연결해준다.
-
-  (7) 웹팩 빌드를 위해 package.json 파일 script에 start와 build를 수정해준다.
-
-<br>
+### # Babel
 
 - 바벨
 
   바벨은 ES6+ 버전 이상의 자바스크립트나 JSX, 타입스크립트 코드를 하위 버전의 자바스크립트 코드로 변환 시켜주는 자바스크립트 트랜스파일러이다. 크로스 브라우징 이슈를 해결하기 위해 사용한다. 바벨의 빌드 단계는 파싱(바벨 코어가 수행) -> 변환(플러그인이 수행) -> 출력(바벨 코어가 수행) 단계로 이루어지며 Webpack과 같은 정적 모듈 번들러들을 통해 함께 사용 가능하다.
 
-<br>
-
 - 플러그인
 
   바벨에 파싱, 변환, 출력 빌드 단계 중 변환 단계를 담당하며 어떤 코드를 어떻게 변환할지에 대한 규칙을 정의한다.
 
-<br>
-
 - 프리셋
 
   목적에 맞게 여러 가지 플러그인을 세트로 모아놓은 것이다. 제공되는 프리셋으로는 preset-env (최신 문법 ES5로 변환), preset-flow (플로우(타입 체크 라이브러리) 변환), preset-react (리액트 변환), preset-typescript (타입스크립트 변환) 등이 있다.
-
-<br>
 
 - 폴리필
 
