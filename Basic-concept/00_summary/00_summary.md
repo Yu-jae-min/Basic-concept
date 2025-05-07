@@ -5567,13 +5567,176 @@ useEffect(() => {
 
     - webpack mode
 
+      1. development
+
+      강력한 소스 매핑, 로컬 호스트 서버에서는 라이브 리로딩이나 핫 모듈 리플레이스먼트 기능을 목적으로 이용한다.
+
+      2. production
+
+      기본 값이다. 로드 시간을 줄이기 위해 번들 최소화, 가벼운 소스맵 및 에셋 최적화에 초점을 맞춘다.
+
     - source map
+
+      source map은 번들된 파일과 원본 소스 파일을 매핑해주는 파일이다. source map이 있으면, 브라우저 개발자 도구는 이걸 원래 코드로 되돌려 보여줄 수 있다. development mode에서는 eval, production mode에서는 source-map이 적절하다.
+
+      1. eval : 빌드, 리빌드가 가장 빠름, 개발용. 소스 맵이 코드 안에 포함됨
+      2. source-map : 완전한 맵 생성, 배포용 디버깅 가능
+      3. cheap-module-source-map : 빠르면서 어느 정도 디버깅 가능
+      4. hidden-source-map : 맵은 생성되지만 브라우저에선 안 보임 (오류 추적용)
+      5. nosources-source-map : 맵은 있지만 원본 코드는 안 보임 (보안 목적)
+
+      ```js
+      module.exports = {
+        devtool: "source-map", // 또는 'eval', 'cheap-module-source-map', 등
+      };
+      ```
 
     - code splitting
 
+      하나의 번들을 여러 개의 청크로 나누는 기법을 말한다. 나누어진 청크는 필요한 상황에 로드하여 초기 로드 시간을 단축 시킬 수 있다.
+
+      1. entry에 entry-point를 지정하여 나누는 기법
+
+      entry point를 직접 지정하여 그것을 기준으로 번들을 나눌 수 있다. key는 번들 이름, value는 경로가 된다.
+
+      ```js
+      // webpack.config.js
+      module.exports = {
+        entry: {
+          home: "./src/home.js",
+          about: "./src/about.js",
+        },
+        output: {
+          filename: "[name].bundle.js", // → 하나의 bundle.js가 home.bundle.js, about.bundle.js로 쪼개짐
+          path: __dirname + "/dist",
+        },
+      };
+      ```
+
+      2. dynamic import
+
+      dynamic import를 통해 불러오는 기법, preload 및 prefetch도 지원한다. preload는 곧바로 사용될 가능성이 높은 글꼴 등, prefetch는 추후에 사용될 가능성이 높은 모달 등에 사용할 수 있다.
+
+      ```js
+      // dynamic import
+      if(true){
+        import("./Modal.js").then(() => { ... })
+      }
+
+      // SPA에서 동적으로 컴포넌트를 불러오기 위해서는 Suspense와 lazy를 사용해야함.
+      const Modal = React.lazy(() => import("./Modal"));
+
+      // preload 및 prefetch
+      import(/* webpackPrefetch: true */ "./MyComponent");
+      import(/* webpackPreload: true */ "./MyComponent");
+      ```
+
+      3. optimization.splitChunks 사용
+
+      splitChunks을 사용하면 vendor.bundle.js에 React 등 라이브러리를 별도 번들로 분리하여 중복 번들 생성을 방지할 수 있다.
+
+      ```js
+      module.exports = {
+        optimization: {
+          splitChunks: {
+            chunks: "all", // 모든 종류의 import에 대해 분할 수행
+          },
+        },
+      };
+      ```
+
     - tree shaking
 
+      사용하지 않는(dead) 코드를 최종 번들에서 제거하여 번들 사이즈를 최적화하는 기법이다. ES Modules (ESM, import / export)을 사용할 때 작동한다. Commonjs를 사용하는 경우에는 적용되지 않는다.
+
+      sideEffects는 import하는 것만으로도 외부에 영향을 끼치는 코드임을 의미한다. (ex polyfill) 즉 sideEffects가 있는 경우 tree shaking이 불가하다. 그렇기 때문에 package.json에 모든 모듈이 sideEffects가 없음을 의미하는 false를 지정하거나 개별로 지정해야한다. 예시로 사용하는 라이브러리의 package.json을 확인해보면 대부분 sideEffects가 false인 것을 확인해볼 수 있다.
+
+      추가로 utils.js와 같이 한 파일 안에 여러 개의 export를 만드는 경우 tree shaking이 제대로 적용되지 않을 수 있는데 해당 파일 내부에서 다른 곳에 사용될 수 있기 때문이다. 그렇기 때문에 하나의 파일에서는 하나의 export가 있는 것이 tree shaking에 좋다. -> 검증 필요
+
+      ```js
+      // tree shaking 예시
+      // utils.js
+      export function add(a, b) {
+        return a + b;
+      }
+
+      export function subtract(a, b) {
+        return a - b;
+      }
+
+      // main.js
+      // 이 경우 subtract는 실제로 사용되지 않았으므로 Webpack은 최종 번들에서 사용되지 않은 export인 subtract를 자동으로 제거
+      import { add } from "./utils";
+
+      console.log(add(1, 2));
+      ```
+
+      ```js
+      // sideEffects 예시
+      // package.json
+      {
+        "sideEffects": ["*.css"]
+      }
+      ```
+
   - 빌드 속도 줄이기
+
+    - persistent cache
+
+      빌드 결과를 메모리 혹은 하드 디스크에 저장하여 리빌드 시 변화가 없다면 캐시된 빌드 결과물을 재활용하여 빌드 속도를 높인다. 기본 값은 memory 이다. 빌드 결과물 재사용 여부는 snapshot을 통해 결정한다.
+
+      ```js
+      module.exports = {
+        cache: {
+          type: "filesystem", // 디스크 (HDD/SSD 등 로컬 파일시스템)에 캐시를 저장
+          buildDependencies: {
+            // 캐시 무효화 기준: webpack 설정 파일이 바뀌면 캐시 무효화
+            config: [__filename],
+          },
+        },
+      };
+      ```
+
+    - snapshot
+
+      파일 시스템의 상태를 추적해서 재빌드 여부를 결정하는 캐시 메커니즘의 일부이다. 이 파일이 바뀌었는지 확인하는 기준 정보(스냅샷)를 저장해두고 다음 빌드 시 비교해서 바뀌었으면 캐시를 무효화하여 다시 빌드하고 안 바뀌었으면 캐시를 그대로 사용하는 것이다. 즉 캐시 사용 여부의 기준이 되는 것이다. 캐시 옵션을 켜고 빌드를 하면 `node_modules/.cahce`에 pack 파일이 생성되는데 pack 파일에 붙어있는 정보가 snapshot이다.
+
+      snapshot에는 timestamp와 hash 등에 정보가 있는데 timestamp의 경우 마지막 수정 시간, hash의 경우 파일 content를 hashing 알고리즘을 통해 생성한 string이다. 이 두 가지를 통해 캐시 무효화 여부를 결정할 수 있다. timestamp의 경우 빌드 시 파일의 메타데이터에서 timestamp를 가져와 snapshot의 timestamp와 비교하여 바뀌었다면 캐시를 무효화한다. 다만 속도는 빠르지만 변경없이 저장만 해도 timestamp가 변경되기 때문에 안정성은 떨어진다. 반면 hash의 경우 속도는 상대적으로 느리지만 안정성이 높다. webpack 설정 내부에 boolean 값을 통해 timestamp, hash 중 어떠한 값을 기준으로 캐시 무효화 여부를 결정할지 지정할 수 있다.
+
+      추천하는 설정은 다음과 같다.
+
+      1. 로컬 개발환경에서는 module, buildDependencies, resolve 모두 timestamp true로 하는 것이 좋다. 다만 프로젝트가 큰 경우에는 buildDependencies에 hash true도 추가한다.
+
+      2. CI 빌드시에는 git에서 clone 해오기 때문에 모든 timestamp가 바뀌므로 module, buildDependencies, resolve 모두 hash true로 해주는 것이 좋다.
+
+      3. CI 빌드를 하는데 업데이트만 일어나는 경우, 즉 git pull만 하는 경우에는 module, buildDependencies, resolve 모두 timestamp true, hash true 모두 설정하는 것이 좋다.
+
+      ```js
+      module.exports = {
+        cache: {
+          type: "filesystem",
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+        snapshot: {
+          module: {
+            timestamp: true, // 모듈의 수정 시간 기준으로 캐시 관리
+          },
+          resolve: {
+            timestamp: true, // resolve 경로의 수정 시간 기준으로 캐시 관리
+          },
+          buildDependencies: {
+            config: [__filename, path.resolve(__dirname, "tsconfig.json")], // Webpack 설정이나 빌드 관련 파일이 변경되었을 때 캐시 무효화
+          },
+          resolveDependencies: {
+            timestamp: true, // resolve 경로의 의존성 파일 수정 시간 기준으로 캐시 관리
+          },
+          managedPaths: [/node_modules/], // node_modules에 이름이 바뀌거나, 버전이 업데이트되는 경우에만 캐시를 무효화
+          immutablePaths: [path.resolve(__dirname, "public/assets")],
+        },
+      };
+      ```
 
 <br>
 
