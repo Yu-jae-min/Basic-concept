@@ -250,3 +250,254 @@ vs code에서 js 파일을 만든 뒤 해당 파일을 실행해보자. vs code�
 setImmediate(콜백)과 setTimeout(콜백, 0)에 담긴 콜백 함수는 이벤트 루프를 거친 뒤 즉시 실행된다. 다만 특수한 경우에 setmmediate는 setTimeout(콜백, 0)보다 먼저 실행된다. 파일 시스템 접근, 네트워킹 같은 I/O 작업의 콜백 함수 안에서 타이머를 호출하는 경우이다. 하지만 setImmediate가 항상 setTimeout(콜백, 0)보다 먼저 호출되지 않기 때문에 헷갈리지 않도록 setTimeout(콜백, 0)은 사용하지 않는 것이 좋다.
 
 <br>
+
+### # `__filename`, `__dirname`
+
+노드에서는 파일 사이에 모듈 관계가 있는 경우가 많으므로 때로는 현재 파일의 경로나 파일명을 알아야한다. 노드는 `__filename`, `__dirname` 이라는 키워드로 경로에 대한 정보를 제공한다.
+
+<br>
+
+### # module, exports, require
+
+- module.exports
+
+  모듈을 만들 때 사용한다. 초기에는 빈 객체({})를 참조하지만 객체, 함수 등 덮어씌울 수 있다. 즉 변수에 값을 할당하여 해당 변수가 모듈이 되는 것으로 봐도 무방하다.
+
+- exports
+
+  모듈을 만들 때 사용한다. module.exports는 한 번에 대입하는데 exports는 각각 넣을 수 있다. 이런 동작이 가능한 이유는 module.exports와 exports는 같은 객체를 참조하기 때문이다. export -> module.exports -> 빈 객체 혹은 할당한 객체, 함수 등을 참조한다. 주의할 점은 exports 객체 사용 시 module.exports와의 참조 관계가 깨지지 않도록 주의해야한다. module.exports에는 어떤 값이든 대입해도 되지만 exports에는 반드시 객체처럼 속성명과 속성값을 대입해야한다. 만약 다른 값을 대입하면 객체의 참조 관계가 끊겨 더 이상 모듈로 기능하지 않는다. 또한 exports를 사용할 때는 객체만 사용할 수 있으므로 함수를 대입한 경우에는 exports로 바꿀 수 없다. 이와 같이 참조 관계가 끊기는 위험 때문에 exports와 module.exports는 한 모듈에 동시에 사용하지 않는 것이 좋다.
+
+  ```js
+  exports.odd = "홀수입니다";
+  exports.even = "짝수입니다";
+  ```
+
+- require
+
+  모듈을 불러올 때 사용한다. require는 함수이고, 함수는 객체이므로 require는 객체로서 몇 가지 속성을 가지고 있다. 또한 require는 반드시 파일 최상단에 위치할 필요가 없고, module.exports도 최하단에 위치할 필요가 없다.
+
+  - require.cache
+
+    require.cache 객체에는 파일 이름이 속성명으로 들어 있는 것을 볼 수 있다. 속성 값으로 각 파일의 모듈 객체가 들어있다. 한 번 require한 파일은 require.cache에 저장되므로 다음 번에 require 할 때는 새로 불러오지 않고 require.cache에 있는 것이 재사용된다.
+
+  - require.main
+
+    require.main은 노드 실행 시 첫 모듈의 경로를 가리킨다. 이 스크립트가 직접 실행된 건지, 다른 데서 불러온 건지 판별할 수 있다.
+
+<br>
+
+### # 노드에서 this
+
+노드에서 모듈 내 최상위 스코프에 존재하는 this는 module.exports(또는 export 객체)를 가리킨다. 또한 함수 선언문 내부의 this는 전역 객체인 global 객체를 가리킨다.
+
+```js
+console.log(this); // {}
+console.log(this === module.exports); // true
+console.log(this === exports); // true
+function whatIsThis() {
+  console.log(this === module.exports); // false
+  console.log(this === global); // treu
+}
+```
+
+<br>
+
+### # 모듈의 순환 참조
+
+만약 두 모듈 dep1과 dep2가 있고 이 둘이 서로를 require 한다면 어떻게 될까? 놀랍게도 dep1의 module.exports가 함수가 아닌 빈 객체로 표시된다. 이러한 현상을 순환 참조라고 부른다. 이렇게 순환 참조가 있을 경우에는 순환 참조되는 대상을 빈 객체로 만든다. 이때 에러가 발생하지 않고 빈 객체로 변경되므로 예기치 못한 동작이 발생할 수 있다. 따라서 순환 참조가 발생하지 않도록 구조를 잡아야한다.
+
+```js
+// dep1.js
+const dep2 = require("./dep2");
+console.log("require dep2", dep2);
+
+module.exports = () => {
+  console.log("dep2", dep2);
+};
+```
+
+```js
+// dep2.js
+const dep1 = require("./dep1");
+console.log("require dep1", dep1);
+
+module.exports = () => {
+  console.log("dep1", dep1);
+};
+```
+
+```js
+// dep-run.js
+const dep1 = require("./dep1");
+const dep2 = require("./dep2");
+
+console.log(dep1); // {}
+console.log(dep2); // Function (anonymous)]
+```
+
+<br>
+
+### # process
+
+process 객체는 현재 실행되고 있는 노드 프로세스에 대한 정보를 담고 있다. process.version, process.arch, process.platform, process.pid, process.uptime, process.execPath, process.cwd, process.cpuUsage, process.env, process.nextTick, process.exit 등 다양한 프로퍼티를 가지고 있다.
+
+- process.env
+
+  REPL에 process.env를 입력하면 매우 많은 정보가 출력된다. 자세히 보면 시스템 환경 변수임을 알 수 있다. 시스템 환경 변수는 노드에 직접 영향을 미치기도 한다. 대표적인 것으로 UV_THREADPOOL_SIZE와 NODE_OPTIONS가 있다. 왼쪽이 환경 변수 이름이고 오른쪽이 값이다. NODE_OPTIONS는 노드를 실행할 때의 옵션들을 입력받는 환경 변수이다. UV_THREADPOOL_SIZE와는 노드에서 기본적으로 사용하는 스레드풀의 스레드 개수를 조절할 수 있게 한다.
+
+  ```bash
+  NODE_OPTIONS=--max-old-space-size=8192
+  UV_THREADPOOL_SIZE=8
+  ```
+
+  시스템 환경 변수 외에도 임의로 환경 변수를 저장할 수 있다. process.env는 서비스의 중요한 키를 저장하는 공간으로도 사용된다. 서버나 데이터베이스의 비밀번호와 각종 API 키를 코드에 직접 입력하는 것은 위험하다. 혹여 서비스가 해킹을 당해 코드가 유출되었을 때는 비밀번호가 코드에 남아 있어 추가 피해가 발생할 수 있다. 따라서 중요한 비밀번호는 다음과 같이 process.env의 속성으로 대체한다. process.env에 직접 환경 변수를 넣는 방법은 운영 체제마다 차이가 있다. 하지만 한번에 모든 운영체제에 동일하게 넣을 수 있는 방법이 있다. dotenv와 같은 Nodejs 애플리케이션에서 `.env` 파일에 정의된 환경변수를 process.env로 불러올 수 있게 해주는 라이브러리를 사용하면 된다.
+
+  ```js
+  const secretId = process.env.SECRET_ID;
+  const secretCode = process.env.SECRET_CODE:
+  ```
+
+- process.nextTick
+
+  이벤트 루프가 다른 콜백 함수들보다 nextTick의 콜백 함수를 우선으로 처리하도록 만든다. process.nextTick은 setImmediate나 setTimeout보다 먼저 실행된다. 또한 resolve된 Promise도 nextTick처럼 다른 콜백들보다 우선시된다. 그래서 process.Tick와 Promise를 마이크로태스크라고 따로 구분지어 부른다. 즉 마이크로태스크 큐에서 처리된다.
+
+  하지만 주의할 점이 있다. process.nextTick으로 받은 콜백 함수나 resolve된 Promise는 다른 이벤트 루프에서 대기하는 콜백 함수보다 먼저 실행된다. 그래서 비동기 처리할 때 setImmediate보다 process.nextTick을 더 선호하는 개발자도 있다. 하지만 이런 마이크로태스크를 재귀 호출하게 되면 이벤트 루프는 다른 콜백 함수보다 마이크로태스크를 우선하여 처리하므로 콜백 함수들이 실행되지 않을 수도 있다.
+
+  ```js
+  // nextTick.js
+  setImmediate(() => {
+    console.log("immediate");
+  });
+  process.nextTick(() => {
+    console.log("nextTick");
+  });
+  setTimeout(() => {
+    console.log("timeout");
+  }, 0);
+  Promise.resolve().then(() => console.log("promise"));
+
+  // node nextTick 결과
+  // nextTick
+  // promise
+  // timeout
+  // immediate
+  ```
+
+- process.exit
+
+  실행 중인 노드 프로세스를 종료한다. 서버 환경에서 이 함수를 사용하면 서버가 멈추므로 특수한 경우를 제외하고는 서버에서 잘 사용하지 않는다. 하지만 서버 외의 독립적인 프로그램에서는 수동으로 노드를 멈추기 위해 사용한다. process.exit 메서드는 인수로 코드 번호를 줄 수 있다. 인수를 주지 않거나 0을 주면 정상 종료를 뜻하고, 1을 주면 비정상 종료를 뜻한다. 만약 에러가 발생해서 종료하는 경우에는 1을 넣으면 된다.
+
+  ```js
+  // exit.js
+  let i = 1;
+
+  setInterval(() => {
+    if (i === 5) {
+      console.log("종료 !");
+      process.exit();
+    }
+
+    console.log(i);
+    i += 1;
+  }, 1000);
+  // node exit 결과
+  // 1
+  // 2
+  // 3
+  // 4
+  // 종료 !
+  ```
+
+<br>
+
+### # 노드 내장 모듈
+
+노드는 웹 브라우저에서 사용되는 자바스크립트보다 더 많은 기능을 제공한다. 운영체제 정보에도 접근할 수 있고, 클라이언트가 요청한 주소에 대한 정보도 가져올 수 있다. 노드에서 이러한 기능을 하는 모듈을 제공한다. 다만 노드 버전마다 차이가 있다.
+
+<br>
+
+### # os 모듈
+
+웹 브라우저에 사용되는 자바스크립트는 운영체제의 정보를 가져올 수 없지만, 노드는 os 모듈에 정보가 담겨 있어 정보를 가져올 수 있다. process 객체와 겹치는 부분도 조금 있다.
+
+```js
+const os = require("os");
+...
+```
+
+- os.arch() : process.arch와 동일하다.
+
+- os.platform() : process.platform과 동일하다.
+
+- os.type() : 운영체제의 종류를 보여준다.
+
+- os.uptime() : 운영체제 부팅 이후 흐른 시간(초)을 보여준다. process.uptime()은 노드의 실행 시간이므로 차이가 있다.
+
+- os.hostname() : 컴퓨터 이름을 보여준다.
+
+- os.release() : 운영체제의 버전을 보여준다.
+
+- os.homedir() : 홈 디렉터리 경로를 보여준다.
+
+- os.tmpdir() : 임시 파일 저장 경로를 보여준다.
+
+- os.cpus() : 컴퓨터의 코어 정보를 보여준다.
+
+  - 코어 개수 확인하기 : os.cpus().length를 하면 코어의 개수가 숫자로 나온다. 하지만 노드에서는 싱글 스레드 프로그래밍을 하면 코어가 몇 개이든 상관없이 대부분의 경우 코어를 하나밖에 사용하지 않는다. 하지만 cluster 모듈을 사용하는 경우에는 코어 개수에 맞춰서 프로세스를 늘릴 수 있다. 이 때 cpus() 메서드를 사용할 수 있다.
+
+- os.freemem() : 사용 가능한 메모리(RAM)을 보여준다.
+
+- os.totalmem() : 전체 메모리 용량을 보여준다.
+
+추가로 os.constants라는 객체가 있다. 그 안에는 각종 에러와 신호에 대한 정보가 담겨있다. 에러가 발생했을 때 EADDRINUSE나 ECONNRESET 같은 에러 코드를 함께 보여준다. 이러한 코드들이 os.constants 안에 들어 있다. 에러 코드가 너무 많아서 외울 수 없으므로 발생할 때마다 검색해보는 것이 좋다. os 모듈을 주로 컴퓨터 내부 자원에 빈번하게 접근하는 경우 사용된다. 즉 일반적인 웹 서비스를 제작할 때는 사용 빈도가 높지 않다. 하지만 운영체제별로 다른 서비스를 제공하고 싶을 때 os 모듈이 유용하다.
+
+<br>
+
+### # path 모듈
+
+폴더와 파일의 경로를 쉽게 조작하도록 도와주는 모듈이다. path 모듈이 필요한 이유 중 하나는 운영체제별로 경로 구분자가 다르기 때문이다. 크게 윈도 타입과 POSIX 타입으로 구분된다. POSIX는 유닉스 기반의 운영체제들을 의미하며 맥과 리눅스가 속해 있다. 이 외에도 파일 경로에서 파일명이나 확장자만 따로 떼어주는 기능을 구현해두어 직접 구현하지 않고도 편리하게 사용할 수 있다.
+
+```js
+const path = require("path");
+const string = __filename;
+...
+```
+
+- path.sep : 경로의 구분자이다. 윈도는 `\`, POSIX는 `/`이다.
+
+- path.delimiter : 환경 변수의 구분자이다. process.env.PATH를 입력하면 여러 개의 경로가 이 구분자로 구분되어 있다. 윈도는 세미콜론(`;`)이고, POSIX는 콜론(`:`)이다.
+
+- path.dirname(경로) : 파일이 위치한 폴더 경로를 보여준다.
+
+- path.extname(경로) : 파일의 확장자를 보여준다.
+
+- path.basename(경로, 확장자) : 파일의 이름(확장자 포함)을 표시한다. 파일의 이름만 표시하고 싶다면 basename의 두 번째 인수로 파일의 확장자를 넣으면 된다.
+
+- path.parse(경로) : 파일 경로를 root, dir, base, ext, name으로 분리한다.
+
+- path.format(객체) : path.parse()한 객체를 파일 경로로 합친다.
+
+- path.normalize(경로) : `/`나 `\`를 실수로 여러 번 사용했거나 혼용했을 때 정상적인 경로로 변환한다.
+
+- path.isAbsolute(경로) : 파일의 경로가 절대경로인지 상대경로인지를 true나 false로 알린다.
+
+- path.relative(기준경로, 비교경로) : 경로를 두 개 넣으면 첫 번째 경로에서 두 번째 경로로 가는 방법을 알린다.
+
+- path.join(경로, ...) : 여러 인수를 넣으면 하나의 경로로 합친다. 상대경로인 ..(부모 디렉터리)과 .(현 위치)도 알아서 처리한다.
+
+- path.resolve(경로, ...) : path.join()과 비슷하지만 차이가 있다. 동작 방식이 다르다. `\`를 만나면 path.resolve는 절대 경로로 인식해서 앞의 경로를 무시하고, path.join은 상대경로로 처리한다.
+
+  ```js
+  path.join("/a", "/b", "c"); // 결과 /a/b/c/
+  path.resolve("/a", "/b", "c"); // 결과 /b/c
+  ```
+
+<br>
+
+### # 노드의 상대경로와 절대경로
+
+노드는 require.main 파일을 기준으로 상대 경로를 인식한다. 따라서 require.main과 다른 디렉터리의 파일이 상대 경로를 갖고 있다면 예상과 다르게 동작할 수 있다. 이 문제는 path 모듈을 통해 해결할 수 있다.
+
+<br>
+
+### # url 모듈
