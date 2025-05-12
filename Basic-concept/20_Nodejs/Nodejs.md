@@ -501,3 +501,727 @@ const string = __filename;
 <br>
 
 ### # url 모듈
+
+인터넷 주소를 쉽게 조작하도록 도와주는 모듈이다. url 처리에는 크게 두 가지 방식이 있다. 노드 버전 7에서 추가된 WHATWG(웹 표준을 정하는 단체의 이름) 방식의 url과 예전부터 노드에서 사용하던 방식의 url이 있다.
+
+- WHATWG의 url
+
+  url 모듈 안에 URL 생성자가 있다. 이 생성자에 주소를 넣어 객체로 만들면 주소가 부분별로 정리된다. 이 방식이 WHATWG의 url이다. WHATWG에만 있는 username, password, origin, searchParams 속성이 존재한다.
+
+- 기존 방식의 url
+
+  기존 노드 방식에는 두 메서드를 주로 사용한다. host 부분 없이 pathname만 오는 주소의 경우에는 해당 형식을 꼭 활용해야한다.
+
+  - url.parse(주소)
+
+    주소를 분해한다. WHATWG 방식과 비교하면 username과 password 대신 auth 속성이 있고, searchParams 대신 query가 있다.
+
+  - url.format(주소)
+
+    WHATWG 방식 url과 기존 노드의 url을 모두 사용할 수 있다. 분해되었던 url 객체를 다시 원래 상태로 조립한다.
+
+- WHATWG의 url searchParams
+
+  WHATWG 방식은 search 부분을 searchParams라는 특수한 객체로 반환하므로 유용하다. search 부분은 보통 주소를 통해 데이터를 전달할 때 사용된다. search는 물음표(`?`)로 시작하고 그 뒤에 `키=값` 형식으로 데이터를 전달한다. 여러 키가 있을 경우에는 `&`로 구분한다.
+
+  - getAll(키)
+
+    키에 해당하는 모든 값들을 가져온다. 예를 들어 url이 `https://www.gilbut.co.kr/?page=3&limit=10&category=nodejs&category=javascript`인 경우 nodejs와 javascript라는 두 가지 값이 들어있다.
+
+  - get(키)
+
+    키에 해당하는 첫 번째 값만 가져온다.
+
+  - has(키)
+
+    해당 키가 있는지 없는지를 검사하여 boolean을 반환한다.
+
+  - keys()
+
+    searchParams의 모든 키를 Iterator(반복기) 객체로 가져온다.
+
+  - values()
+
+    searchParams의 모든 값을 Iterator(반복기) 객체로 가져온다.
+
+  - append(키, 값)
+
+    해당 키를 추가한다. 같은 키의 값이 있다면 유지하고 하나 더 추가한다.
+
+  - set(키, 값)
+
+    append와 비슷하지만, 같은 키의 값들을 모두 지우고 새로 추가한다.
+
+  - delete(키)
+
+    해당 키를 제거한다.
+
+  - toString
+
+    조작한 searchParmas 객체를 다시 문자열로 만든다. 이 문자열을 search에 대입하면 주소 객체에 반영된다.
+
+<br>
+
+### # queryString 모듈
+
+WHATWG 방식의 url 대신 기존 노드의 url을 사용할 때 search 부분을 사용하기 쉽게 객체로 만드는 모듈이다.
+
+```js
+const url = require("url");
+const querysring = require("querystring");
+
+const parsedUrl = url.parse(
+  "https://www.gilbut.co.kr/?page=3&limit=10&category=nodejs&category=javascript"
+);
+const query = querysring.parse(parsedUrl.query);
+
+console.log("querysring.parse(): ", query); // [Object: null prototype] { page: '3', limit: '10', category: [ 'nodejs', 'javascript' ] }
+console.log("querysring.stringify(): ", querysring.stringify(query)); // page=3&limit=10&category=nodejs&category=javascript
+```
+
+- querystring.parse(쿼리)
+
+  url의 query 부분을 자바스크립트 객체로 분해한다.
+
+- querystring.stringify(객체)
+
+  분해된 query 객체를 문자열로 다시 조립한다.
+
+<br>
+
+### # crypto 모듈
+
+다양한 방식의 암호화를 도와주는 모듈이다. 고객의 비밀번호는 반드시 암호화해야 한다. 비밀번호를 암호화하지 않으면 비밀번호를 저장해둔 데이터베이스가 해킹당하는 순간, 고객들의 비밀번호도 고스란히 해커 손에 넘어가고 만다. 물론 데이터베이스가 해킹당하지 않도록 노력해야겠지만, 안전 장치를 이중으로 만들어놓는 것이 좋다.
+
+- 단방향 암호화
+
+  비밀번호는 보통 단방향 암호화 알고리즘을 사용해서 암호화한다. 단방향 암호화란 복호화할 수 없는 암호화 방식을 뜻한다. 복호화는 암호화된 문자열을 원래 문자열로 되돌려놓는 것을 의미한다. 즉, 단방향 암호화는 한 번 암호화하면 원래 문자열을 찾을 수 없다. 복화할 수 없으므로 암호화라고 표현하는 대신 해시 함수라고 부르기도 한다.
+
+  복호화할 수 없는 암호화가 왜 필요한지 의문이 들 수 있다. 하지만 고객의 비밀번호는 복호화할 필요가 없다. 먼저 고객의 비밀번호를 암호화해서 데이터베이스에 저장한다. 그리고 로그인할 때마다 입력받은 비밀번호를 같은 암호화 알고리즘으로 암호화한 후, 데이터베이스의 비밀번호와 비교하면 된다. 원래 비밀번호는 어디에도 저장하지 않고 암호화된 문자열로만 비교하는 것이다.
+
+  단방향 암호화 알고리즘은 주로 해시 기법을 사용한다. 해시 기법이란 어떠한 문자열을 고정된 길이의 다른 문자열로 바꿔버리는 방식이다. 예를 들어 abcdefgh라는 문자열을 qvew로 바꿔버리고 ijklm이라는 문자열을 zvsf로 바꿔버리는 것이다. 입력 문자열의 길이는 다르지만, 출력 문자열의 길이는 네 자리로 고정되어 있다.
+
+  ```js
+  const crypto = require("crypto");
+
+  console.log(
+    "base64 :",
+    crypto.createHash("sha512").update("비밀번호").digest("base64")
+  );
+  console.log(
+    "hex :",
+    crypto.createHash("sha512").update("비밀번호").digest("hex")
+  );
+  console.log(
+    "base64 :",
+    crypto.createHash("sha512").update("다른 비밀번호").digest("base64")
+  );
+
+  // base64 : dvfV6nyLRRt3NxKSlTHOkkEGgqW2HRtfu19Ou/psUXvwlebbXCboxIPmDYOFRIpqav2eUTBFuHaZri5x+usy1g==
+  // hex : 76f7d5ea7c8b451b773712929531ce92410682a5b61d1b5fbb5f4ebbfa6c517bf095e6db5c26e8c483e60d8385448a6a6afd9e513045b87699ae2e71faeb32d6
+  // base64 : cx49cjC8ctKtMzwJGBY853itZeb6qxzXGvuUJkbWTGn5VXAFbAwXGEOxU2Qksoj+aM2GWPhc1O7mmkyohXMsQw==
+  ```
+
+  - 해시 함수 목록
+
+    - createHash(알고리즘)
+
+      사용할 해시 알고리즘을 넣는다. md5, sha1, sha256, sha512 등이 가능힞만, md5와 sha1은 이미 취약점이 발견되었다. 현재는 sha512 정도로 충분하지만, 나중에 sha512마저도 취약해지면 더 강화된 알고리즘으로 바꿔야한다.
+
+    - update(문자열)
+
+      변환할 문자열을 넣는다.
+
+    - digest(인코딩)
+
+      인코딩할 알고리즘을 넣는다. base64, hex, latin1이 주로 사용되는데, 그중 base64가 결과 문자열이 가장 짧아 애용된다. 결과물로 변환된 문자열을 반환한다.
+
+  - 단방향 암호화의 단점
+
+    1. 복호화 불가 : 원본 복원 불가, 실수 시 되돌리기 어려움
+    2. 사용자 재설정 필요 : 비밀번호 분실 시 새로 설정해야 함
+    3. 충돌 가능성 : 이론상 존재, 해시 함수 선택 중요
+    4. 설정 실수 시 취약 : salt 미사용, SHA-256 등 빠른 해시 사용 시 위험
+    5. 마이그레이션 어려움 : 기존 해시를 새로운 해시로 교체 어려움
+    6. 사전 공격 가능 : 단순 입력은 레인보우 테이블로 뚫릴 수 있음
+
+  - 단방향 암호화의 단점 보완 방법
+
+    1. 무조건 salt 사용 (bcrypt/argon2는 자동 포함)
+    2. 느리고 메모리 요구하는 해시 알고리즘 사용 (argon2id, bcrypt, scrypt)
+    3. 사용자 로그인 시 점진적 마이그레이션
+    4. 짧거나 흔한 비밀번호는 아예 금지 (1234, qwerty, password 등)
+
+  - Rainbow Table vs Dictionary Attack
+
+  | 항목        | 레인보우 테이블                                         | 사전(dictionary) 공격            |
+  | ----------- | ------------------------------------------------------- | -------------------------------- |
+  | 공격 방식   | 미리 해시 계산하여 `해시:평문` 목록 생성 후 저장 → 비교 | 평문만 저장 → 실시간 해싱 & 비교 |
+  | 메모리 사용 | 크지만 빠름                                             | 적지만 느림                      |
+  | 방어        | salt 필수                                               | salt + 느린 해시 필수            |
+
+  - salt
+
+    - 정의 : 해시 안전성을 높이기 위해 입력값에 추가하는 랜덤 문자열, 동일한 입력값이더라도 서로 다른 해시값이 나오도록 하는 기법
+
+    - 목적 : 같은 비밀번호도 서로 다른 해시를 만들게 하여 공격 방어
+
+    - 저장 : 해시값과 함께 저장 (별도로 또는 포함 형태로)
+
+    - 자동 지원 : bcrypt, argon2 등은 내부적으로 자동 처리
+
+    - 장점
+
+      1. 무작위성 : 같은 입력값이라도 서로 다른 해시값 생성
+      2. 레인보우 테이블 방지 : 미리 계산한 해시로는 뚫을 수 없음
+      3. 사용자별 보호 : 여러 사용자들이 같은 비밀번호여도, 해시값이 다름
+
+    ```js
+    // salt 미사용시
+    hash("1234") === hash("1234"); // 항상 true
+    ```
+
+    ```js
+    // salt 사용시
+    // 같은 비밀번호도 서로 다른 해시를 만들게 하여 공격 방어
+    hash("1234") ➝ abcd1234...
+
+    hash("1234" + "salt1") ➝ 78e9af...
+    hash("1234" + "salt2") ➝ 94b2e0...
+    ```
+
+  - pbkdf2 예시
+
+    ```js
+    const crypto = require("crypto");
+
+    crypto.randomBytes(64, (err, buf) => {
+      const salt = buf.toString("base64");
+      console.log("salt :", salt);
+
+      crypto.pbkdf2("비밀번호", salt, 100000, 64, "sha512", (err, key) => {
+        console.log("password :", key.toString("base64"));
+      });
+    });
+
+    // salt : FiBZ7ANGju8o7z5YIX8kBt2Alk2xFUgpex9y0e5UMSmX3UC3HmVW6cyJukz+mFpHNeOXlaYyBHeg35lDfEd1xQ==
+    // password : pOy+yp0YAJmtJ/mMbZ1m9YPQqrvoDUROSPqCoagncapg4lb3vBTByuLTb1b+ATpUuxuZ5G+5ALCE2lf5kEzJyw==
+    ```
+
+    먼저 randomBytes 메서드로 64바이트 길이의 문자열을 만든다. 이것이 salt가 된다. pdkdf2 메서드에는 순서대로 비밀번호, salt, 반복횟수, 출력 바이트, 해시 알고리즘을 인수로 넣는다. 위 예시는 sha512로 변환된 결괏값을 다시 sha512로 변환하는 과정을 10만 번 반복하는 것이다. 너무 많이 반복하는 것은 아닐지 걱정될 수도 있지만 1초 정도 밖에 걸리지 않는다. 싱글 스레드 프로그래밍을 할 때 1초 동안 블로킹이 되는 것은 아닌지 걱정할 수도 있지만 다행히 crypto.randomBytes와 crypto.pdkdf2 메서드는 내부적으로 스레드풀을 사용해 멀티 스레딩으로 동작한다. randomBytes이므로 매번 실행할 때마다 결과가 달라진다. 따라서 salt를 잘 보관하고 있어야 비밀번호도 찾을 수 있다. pdkdf2는 간단하지만 bycrypt나 scrypt보다 취약하므로 나중에 더 나은 보안이 필요하면 해당 방식을 사용해야한다.
+
+- 양방향 암호화
+
+  양방향 대칭형 암호화는 암호화된 문자열을 복화할 수 있으며 키(열쇠)라는 것이 사용된다. 대칭형 암호화에서 암호화를 복호화하려면 암호화할 때 사용한 키와 같은 키를 사용해야한다.
+
+  ```js
+  const crypto = require("crypto");
+
+  const algorithm = "aes-256-cbc";
+  const key = "abcdefghijklmnopqrstuvwxyz123456";
+  const iv = "1234567890123456";
+
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let result = cipher.update("암호화할 문장", "utf8", "base64");
+  result += cipher.final("base64");
+  console.log("암호화", result);
+
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  let result2 = decipher.update(result, "base64", "utf8");
+  result2 += decipher.final("utf8");
+  console.log("복호화", result2);
+
+  // 암호화 iiopeG2GsYlk6ccoBoFvEH2EBDMWv1kK9bNuDjYxiN0=
+  // 복호화 암호화할 문장
+  ```
+
+  - crypto.createCipheriv(알고리즘, 키, iv)
+
+    암호화 알고리즘과 키, iv를 넣는다. 암호화 알고리즘은 aes-256-cbc를 사용했으며 다른 알고리즘을 사용해도 된다. aes-256-cbc 알골지ㅡㅁ의 경우 32바이트여야 하고, iv는 16바이트여야 한다. iv는 암호화할 때 사용하는 초기화 벡터를 의미하지만 AES 암호화에 대해 따로 공부하는 것이 좋다. 사용 가능한 알고리즘 목록은 crypto.getChiphers()를 호출하면 볼 수 있다.
+
+  - cipher.update(문자열, 인코딩, 출력 인코딩)
+
+    암호화할 대상과 대상의 인코딩, 출력 결과물을 인코딩에 넣는다. 보통 문자열은 utf8 인코딩을, 암호는 base64를 많이 사용한다.
+
+  - chipher.final(출력 인코딩)
+
+    출력 결과물의 인코딩을 넣으면 암호화가 완료된다.
+
+  - chipher.createDeciphervi(알고리즘, 키, iv)
+
+    복호화할 때 사용한다. 암호화할 때 사용했던 알고리즘과 키, iv를 그대로 넣어야한다.
+
+  - decipher.update(문자열, 인코딩, 출력 인코딩)
+
+    암호화된 문장, 그 문장의 인코딩, 복호화할 인코딩을 넣는다. createChiphervi의 update()에서 utf8, base64 순으로 넣었다면 createDeciphervi의 update()에서는 base64, utf8 순으로 넣으면 된다/
+
+  - decipher.final(출력 인코딩)
+
+    복호화 결과물의 인코딩을 넣는다.
+
+- 단방향 암호화 vs 양방향 암호화
+
+  | 항목             | 양방향 암호화        | 단방향 해싱      |
+  | ---------------- | -------------------- | ---------------- |
+  | 복호화 가능 여부 | ✅ 가능              | ❌ 불가능        |
+  | 사용 예          | 카드번호, 토큰, 통신 | 비밀번호 저장    |
+  | 속도             | 느림 (보통)          | 빠름             |
+  | 보안 방식        | 키 기반              | 충돌 회피/무결성 |
+
+  양방향 암호화의 경우 키 유출 시 모든 비밀번호 복호화 가능하기 때문에 비밀번호 저장에는 절대 사용 금지이다. 해시(bcrypt, argon2id)를 사용해야 안전하다.
+
+- 양방향 대칭키 암호화 vs 양방향 비대칭키 암호화
+
+  - 대칭키 암호화
+
+    암호화와 복호화에 같은 키 사용, 빠르고 효율적이나 키 유출 시 보안 무력화됨
+
+  - 비대칭키 암호화
+
+    암호화와 복호화에 서로 다른 키 (공개키/개인키) 사용, 공개키로 암호화하고 개인키로 복호화, HTTPS나 JWT 서명 등 데이터 전송에서 자주 사용, 속도는 느리지만 키 배포가 안전함
+
+<br>
+
+### # util 모듈
+
+각종 편의 기능을 모아둔 모듈이다. 자주 사용되는 메서드는 아래와 같다.
+
+- util.deprecate
+
+  함수가 deprecated 처리되었음을 알린다. 첫 번째 인수로 넣은 함수를 사용했을 때 경고 메세지가 출력된다. 두 번째 인수로 경고 메세지 내용을 넣으면 된다. 함수가 조만간 사라지거나 변경될 때 알려줄 수 있어 유용하다.
+
+- util.promisify
+
+  콜백 패턴을 프로미스 패턴으로 바꾼다. 바꿀 함수를 인수로 제공하면 된다. 이렇게 바꿔두면 async/await 패턴까지 사용할 수 있어 좋다.
+
+<br>
+
+### # worker_threads 모듈
+
+노드에서 멀티 스레드 방식으로 작업하는 것을 도와준다.
+
+```js
+// 예시1
+const { Worker, isMainThread, parentPort } = require("worker_threads");
+
+if (isMainThread) {
+  // 부모일 때
+  const worker = new Worker(__filename);
+  worker.on("message", (message) => console.log("from worker", message)); // 워커로부터 메시지 받기
+  worker.on("exit", () => console.log("worker exit")); // 워커가 종료되면 호출
+  worker.postMessage("ping"); // 워커에게 메시지 보내기
+} else {
+  // 워커일 때
+  parentPort.on("message", (value) => {
+    console.log("from parent", value); // ping 출력
+    parentPort.postMessage("pong"); // 부모에게 pong 응답
+    parentPort.close(); // 워커 종료
+  });
+}
+
+// 콘솔 실행 결과
+// from parent ping
+// from worker pong
+// worker exit
+```
+
+isMainThread를 통해 현재 코드가 메인 스레드(기존에 동작하던 싱글 스레드를 메인 스레드 또는 부모 스레드라고 부른다)에서 실행되는지, 아니면 우리가 생성한 워커 스레드에서 실행되는지 구분된다. 메인 스레드에서 new Worker를 통해 현재 파일(`__filename`)을 워커 스레드에서 실행시키고 있다. 물론 현재 파일의 else 부분만 워커 스레드에서 실행된다. 부모에서는 워커 생성 후 worker.postMessage로 워커에 데이터를 보낼 수 있다. 워커는 parentPort.on('message') 이벤트 리스너로 부모로부터 메세지를 받고, parentPort.postMessage로 부모에게 메세지를 보낸다. 부모는 worker.on('message')로 메세지를 받는다. 참고로 메세지를 한 번만 받고 싶다면 once('message')를 사용하면 된다. 워커에서 on 메서드를 사용할 때는 직접 워커를 종료해야 한다는 점에 주의해야한다. parentPort.close()를 하면 부모와의 연결이 종료된다. 종료될 때는 worker.on('exit')이 실행된다.
+
+이번에는 소수의 개수를 구하는 작업을 워커 스레드를 통해 비교해보자. 먼저 워커 스레드를 사용하지 않은 예시이다.
+
+```js
+const min = 2;
+const max = 10000000;
+const primes = [];
+
+function generatePrimes(start, range) {
+  let isPrime = true;
+  const end = start + range;
+
+  for (let i = start; i < end; i++) {
+    for (let j = min; j < Math.sqrt(end); j++) {
+      if (i !== j && i & (j === 0)) {
+        isPrime = false;
+        break;
+      }
+    }
+
+    if (isPrime) {
+      primes.push(i);
+    }
+    isPrime = true;
+  }
+}
+
+console.time("prime");
+generatePrimes(min, max);
+console.timeEnd("prime");
+console.log(primes.length);
+
+// prime: 43.356s
+```
+
+2부터 1,000만까지의 숫자 중에 소수가 모두 몇 개 있는지를 알아내는 코드이다. 컴퓨터 성능에 따라 다르겠지만 상당한 시간이 소요된다. 이번에는 워커 스레드를 사용하여 여러 개의 스레드들이 문제를 나누어 풀도록 해본다. 멀티 스레딩은 상당히 어렵고 코드양도 많아진다.
+
+```js
+const {
+  Worker,
+  isMainThread,
+  parentPort,
+  workerData,
+} = require("worker_threads");
+
+const min = 2;
+let primes = [];
+
+function findPrimes(start, range) {
+  let isPrime = true;
+  const end = start + range;
+
+  for (let i = start; i < end; i++) {
+    for (let j = min; j < Math.sqrt(end); j++) {
+      if (i !== j && i & (j === 0)) {
+        isPrime = false;
+        break;
+      }
+    }
+
+    if (isPrime) {
+      primes.push(i);
+    }
+    isPrime = true;
+  }
+}
+
+if (isMainThread) {
+  const max = 10000000;
+  const threadCount = 8;
+  const threads = new Set();
+  const range = Math.ceil((max - min) / threadCount);
+  let start = min;
+
+  console.time("prime");
+  for (let i = 0; i < threadCount - 1; i++) {
+    const wStart = start;
+    threads.add(
+      new Worker(__filename, { workerData: { start: wStart, range } })
+    );
+    start += range;
+  }
+  threads.add(
+    new Worker(__filename, {
+      workerData: start,
+      range: range + ((max - min + 1) % threadCount),
+    })
+  );
+  for (let worker of threads) {
+    worker.on("error", (err) => {
+      throw err;
+    });
+    worker.on("exit", () => {
+      threads.delete(worker);
+      if (threads.size === 0) {
+        console.timeEnd("prime");
+        console.log(primes.length);
+      }
+    });
+    worker.on("message", (msg) => {
+      primes = primes.concat(msg);
+    });
+  }
+} else {
+  findPrimes(workerData.start, workerData.range);
+  parentPort.postMessage(primes);
+}
+// prime: 9.750s
+```
+
+속도가 약 여섯 배 정도 빨라졌다. 워커 스레드를 여덟 개 사용했다고 해서 여덟 배 빨라지는 것은 아니다. 스레드를 생성하고 스레드 사이에서 통신하는데 상당한 비용이 발생하므로 이 점을 고려해서 멀티 스레딩을 해야 한다. 잘못하면 멀티 스레딩을 할 때 싱글 스레드보다 더 느려지는 현상도 발생할 수 있다.
+
+<br>
+
+### # child_process 모듈
+
+노드에서 다른 프로그램을 실행하고 싶거나 명령어를 수행하고 싶을 때 사용하는 모듈이다. 이 모듈을 통해 다른 언어의 코드(예를 들면 파이썬)를 실행하고 결괏값을 받을 수 있다. 이름이 child_process(자식 프로세스)인 이유는 현재 노드 프로세스 외에 새로운 프로세스를 띄워서 명령을 수행하고 노드 프로세스에 결과를 알려주기 떄문이다.
+
+```js
+// 예시 1
+const exec = require("child_process").exec;
+const process = exec("ls");
+
+process.stdout.on("data", function (data) {
+  console.log(data.toString());
+}); // 실행 결과
+
+process.stderr.on("data", function (data) {
+  console.error(data.toString());
+}); // 실행 에러
+
+// 콘솔 결과
+// (현재 파일의 목록 표시)
+```
+
+이번에는 파이썬 프로그램을 실행해보자
+
+```python
+# 예시 2
+# test.py
+print('hello python')
+```
+
+```js
+// 예시 2
+const spawn = require("child_process").spawn;
+const process = spawn("python3", ["test.py"]);
+
+process.stdout.on("data", function (data) {
+  console.log(data.toString());
+});
+
+process.stderr.on("data", function (data) {
+  console.error(data.toString());
+});
+
+// 콘솔 출력 결과
+// hello python
+```
+
+exec은 셸을 실행해서 명령어를 수행하고, spawn은 새로운 프로세스를 띄우면서 명령어를 실행한다. spawn에서도 세 번째 인수로 { shell : true }를 제공하면 exec처럼 셸을 실행해서 명령어를 수행한다. 셸을 실행하는지 마는지에 따라 수행할 수 있는 명령어에 차이가 있다.
+
+<br>
+
+### # 기타 모듈들
+
+- assert
+
+  값을 비교하여 프로그램이 제대로 동작하는지 테스트하는 데 사용한다/
+
+- dns
+
+  도메인 이름에 대한 IP 주소를 얻어내는 데 사용한다.
+
+- net
+
+  HTTP보다 로우 레벨인 TCP나 IPC 통신을 할 때 사용한다.
+
+- string_decoder
+
+  버퍼 데이터를 문자열로 바꾸는데 사용한다.
+
+- tls
+
+  TLS와 SSL에 관련된 작업을 할 때 사용한다.
+
+- tty
+
+  터미널과 관련된 작업을 할 때 사용한다.
+
+- dgram
+
+  UDP와 관련딘 작업을 할 때 사용한다.
+
+- v8
+
+  V8 엔진에 직접 접근할 때 사용한다.
+
+- vm
+
+  가상 머신에 직접 접근할 때 사용한다.
+
+<br>
+
+### # fs 모듈
+
+fs 모듈은 파일 시스템에 접근하는 모듈이다. 즉, 파일을 생성하거나 삭제하고, 읽거나 쓸 수 있다. 폴더도 만들거나 지울 수 있다.
+
+```txt
+저를 읽어주세요.
+```
+
+```js
+// readFile.js
+const fs = require("fs");
+
+fs.readFile("./readme.txt", (err, data) => {
+  if (err) {
+    throw err;
+  }
+
+  console.log(data);
+  console.log(data.toString());
+});
+
+// 실행 결과
+// <Buffer ec a0 80 eb a5 bc 20 ec 9d bd ec 96 b4 ec a3 bc ec 84 b8 ec 9a 94 2e>
+// 저를 읽어주세요.
+```
+
+readFile의 결과물은 버퍼(Buffer)라는 형식으로 제공된다. 버퍼는 Node.js에서 이진(binary) 데이터를 직접 다룰 수 있도록 해주는 객체이다. 특히 파일, 네트워크, 스트림, 암호화 등에서 사용된다. Buffer는 파일의 내용을 바이너리(byte) 형태로 담고 있다. 즉 위 결과 중 첫 번째 결과는 UTF-8로 인코딩된 "저를 읽어주세요."라는 한글 문자열의 바이트 배열이다. 그렇기 때문에 toString()으로 디코딩해야 사람이 읽을 수 있는 문자열로 변환하면 두 번째 결과가 나온다.
+
+fs는 기본적으로 콜백 형식의 모듈이므로 실무에서 사용하기가 불편하다. 따라서 fs 모듈을 프로미스 형식으로 바꿔주는 방법을 사용한다. fs 모듈에서 promise 속성을 불러오면 프로미스 기반의 fs 모듈을 사용할 수 있게 된다.
+
+```js
+// readFilePromise.js
+const fs = require("fs").promises;
+
+fs.readFile("./readme.txt")
+  .then((data) => {
+    console.log(data);
+    console.log(data.toString());
+  })
+  .catch((err) => console.error(err));
+```
+
+결과는 위와 동일하다. 아래와 같이 파일을 만들 수도 있다. 아래 코드를 실행하면 writeme.txt 파일이 생성된다.
+
+```js
+// writeFile.js
+const fs = require("fs").promises;
+
+fs.writeFile("./writeme.txt", "글이 입력됩니다")
+  .then(() => {
+    return fs.readFile("./writeme.txt");
+  })
+  .then((data) => {
+    console.log(data.toString());
+  })
+  .catch((err) => console.error(err));
+```
+
+<br>
+
+### # fs 모듈 - 동기 메서드와 비동기 메서드
+
+setTimeout 같은 타이머와 process.nextTick 외에도, 노드는 대부분의 메서드를 비동기 방식으로 처리한다. 하지만 몇몇 메서드는 동기 방식으로 사용할 수 있다. 특히 fs 모듈이 그러한 메서드를 많이 가지고 있다.
+
+```js
+// async.js
+const fs = require("fs");
+
+console.log("시작");
+fs.readFile("./readme2.txt", (err, data) => {
+  if (err) {
+    throw err;
+  }
+  console.log("1번", data.toString());
+});
+fs.readFile("./readme2.txt", (err, data) => {
+  if (err) {
+    throw err;
+  }
+  console.log("2번", data.toString());
+});
+fs.readFile("./readme2.txt", (err, data) => {
+  if (err) {
+    throw err;
+  }
+  console.log("3번", data.toString());
+});
+console.log("끝");
+
+// 콘솔 실행 결과
+// 시작
+// 끝
+// 2번 저를 여러 번 읽어보세요.
+// 3번 저를 여러 번 읽어보세요.
+// 1번 저를 여러 번 읽어보세요.
+```
+
+같은 파일을 세 번 읽었다. 시작과 끝을 제외하고 결과는 다를 수 있다. 비동기 메서드들은 해당 파일을 읽으라고만 요청하고 다음 작업으로 넘어간다. 따라서 파일 읽기 요청만 세 번을 보내고 console.log('끝')을 찍는다. 나중에 읽기가 완료되면 백그라운드가 다시 메인 스레드에 알린다. 메인 스레드는 그제서야 등록된 콜백 함수를 실행한다. 이 방식은 상당히 좋다. 수백 개의 I/O 요청이 들어와도 메인 스레드는 백그라운드에 요청 처리를 위임한다. 그 후로도 얼마든지 요청을 더 받을 수 있다. 나중에 백그라운드가 각각의 요청 처리가 완료되었다고 알리면 그때 콜백 함수를 처리하면 된다. 백그라운드에서는 위 요청 세 개를 거의 동시에 실행한다.
+
+- 동기와 비동기, 블로킹과 논 블로킹
+
+  동기와 비동기, 블로킹과 논 블로킹이라는 네 개의 용어가 노드에서 혼용되고 있으며 의미도 서로 다르다.
+
+  - 동기와 비동기 : 백그라운드 작업 완료 확인 여부
+
+  - 블로킹과 논 블로킹 : 함수가 바로 return 되는지 여부
+
+  노드에서 동기-블로킹 방식과 비동기-논 블로킹 방식이 대부분이다. 동기-논 블로킹이나 비동기-블로킹은 없다고 봐도 된다. 동기-블로킹 방식에서는 백그라운드 작업 완료 여부를 계속 확인하며 호출한 함수가 바로 return 되지 않고 백그라운드 작업이 끝나야 return 된다. 비동기-논 블로킹 방식에서는 호출한 함수가 바로 return 되어 다음 작업으로 넘어가며 백그라운드 작업 완료 여부를 신경 쓰지 않고 나중에 백그라운드가 알림을 줄 때 비로소 처리한다.
+
+순서대로 출력하고 싶으면 다음 readFileSync 메서드를 사용할 수 있다.
+
+```js
+// sync.js
+const fs = require("fs");
+
+console.log("시작");
+let data = fs.readFileSync("./readme2.txt");
+console.log("1번", data.toString());
+data = fs.readFileSync("./readme2.txt");
+console.log("2번", data.toString());
+data = fs.readFileSync("./readme2.txt");
+console.log("3번", data.toString());
+console.log("끝");
+
+// 콘솔 출력 결과
+// 시작
+// 1번 저를 여러 번 읽어보세요.
+// 2번 저를 여러 번 읽어보세요.
+// 3번 저를 여러 번 읽어보세요.
+// 끝
+```
+
+readFile 대신 readFileSync 메서드를 사용했다. 그런데 콜백 함수를 넣는 대신 직접 return 값을 받아온다. 그 값을 다음 줄부터 바로 사용할 수 있다. 코드는 훨씬 더 이해하기 쉽지만 치명적인 단점이 있다. readFileSync 메서드를 사용하면 요청이 수백 개 이상 들어올 때 성능에 문제가 생긴다. Sync 메서드를 사용할 때는 이전 작업이 완료되어야 다음 작업을 진행할 수 있다. 즉, 백그라운드가 작업하는 동안 메인 스레드는 아무것도 하지 못하고 대기하고 있어야 하는 것이다. 메인 스레드가 일을 하지 않고 노는 시간이 생기므로 비효율적이다. 백그라운드는 fs 작업을 동시에 처리할 수도 있는데, Sync 메서드를 사용하면 백그라운드 조차 동시에 처리할 수 없게 된다. 비동기 fs 메서드를 사용하면 백그라운드가 동시에 작업할 수도 있고, 메인 스레드는 다음 작업을 처리할 수 있다.
+
+동기 메서드들은 이름 뒤에 Sync가 붙어 있어 구분하기 쉽다. writeFileSync도 있다. 하지만 동기 메서드를 사용해야 하는 경우는 극히 드물다. 프로그램을 처음 실행할 때 초기화 용도로만 사용하는 것을 권장한다. 대부분의 경우에는 비동기 메서드가 훨씬 더 효율적이다. 비동기 방식으로 하되 순서를 유지하고 싶다면 아래와 같이 할 수 있다.
+
+```js
+// asyncOrder.js
+const fs = require("fs");
+
+console.log("시작");
+fs.readFile("./readme2.txt", (err, data) => {
+  if (err) {
+    throw err;
+  }
+  console.log("1번", data.toString());
+
+  fs.readFile("./readme2.txt", (err, data) => {
+    if (err) {
+      throw err;
+    }
+    console.log("2번", data.toString());
+
+    fs.readFile("./readme2.txt", (err, data) => {
+      if (err) {
+        throw err;
+      }
+      console.log("3번", data.toString());
+      console.log("끝");
+    });
+  });
+});
+
+// 시작
+// 1번 저를 여러 번 읽어보세요.
+// 2번 저를 여러 번 읽어보세요.
+// 3번 저를 여러 번 읽어보세요.
+// 끝
+```
+
+이전 readFile의 콜백에 다음 readFile을 넣으면 된다. 이른바 콜백 지옥이 펼쳐지지만 적어도 순서는 보장한다. 콜백 지옥은 Promise나 async/await으로 어느 정도 해결할 수 있다. 결과는 위와 같다.
+
+```js
+const fs = require("fs").promises;
+
+console.log("시작");
+fs.readFile("./readme2.txt")
+  .then((data) => {
+    console.log("1번", data.toString());
+    return fs.readFile("./readme2.txt");
+  })
+  .then((data) => {
+    console.log("2번", data.toString());
+    return fs.readFile("./readme2.txt");
+  })
+  .then((data) => {
+    console.log("3번", data.toString());
+    console.log("끝");
+  })
+  .catch((err) => console.error(err));
+```
+
+<br>
+
+### # 버퍼와 스트림 이해하기
