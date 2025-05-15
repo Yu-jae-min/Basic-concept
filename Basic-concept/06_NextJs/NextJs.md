@@ -123,53 +123,290 @@ export default function handler(req, res) {
 
 <br>
 
-### # 클라이언트 컴포넌트와 서버 컴포넌트 (수정 필요)
+### # 클라이언트 컴포넌트와 서버 컴포넌트
 
 - 클라이언트 컴포넌트
 
   - 역할
 
+    - 사용자와의 상호작용을 담당하는 컴포넌트
+
+    - 브라우저에서 실행되며, React의 클라이언트 기능(예: useState, useEffect) 사용 가능
+
   - 렌더링 과정
 
-    1. 기본적으로 서버 사이드 렌더링(SSR)을 수행한다. 초기 페이지 접근 시나 새로고침 시 서버에서 HTML을 렌더링하고, 클라이언트는 그 HTML을 하이드레이션하여 상호작용할 수 있도록 만든다.
-    2. 클라이언트 사이드 라우팅 시에는 클라이언트 CSR을 수행한다. 클라이언트 컴포넌트는 React Element 객체(JSX로 작성된 React 컴포넌트)를 반환하며, 해당 객체는 Virtual DOM에 Fiber로 확장된다. 이후, Fiber를 통해 Virtual DOM을 생성하고, 이를 바탕으로 실제 DOM을 변환한다.
+    1. 초기 요청/새로고침 시 서버에서 SSR(HTML 렌더링)로 정적인 HTML과 하이드레이션에 활용될 JS 번들을 클라이언트로 전달, 클라이언트는 그 HTML을 하이드레이션(이벤트 연결)하여 상호작용할 수 있도록 만든다.
+
+    2. 클라이언트 사이드 라우팅 이후에는 CSR로 렌더링됨 (JS만 다운로드, HTML은 재사용), 클라이언트 컴포넌트는 React Element 객체(JSX로 작성된 React 컴포넌트)를 반환하며, 해당 객체는 Virtual DOM에 Fiber로 확장된다. 이후, Fiber를 통해 Virtual DOM을 생성하고, 이를 바탕으로 실제 DOM을 변환한다.
 
   - 언제 사용하나요?
 
-    1. 상호작용이 필요한 UI 요소가 있을 때.
-    2. 애니메이션이나 동적 UI 업데이트가 필요한 경우.
+    - 상태 관리, 이벤트 핸들링, 애니메이션 등 동적인 UI가 필요할 때
+
+    - 브라우저 API를 사용할 때
 
 - 서버 컴포넌트
 
   - 역할
 
-    1. 이벤트 핸들러나 React 내장 훅(useState, useEffect)을 사용할 수 없습니다.
-    2. 서버에서 데이터 fetching을 처리하여, API나 데이터베이스와 연결하고, 서버에서 데이터를 미리 가져와 HTML을 생성합니다. 이 방식은 클라이언트의 데이터 요청을 줄이고 성능을 최적화하는 데 도움을 줍니다.
+    - JS 번들에 포함되지 않음, 클라이언트에 정적인 HTML만 전달
+
+    - 서버에서 데이터 fetching을 처리하여, API나 데이터베이스와 연결하고, 서버에서 데이터를 미리 가져와 HTML을 생성
+
+    - React 내장 훅 (useState, useEffect), 이벤트 핸들링 불가
 
   - 렌더링 과정
 
     - 서버 측
 
-      1. 리액트 서버에서 서버 컴포넌트를 RSC payload로 렌더링한다. RSC payload는 서버 컴포넌트의 렌더링 결과, 플레이스홀더 (클라이언트 컴포넌트의 렌더링 되는 위치에 대한 빈자리 표시와 필요한 js 파일에 대한 참조), 서버 컴포넌트가 클라이언트 컴포넌트에 전달하는 props를 가지고 있다.
+      1.  서버에서 서버 컴포넌트를 렌더링하여 RSC Payload 생성
+
+      - RSC Payload: RSC payload는 서버 컴포넌트의 렌더링 결과, 플레이스홀더 (클라이언트 컴포넌트의 렌더링 되는 위치에 대한 빈자리 표시와 필요한 js 파일에 대한 참조), 서버 컴포넌트가 클라이언트 컴포넌트에 전달하는 props를 가지고 있다.
+
       2. nextjs 서버에서는 해당 rsc payload와 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성한다. 여기까지가 서버에서의 동작이다.
 
     - 클라이언트 측
 
       3. 서버에서 생성한 HTML을 전달받아 즉시 보여준다. 다만 초기 라우팅, 즉 서버 사이드 라우팅인 경우만 이 HTML을 활용한다. 이후 클라이언트 사이드 라우팅인 경우에는 활용하지 않는다.
-      4. 재조정(reconcile)한다. 재조정이란 클라이언트 컴포넌트와 서버 컴포넌트 트리를 구성하는데 이것이 리액트 컴포넌트 트리이며 이 리액트 컴포넌트 트리(버츄얼 돔)에서 클라이언트 컴포넌트 트리에 빈자리(플레이스홀더)를 RSC payload에 포함되어있는 플레이스홀더 정보를 활용하여 채워주는데 이 과정을 재조정이라고 한다.
-      5. 재조정을 통해 버츄얼 돔 클라이언트 컴포넌트 트리에 빈자리를 채운 뒤 인터렉션이 가능하도록 하이드레이션(수화)한다. 하이드레이션 시에는 서버에서와 마찬가지로 클라이언트 컴포넌트 자바스크립트 인스트럭션을 활용하는데 다른 점은 정적인 최소한의 js가 아닌 setState나 이벤트 핸들러 등과 같이 동적인 자바스크립트 인스트럭션(해당 자바스크립트 인스트럭션은 웹팩을 통해 쪼개진 js 청크이다. 네트워크를 통해 클라이언트, 즉 브라우저에서 전달받는다.)을 활용해서 하이드레이션하여 정적인 HTML이 인터렉션이 가능하도록 한다. (JavaScript instructions로 클라이언트 컴포넌트만 hydration 한다)
+
+      4. 클라이언트 컴포넌트가 포함되어 있다면 재조정(reconcile) 및 하이드레이션(수화)한다.
+
+      - 클라이언트 컴포넌트와 서버 컴포넌트 트리를 구성하는데 이것이 리액트 컴포넌트 트리이며 이 리액트 컴포넌트 트리(버츄얼 돔)에서 클라이언트 컴포넌트 트리에 플레이스홀더를 RSC payload에 포함되어있는 플레이스홀더 정보를 활용하여 채워주는데 이 과정을 재조정이라고 한다.
+
+      - 재조정을 통해 버츄얼 돔 클라이언트 컴포넌트 트리에 빈자리를 채운 뒤 인터렉션이 가능하도록 하이드레이션(수화)한다. 하이드레이션 시에는 서버에서와 마찬가지로 클라이언트 컴포넌트 자바스크립트 인스트럭션을 활용하는데 다른 점은 정적인 최소한의 js가 아닌 setState나 이벤트 핸들러 등과 같이 동적인 자바스크립트 인스트럭션(해당 자바스크립트 인스트럭션은 웹팩을 통해 쪼개진 js 청크이다. 네트워크를 통해 클라이언트, 즉 브라우저에서 전달받는다.)을 활용해서 하이드레이션하여 정적인 HTML이 인터렉션이 가능하도록 한다. (JavaScript instructions로 클라이언트 컴포넌트만 hydration 한다)
 
   - 언제 사용하나?
-    1. 비상호작용적인 콘텐츠를 렌더링할 때.
-    2. 서버에서 데이터 fetching을 처리할 때.
-    3. SEO 최적화를 고려할 때.
-    4. 정적 콘텐츠나 대규모 데이터 처리가 필요할 때.
 
-- 검증해야할 점
-  - https://nextjs.org/docs/app/building-your-application/rendering/client-components 해당 공식문서를 보면 클라이언트 컴포넌트는 초기 방문, 새로고침 등에서 서버 컴포넌트 렌더링 과정과 거의 흡사하게 렌더링된다. 왜 그런지 찾아봐야겠다.. 또한 서버 컴포넌트는 서버 사이드 라우팅인 경우만 정적인 HTML을 사용하는데 이유가 뭘까.. 즉 두 컴포넌트가 거의 동일하게 동작하는데 차이점은 정확히 뭘까..
-    - 서버 컴포넌트만 사용하는 경우 하이드레이션 과정이 없다.
-    - 서버 컴포넌트의 경우 브라우저로 전달되는 js 번들에 포함되지 않는다.
-    - 위와 같이 비슷하게 동작하는 이유는 아마 함께 사용할 때에 이점을 가져가기 위해서인 것 같다. 서버 컴포넌트와 클라이언트 컴포넌트를 함꼐 사용할 때 페이지 전체를 서버 컴포넌트, 인터렉션이 필요한 부분에만 클라이언트 컴포넌트로 분리해서 js 번들 사이즈를 최소화하는 것이다.
-    - 클라이언트 컴포넌트의 경우 서버 컴포넌트와 다르게 SSR 시에 정적인 html과 함께 인터렉션을 위한 js 번들을 같이 내려준다.
-    - 즉 최종적으로 정리해보면 클라이언트 컴포넌트도 SSR을 수행하는데 정적인 부분에 HTML을 생성하고 필요한 js 번들을 클라이언트로 보내 하이드레이션한다. 서버 컴포넌트의 경우 HTML 생성 후 하이드레이션하지 않는다. 즉 JS 번들에 포함되지 않는다.
-    - RSC payload에 클라이언트 컴포넌트에 대한 참조를 포함하고 있느냐의 차이
+    - 비상호작용 콘텐츠를 렌더링할 때
+
+    - 서버 데이터 fetching 필요할 때
+
+    - SEO 최적화를 고려할 때
+
+    - JS 번들 사이즈 최소화를 원할 때
+
+- 결론
+
+  - 클라이언트 컴포넌트도 초기 로딩 시 SSR을 수행 → 정적인 HTML + JS 번들을 내려받아 하이드레이션
+
+  - 서버 컴포넌트는 HTML만 생성, 하이드레이션 없음 → JS 번들에 포함되지 않음
+
+  - 서버 컴포넌트만 사용할 경우 → JS 없이도 콘텐츠 렌더링 가능 → SEO, 성능에 유리
+
+  - 사용 방법
+
+    - 페이지 대부분은 서버 컴포넌트로 작성
+
+    - 상호작용이 필요한 부분만 클라이언트 컴포넌트로 분리 → JS 번들 크기 최소화 + UX 최적화
+
+<br>
+
+### # app router
+
+- 기본 규칙
+
+  page.tsx 파일은 하나의 라우트를 나타낸다
+
+  - app/page.tsx : /
+  - app/about/page.tsx : /about
+  - app/blog/page.tsx : /blog
+  - app/blog/post/page.tsx : /blog/post
+
+- 동적 라우팅
+
+  - app/blog/[slug]/page.tsx : /blog/hello-world
+  - app/product/[id]/page.tsx : /product/123
+
+- catch-all 라우팅 (모든 하위 경로 대응)
+
+  - app/docs/[...slug]/page.tsx : /docs/a, /docs/a/b, /docs/a/b/c 등 모두 대응
+
+- optional catch-all (없을 수도 있는 경로)
+
+  - app/shop/[[...category]]/page.tsx : /shop, /shop/shoes, /shop/shoes/men
+
+    - []: 동적
+
+    - [[]]: 선택적 동적
+
+- Route Groups ((폴더명))
+
+  라우팅에 포함되지는 않지만 구조적으로 폴더를 나눠야 할 때 사용한다. 괄호는 URL 경로에 포함되지 않음
+
+  - app/(admin)/dashboard/page.tsx : /dashboard
+
+  - app/(user)/profile/page.tsx : /profile
+
+- 병렬 라우트 (@폴더)
+
+  하나의 URL 내에서 다수의 영역(UI Slot)을 관리할 수 있게 해준다.
+
+  ```md
+  app/
+  ├── layout.tsx
+  ├── @modal/
+  │ └── login/page.tsx
+  ├── @main/
+  │ └── home/page.tsx
+  ```
+
+  예를 들어, /dashboard 페이지에서 왼쪽에는 nav 영역, 가운데에는 main 콘텐츠, 오른쪽에는 modal이 조건적으로 열리는 구조를 갖고 싶을 때 이 모든 UI를 하나의 트리에서 관리하면 복잡하고 유지보수가 어려워지기 때문이다.
+
+  ```md
+  app/
+  ├── dashboard/
+  │ ├── layout.tsx ← 병렬 슬롯 정의
+  │ ├── @main/
+  │ │ └── page.tsx ← 메인 콘텐츠
+  │ ├── @nav/
+  │ │ └── page.tsx ← 내비게이션
+  │ └── @modal/
+  │ └── login/page.tsx ← 모달 (optional)
+  ```
+
+  여기서 @main, @nav, @modal은 슬롯(slot) 이름이다.
+
+  ```jsx
+  // app/dashboard/layout.tsx
+  export default function DashboardLayout({
+    children, // @main 슬롯, 항상 기본적으로 @main 슬롯에 해당한다.
+    nav, // @nav 슬롯
+    modal, // @modal 슬롯
+  }: {
+    children: React.ReactNode,
+    nav: React.ReactNode,
+    modal: React.ReactNode,
+  }) {
+    return (
+      <div className="dashboard">
+        <aside>{nav}</aside>
+        <main>{children}</main>
+        {modal && <div className="modal">{modal}</div>}
+      </div>
+    );
+  }
+  ```
+
+  예를 들어 /dashboard/login 페이지를 열면 @main/page.tsx → 렌더링, @modal/login/page.tsx → 렌더링, 즉, 모달은 @modal/login 경로로 분리되어 있지만, 여전히 /dashboard/login 이라는 하나의 URL에서 같이 보여질 수 있다.
+
+  - React에서 단순 컴포넌트 분리 vs. Next.js 병렬 라우트
+
+    React에서 그냥 컴포넌트를 잘게 쪼개는 것과의 차이점은 React의 컴포넌트 분리는 "디자인 시스템 단위 분리", Next.js 병렬 라우트는 "페이지 상태 단위 분리 (with URL과 서버)"이다.
+
+    | 항목          | 일반 React 컴포넌트 분리            | Next.js 병렬 라우트                      |
+    | ------------- | ----------------------------------- | ---------------------------------------- |
+    | 분리 단위     | UI 컴포넌트 함수                    | URL 기반 슬롯 (@slot/)                   |
+    | 렌더링 기준   | 부모 컴포넌트 렌더 시 함께 렌더링됨 | 각 슬롯이 독립적으로 렌더링됨            |
+    | 라우팅 연결   | X (라우팅 직접 처리 필요)           | O (Next.js 라우팅 시스템이 처리)         |
+    | 코드 스플리팅 | 명시적으로 lazy, suspense 등 사용   | 자동으로 코드 분할됨                     |
+    | URL 상태 연동 | 수동 처리 (useState, useLocation)   | URL이 직접적으로 렌더링 상태를 제어      |
+    | SEO 최적화    | 수동 처리                           | 슬롯별로 자동 SSR/SSG/ISR 등 최적화 가능 |
+    | 상태 보존     | 부모 리렌더 시 초기화될 수 있음     | 슬롯 간 독립적으로 상태 유지             |
+
+  - 병렬 라우트의 장점
+
+    - UI 영역을 분리 : 각 UI 영역을 독립적인 디렉토리로 분리하여 유지보수 용이
+    - 조건부 렌더링 : 모달이나 팝업 등을 URL에 기반해 제어 가능 (modal 슬록만 바꾸면 됨)
+    - 상태 보존 : 각 슬롯은 상태를 별도로 유지하므로, 예: 메인 콘텐츠는 그대로 두고 모달만 교체 가능
+    - 코드 분할 : 각 슬롯별로 코드 스플리팅 가능 → 성능 최적화
+
+- 예외 처리
+
+  특정 경로에 대한 예외 처리를 하는 방법이다.
+
+  - not-found.tsx 해당 경로가 없을 때 렌더링
+
+  - error.tsx 렌더링 중 에러 발생 시
+
+  - loading.tsx 로딩 중일 때 표시되는 UI (e.g. Suspense 대체)
+
+<br>
+
+### # Layout 파일
+
+layout.tsx는 특정 경로(/app/\*\*)에 공통적으로 적용될 레이아웃 UI를 정의하는 파일이다.
+
+```jsx
+// app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode,
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
+```
+
+- /app 디렉토리 내에는 반드시 하나의 layout.tsx가 있어야 함 (최상위 루트)
+
+- 기본적으로 서버 컴포넌트이며, use client를 선언하지 않는 이상 서버에서 렌더링
+
+- 폴더마다 layout.tsx를 추가하면 하위 페이지에 중첩되어 적용됨
+
+  ```md
+  app/
+  ├── layout.tsx ← 모든 페이지에 적용 (루트 레이아웃)
+  ├── dashboard/
+  │ ├── layout.tsx ← dashboard 하위에만 적용되는 서브 레이아웃
+  │ └── page.tsx
+  └── about/
+  └── page.tsx
+  ```
+
+  - /dashboard 접속 시: Root layout → Dashboard layout → Dashboard page
+
+  - /about 접속 시: Root layout → About page
+
+- 페이지 전환 시 layout.tsx는 다시 렌더링되지 않음 (유지됨)
+
+- 라우팅해도 공통 요소(예: 사이드바)는 계속 유지되므로 상태 보존에 유리함
+
+- layout.tsx는 반드시 html과 body를 포함하는 게 권장됨
+
+<br>
+
+### # 메타데이터(metadata)
+
+- Nextjs 메타데이터
+
+  페이지의 `<head>`에 들어가는 메타 정보를 정적 타입 기반으로 안전하고 쉽게 설정할 수 있도록 만든 Next.js 전용 API이다.
+
+  - SEO (검색엔진 최적화)
+
+  - OG (Open Graph, SNS 공유 미리보기)
+
+  - Twitter 카드
+
+  - favicon, theme color 등 브라우저 관련 설정
+
+- 기본 사용법
+
+  ```jsx
+  // app/page.tsx
+
+  export const metadata = {
+    title: "홈페이지 - MyApp",
+    description: "이곳은 MyApp의 홈페이지입니다.",
+  };
+
+  export default function HomePage() {
+    return <h1>홈</h1>;
+  }
+  ```
+
+  이 정보는 `<head>`에 자동 삽입
+
+  ```html
+  <title>홈페이지 - MyApp</title>
+  <meta name="description" content="이곳은 MyApp의 홈페이지입니다." />
+  ```
+
+<br>
