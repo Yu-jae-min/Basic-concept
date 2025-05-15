@@ -1225,3 +1225,564 @@ fs.readFile("./readme2.txt")
 <br>
 
 ### # 버퍼와 스트림 이해하기
+
+- 버퍼와 스트림 이해하기
+
+  파일을 읽거나 쓰는 방식에는 크게 두 가지 방식, 즉 버퍼를 이용하는 방식과 스트림을 이용하는 방식이 있다. 영상을 로딩할 때는 버퍼링한다고 하고, 영상을 실시간으로 송출할 때는 스트리밍한다고 한다. 버퍼링은 영상을 재생할 수 있을 때까지 데이터를 모으는 동작이고, 스트리밍은 방송인의 컴퓨터에서 시청자의 컴퓨터로 영상 데이터를 조금씩 전송하는 동작이다. 스트리밍하는 과정에서 버퍼링을 할 수도 있다. 전송이 너무 느리면 화면을 내보내기까지 최소한의 데이터를 모아야하고, 영상 데이터가 재생 속도보다 빠르게 전송되어도 미리 전송받은 데이터를 저장할 공간이 필요하기 때문이다. 노드의 버퍼와 스트림도 비슷한 개념이다. 앞에서 readFile 메서드를 사용할 때 읽었던 파일이 버퍼 형식으로 출력되었다. 노드는 파일을 읽을 때 메모리에 파일 크기만큼 공간을 마련해두며 파일 데이터를 메모리에 저장한 뒤 사용자가 조작할 수 있도록 한다. 이때 메모리에 저장된 데이터가 바로 버퍼이다. 여기에 버퍼를 직접 다룰 수 있는 클래스가 있다. 바로 Buffer이다.
+
+  ```js
+  const buffer = Buffer.from("저를 버퍼로 바꿔보세요.");
+  console.log("from()", buffer);
+  console.log("length", buffer.length);
+  console.log("toString()", buffer.toString());
+
+  const array = [
+    Buffer.from("띄엄 "),
+    Buffer.from("띄엄 "),
+    Buffer.from("띄어쓰기"),
+  ];
+  const buffer2 = Buffer.concat(array);
+  console.log("concat()", buffer2.toString());
+
+  const buffer3 = Buffer.alloc(5);
+  console.log("alloc()", buffer3);
+
+  // 콘솔 출력 결과
+  // from() <Buffer ec a0 80 eb a5 bc 20 eb b2 84 ed 8d bc eb a1 9c 20 eb b0 94 ea bf 94 eb b3 b4 ec 84 b8 ec 9a 94 2e>
+  // length 33
+  // toString() 저를 버퍼로 바꿔보세요.
+  // concat() 띄엄 띄엄 띄어쓰기
+  // alloc() <Buffer 00 00 00 00 00>
+  ```
+
+- Buffer 객체 메서드
+
+  - from(문자열)
+
+    문자열을 버퍼로 바꿀 수 있다. length 속성은 버퍼의 크기를 알린다. 바이트 단위이다.
+
+  - toString(버퍼)
+
+    버퍼를 다시 문자열로 바꿀 수 있다. 이 때 base64나 hex를 인수로 넣으면 해당 인코딩으로도 변환 가능하다.
+
+  - concat(배열)
+
+    배열 안에 든 버퍼들을 하나로 합친다.
+
+  - alloc(바이트)
+
+    빈 버퍼를 생성한다. 바이트를 인수로 넣으면 해당 크기의 버퍼가 생성된다.
+
+- createReadStream
+
+  readFile 방식의 버퍼가 편리하기는 하지만 문제점도 있다. 만약 용량이 100MB인 파일이 있으면 읽을 때 메모리에 100MB의 버퍼를 만들어야한다. 이 작업을 동시에 열 개만 해도 1GB에 달하는 메모리가 사용된다. 특히 서버처럼 몇 명이 이용할지 모르는 환경에서는 메모리 문제가 발생할 수 있다. 또한, 모든 내용을 버퍼에 다 쓴 후에야 다음 동작으로 넘어가므로 파일 읽기, 압축, 파일 쓰기 등의 조작을 연달아 할 때 매번 전체 용량을 버퍼로 처리해야 다음 단계로 넘어갈 수 있다. 그래서 버퍼의 크기를 작게 만든 후 여러 번으로 나눠 보내는 방식이 등장했다. 예를 들면 버퍼 1MB를 만든 후 100MB 파일을 백 번에 걸쳐서 나눠 보내는 것이다. 이로써 메모리 1MB로 100MB 파일을 전송할 수 있다. 이를 편리하게 만든 것이 스트림이다. 파일을 읽는 스트림 메서드로는 createReadStream이 있다.
+
+  ```txt
+  저는 조금씩 조금씩 나눠서 전달됩니다. 나눠진 조각을 chunk라고 부릅니다.
+  ```
+
+  ```js
+  const fs = require("fs");
+
+  const readStream = fs.createReadStream("./readme3.txt", {
+    highWaterMark: 16,
+  });
+  const data = [];
+
+  readStream.on("data", (chunk) => {
+    data.push(chunk);
+    console.log("data :", chunk, chunk.length);
+  });
+
+  readStream.on("end", () => {
+    console.log("end :", Buffer.concat(data).toString());
+  });
+
+  readStream.on("error", (err) => {
+    console.log("error :", err);
+  });
+
+  // 콘솔 결과
+  // data : <Buffer ec a0 80 eb 8a 94 20 ec a1 b0 ea b8 88 ec 94 a9> 16
+  // data : <Buffer 20 ec a1 b0 ea b8 88 ec 94 a9 20 eb 82 98 eb 88> 16
+  // data : <Buffer a0 ec 84 9c 20 ec a0 84 eb 8b ac eb 90 a9 eb 8b> 16
+  // data : <Buffer 88 eb 8b a4 2e 20 eb 82 98 eb 88 a0 ec a7 84 20> 16
+  // data : <Buffer ec a1 b0 ea b0 81 ec 9d 84 20 63 68 75 6e 6b eb> 16
+  // data : <Buffer 9d bc ea b3 a0 20 eb b6 80 eb a6 85 eb 8b 88 eb> 16
+  // data : <Buffer 8b a4 2e> 3
+  // end : 저는 조금씩 조금씩 나눠서 전달됩니다. 나눠진 조각을 chunk라고 부릅니다.
+  ```
+
+  먼저 createStream으로 읽기 스트림을 만든다. 첫 번째로 인수로 읽을 파일 경로를 넣는다. 두 번째 인수는 옵션 객체인데 highWaterMark라는 옵션이 버퍼의 크기(바이트 단위)를 정할 수 있는 옵션이다. 기본 값은 64KB이지만 여러 번 나눠서 보내는 모습을 보여주기 위해 16B로 낮췄다. readStream은 이벤트 리스너를 붙여서 사용한다. 보통 data, end, error 이벤트를 사용한다. 위 예제의 readStream.on('data')와 같이 이벤트 리스너를 붙이면 된다. 파일을 읽는 도중 에러가 발생하면 error 이벤트가 호출되고, 파일 읽기가 시작되면 data 이벤트가 발생한다. 16B씩 읽도록 설정했으므로 파일의 크기가 16B보다 크다면 여러 번 발생할 수도 있다. 파일을 다 읽으면 end 이벤트가 발생한다. 파일의 크기가 99B라 무려 일곱 번에 걸쳐 데이터를 전송했다. 하지만 기본 값으로는 64KB씩 전송하므로 대부분의 txt 파일들은 한 번에 전송된다.
+
+- createWriteStream
+
+  이번에는 파일을 써보겠다.
+
+  ```js
+  // createWriteStream.js
+  const fs = require("fs");
+
+  const writeStream = fs.createWriteStream("./writeme2.txt");
+  writeStream.on("finish", () => {
+    console.log("파일 쓰기 완료");
+  });
+
+  writeStream.write("이 글을 씁니다.\n");
+  writeStream.write("한번 더 씁니다.");
+  writeStream.end();
+
+  // 결과
+  // writeme2.txt 파일이 생성됨, 파일 내부 내용은 아래와 같음
+  // 이 글을 씁니다.
+  // 한번 더 씁니다.
+  ```
+
+  먼저 createWriteStream으로 쓰기 스트림을 만든다. 첫 번째 인수로는 출력 파일명을 입력한다. 두 번째 인수는 옵션인데 여기서는 사용하지 않는다. finish 이벤트 리스너도 붙였다. 파일 쓰기가 종료되면 콜백 함수가 호출된다. writeStream에서 제공하는 write 메서드로 넣을 데이터를 쓴다. 여러 번 호출할 수 있다. 데이터를 다 썼다면 end 메서드로 종료를 알린다. 이 때 finish 이벤트가 발생한다.
+
+- pipe
+
+  createReadStream으로 파일을 읽고 그 스트림을 전달받아 createWriteStream으로 파일을 쓸 수도 있다. 파일 복사와 비슷하다. 스트림끼리 연결하는 것을 '파이핑한다'고 표현한다. 애게가 흐르는 관(pipe)처럼 데이터가 흐른다고 해서 지어진 이름이다.
+
+  ```txt
+  <!-- readme4.txt -->
+  저를 writeme3.txt로 보내주세요
+  ```
+
+  ```js
+  // pipe.js
+  const fs = require("fs");
+
+  const readStream = fs.createReadStream("readme4.txt");
+  const writeStream = fs.createWriteStream("writeme3.txt");
+
+  readStream.pipe(writeStream);
+
+  // 실행 결과
+  // writeme3.txt이라는 파일이 생성됨, 파일 내용은 아래와 같음
+  // 저를 writeme3.txt로 보내주세요
+  ```
+
+  readme4.txt와 똑같은 내용의 writeme3.txt가 생성되었을 것이다. 미리 읽기 스트림과 쓰기 스트림을 만들어둔 후 두 개의 스트림 사이를 pipe 메서드로 ㅇ녀결하면 저절로 데이터가 writeStream으로 넘어간다. 따로 on('data)나 writeStream.write를 하지 않아도 알아서 전달되므로 편리하다. 노드 8.5 버전이 나오기 전까지는 이 방식으로 파일을 복사하곤 했다. 이후에는 fs.copyFile이 사용된다.
+
+- pipe 연결
+
+  pipe는 스트림 사이에 여러 번 연결할 수 있다. 다음 코드는 파일을 읽은 후 gzip 방식으로 압축하는 코드이다.
+
+  ```js
+  // gzip.js
+  const zlib = require("zlib");
+  const fs = require("fs");
+
+  const readStream = fs.createReadStream("./readme4.txt");
+  const zlibStream = zlib.createGzip();
+  const writeStream = fs.createWriteStream("./readme4.txt.gz");
+
+  readStream.pipe(zlibStream).pipe(writeStream);
+
+  // 실행 결과
+  // readme4.txt.gz 파일이 생성됨
+  ```
+
+  readme4.txt.gz 파일이 생성된다. 압축된 파일이라 내용물을 읽기는 힘들다. 이렇게 전체 파일을 모두 버퍼에 저장하는 readFile 메서드와 부분으로 나눠 읽는 createReadStream 메서드를 알아보았다. 이 두 메서드의 메모리 사용량이 얼마나 다른지 실제로 확인해보자.
+
+- Buffer vs Stream 정리 및 차이 비교
+
+  - Buffer
+
+    버퍼는 고정된 크기의 메모리 공간에 데이터를 한 번에 전부 담는 방식
+
+    - 모든 데이터를 메모리에 올려놓고 처리.
+
+    - 주로 작은 파일이나 데이터 조각 처리에 적합.
+
+    - Buffer.from(), fs.readFile() 등의 함수에서 사용.
+
+    ```js
+    const fs = require("fs");
+
+    const data = fs.readFileSync("example.txt"); // 모든 파일 데이터를 메모리에 읽음
+    console.log(data.toString());
+    ```
+
+  - Stream
+
+    스트림은 데이터를 조각(chunk) 단위로 나눠서 순차적으로 처리하는 방식
+
+    - 메모리를 적게 사용하고, 빠르게 처리 가능.
+
+    - 큰 파일이나 네트워크 요청 등에서 효율적.
+
+    - 읽기 스트림, 쓰기 스트림, 변환 스트림 등 여러 종류가 있음.
+
+    - fs.createReadStream(), HTTP 요청/응답 처리 등에 사용.
+
+    ```js
+    const fs = require("fs");
+
+    const readStream = fs.createReadStream("example.txt");
+    readStream.on("data", (chunk) => {
+      console.log("읽은 조각:", chunk.toString());
+    });
+    ```
+
+  - Buffer vs Stream 차이 비교
+
+    | 항목             | Buffer                              | Stream                                    |
+    | ---------------- | ----------------------------------- | ----------------------------------------- |
+    | 데이터 처리 방식 | 한 번에 전부 메모리에 로드          | 조각(chunk) 단위로 나눠 순차 처리         |
+    | 메모리 사용량    | 파일 크기만큼 필요                  | 작음 (조각 단위로 처리)                   |
+    | 속도/효율성      | 큰 파일 처리 시 비효율적            | 대용량 처리에 적합                        |
+    | 사용 시점        | 작은 파일 또는 메모리 상관없는 작업 | 대용량 파일, 네트워크, 비동기 데이터 처리 |
+    | 예시 메서드      | fs.readFile, Buffer.from()          | fs.createReadStream, HTTP 요청            |
+
+<br>
+
+### # 기타 fs 메서드
+
+- 파일/폴더 생성 관련
+
+  - fs.access(경로, 옵션, 콜백)
+
+    폴더나 파일에 접근할 수 있는지를 체크한다. 두 번째 인수로 상수들(constants를 통해 가져옴)을 넣는다. F_OK는 파일 존재 여부, R_OK는 읽기 권한 여부, W_OK는 쓰기 권한 여부를 체크한다. 파일/폴더나 권한이 없다면 에러가 발생하는데 파일/폴더가 없을 때의 에러 코드는 ENOENT이다.
+
+  - fs.mkdir(경로, 콜백)
+
+    폴더를 만드는 메서드이다. 이미 폴더가 있다면 에러가 발생하므로 먼저 access 메서드를 호출해서 확인하는 것이 중요하다.
+
+  - fs.open(경로, 옵션, 콜백)
+
+    파일의 아이디(fd 변수)를 가져오는 메서드이다. 파일이 없다면 파일을 생성한 뒤 그 아이디를 가져온다. 가져온 아이디를 사용해 fs.read나 fs.write로 읽거나 쓸 수 있다. 두 번째 인수로 어떤 동작을 할 것인지를 설정할 수 있다. 쓰려면 w, 읽으려면 r, 기존 파일에 추가하려면 a이다. 앞의 예제에서는 w를 했으므로 파일이 없을 떄 새로 만들 수 있었다. r이었다면 에러가 발생했을 것이다.
+
+  - fs.rename(기존 경로, 새 경로, 콜백)
+
+    파일의 이름을 바꾸는 메서드이다. 기존 파일 위치와 새로운 파일 위치를 적으면 된다. 꼭 같은 폴더를 지정할 필요는 없으므로 잘라내기 기능을 할 수도 있다.
+
+- 파일/폴더 삭제 관련
+
+  - fs.readdir(경로, 콜백)
+
+    폴더 안의 내용물을 확인할 수 있다. 배열 안에 내부 파일과 폴더명이 나온다.
+
+  - fs.unlink(경로, 콜백)
+
+    파일을 지울 수 있다. 파일이 없다면 에러가 발생하므로 먼저 파일이 있는지를 꼭 확인해야한다.
+
+  - fs.rmdir(경로, 콜백)
+
+    폴더를 지울 수 있다. 폴더 안에 파일들이 있다면 에러가 발생하므로 먼저 내부 파일을 모두 지우고 호출해야한다.
+
+- 파일/폴더 복사 관련
+
+  - fs.copyFile(복사할 파일, 복사될 경로, 콜백)
+
+    파일을 복사한다.
+
+- 파일/폴더 변경사항 감지 관련
+
+  - fs.watch(감지할 대상, (이벤트타입, 파일 이름))
+
+    내용물을 수정할 때 이벤트 타입이 change인 이벤트가 발생하고, 파일명을 변경하거나 파일을 삭제하면 rename인 이벤트가 발생한다. rename 이벤트가 발생한 후에는 더 이상 watch가 수행되지 않는다. change 이벤트가 두 번씩 발생하기도 하므로 실무에서 사용할 때는 주의가 필요하다.
+
+<br>
+
+### # 스레드풀 알아보기
+
+fs 모듈의 메서드와 같이 비동기 메서드들은 백그라운드에서 실행되고, 실행된 후에는 다시 메인 스레드의 콜백 함수나 프로미스의 then 부분이 실행된다. 이때 fs 메서드를 여러 번 실행해도 백그라운드에서 동시에 처리되는데, 바로 스레드풀이 있기 때문이다. Node.js는 libuv라는 C++ 라이브러리를 사용해서 백그라운드에서 4개 기본 스레드 풀을 운영한다.
+
+기본적으로 Node.js는 Javascript 코드를 하나의 메인 스레드 처리한다. 하지만 내부적으로 일부 작업(fs, crypto, zlib, dns, lookup 등)에 대해 백그라운드에서 다른 스레드를 사용한다. 스레드풀을 쓰는 crypto.pbkdf2 메서드의 예제를 보자.
+
+```js
+const crypto = require("crypto");
+
+const pass = "pass";
+const salt = "salt";
+const start = Date.now();
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("1 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("2 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("3 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("4 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("5 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("6 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("7 :", Date.now() - start);
+});
+
+crypto.pbkdf2(pass, salt, 1000000, 128, "sha512", () => {
+  console.log("8 :", Date.now() - start);
+});
+
+// 실행 결과
+// 3 : 3065
+// 1 : 3121
+// 4 : 3126
+// 2 : 3192
+// 5 : 6021
+// 7 : 6082
+// 6 : 6098
+// 8 : 6160
+```
+
+실행할 때마다 시간과 순서가 달라진다. 스레드풀이 작업을 동시에 처리하므로 여덟 개의 작업 중에서 어느 것이 먼저 처리될지 모른다. 하지만 하나의 규칙을 발견할 수 있다. 1~4와 5~8이 그룹으로 묶여져 있고, 5~8이 1~4보다 시간이 더 소요된다. 바로 기본적인 스레드풀의 개수가 네 개이기 때문이다. 스레드풀이 네 개이므로 처음 네 작업이 동시에 실행되고, 그것들이 종료되면 다음 네 개의 작업이 실행된다. (만약 사용자의 컴퓨터 코어 개수가 4보다 작다면 다른 결과가 생길 수는 있다.)
+
+스레드풀을 직접 컨트롤할 수는 없지만 개수를 조절할 수는 있다. 맥과 리눅스라면 터미널에 UV_THREADPOOL_SIZE=1을 입력한 후 다시 node threadpool 명령어를 입력한 뒤 위 코드를 실행해보면 순서대로 실행된다. 스레드풀 개수를 하나로 제한했기 때문이다. 다만 숫자를 크게할 때는 자신의 컴퓨터 코어 개수와 같거나 많게 두어야 뚜렷한 효과가 발생한다.
+
+- libuv Thread Pool vs Worker Threads
+
+  | 구분                                               | libuv Thread Pool                                                   | Worker Threads                              |
+  | -------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------- |
+  | 목적                                               | 비동기 I/O 및 일부 내부 작업 처리                                   | 사용자가 명시적으로 생성하는 JS 실행 스레드 |
+  | 스레드 생성 위치                                   | C++ libuv 내부                                                      | JS에서 직접                                 |
+  | 스레드 생성 방식                                   | Node.js 내부에서 자동 관리                                          | worker_threads 모듈로 직접 생성             |
+  | 스레드 간 통신 방식                                | 내부 처리                                                           | postMessage 방식으로 명시적 통신            |
+  | 실행 환경                                          | JS 코드 실행 ❌ (C++/libuv 작업용, 단순 I/O, 암호화 등 백엔드 작업) | JS 코드 실행 가능 ✅                        |
+  | 개수                                               | 기본 4개 (config 가능)                                              | 필요할 때마다 무제한 생성 가능 (주의 필요)  |
+  | 예시 작업 fs.readFile, crypto.pbkdf2, zlib, DNS 등 | CPU 연산, 격리된 JS 코드 실행                                       |
+
+  - 한줄 요약
+
+    - libuv = 자동 I/O 작업용 스레드
+
+    - Worker Threads = 명시적 멀티스레딩, JS 연산 분산용
+
+<br>
+
+### # 이벤트 이해하기, event 모듈
+
+스트림을 배울 때 on('data', 콜백) 또는 on('end', 콜백)을 사용했다. 바로 data라는 이벤트와 end라는 이벤트가 발생할 때 콜백 함수를 호출하도록 이벤트를 등록한 것이다. createReadStream 같은 경우는 내부적으로 알아서 data와 end 이벤트를 호출하지만 우리가 직접 이벤트를 만들 수도 있다. event 모듈을 사용하면 된다. event 모듈을 통해 생성된 객체는 이벤트 관리를 위한 메서드를 가지고 있다.
+
+```js
+// event.js
+const EventEmitter = require("events");
+
+const myEvent = new EventEmitter();
+
+myEvent.addListener("event1", () => {
+  console.log("이벤트 1");
+});
+myEvent.on("event2", () => {
+  console.log("이벤트 2");
+});
+myEvent.on("event2", () => {
+  console.log("이벤트 2 추가");
+});
+myEvent.once("event3", () => {
+  console.log("이벤트 3"); // 한 번만 실행됨
+});
+
+myEvent.emit("event1"); // 이벤트 호출
+myEvent.emit("event2"); // 이벤트 호출
+myEvent.emit("event3"); // 이벤트 호출
+myEvent.emit("event3"); // 실행 안 됨
+
+myEvent.on("event4", () => {
+  console.log("이벤트 4");
+});
+myEvent.removeAllListeners("event4");
+myEvent.emit("event4"); // 실행 안 됨
+
+const listener = () => {
+  console.log("이벤트 5");
+};
+myEvent.on("event5", listener);
+myEvent.removeListener("event5", listener);
+myEvent.emit("event5"); // 실행 안 됨
+
+console.log(myEvent.listenerCount("event2"));
+
+// 콘솔 실행 결과
+// 이벤트 1
+// 이벤트 2
+// 이벤트 2 추가
+// 이벤트 3
+// 2
+```
+
+- on(이벤트명, 콜백)
+
+  이벤트 이름과 이벤트 발생 시의 콜백을 연결한다. 이렇게 연결하는 동작을 이벤트 리스닝이라고 부른다. event2처럼 이벤트 하나에 여러 개를 달아줄 수도 있다.
+
+- addListener(이벤트명, 콜백)
+
+  on과 기능이 같다.
+
+- emit(이벤트명)
+
+  이벤트를 호출하는 메서드이다. 이벤트 이름을 인수로 넣으면 미리 등록해뒀던 이벤트 콜백이 실행된다.
+
+- once(이벤트명, 콜백)
+
+  한 번만 실행되는 이벤트이다. myEvent.emit('event3')을 두 번 연속 호출했지만 콜백이 한 번만 실행된다.
+
+- removeAllListeners(이벤트명)
+
+  이벤트에 연결된 모든 이벤트 리스너를 제거한다. event4가 호출되기 전에 리스너를 제거했으므로 event4의 콜백은 호출되지 않는다.
+
+- removeListener(이벤트명, 리스너)
+
+  이벤트에 연결된 리스너를 하나씩 제거한다. 리스너를 넣어야한다는 것을 잊지 말아야한다. 역시 event5의 콜백도 호출되지 않는다.
+
+- off(이벤트명, 콜백)
+
+  노드 10 버전에서 추가된 메서드로 removeListener와 기능이 같다.
+
+- listenerCount(이벤트명)
+
+  현재 리스너가 몇 개 연결되어 있는지 확인한다.
+
+<br>
+
+### # 예외 처리하기
+
+노드에서는 예외 처리가 정말 중요하다. 이러한 예외들은 실행 중인 노드 프로세스를 멈추게 만든다. 멀티 스레드 프로그램에서는 스레드 하나가 멈추면 그 일을 다른 스레드가 대신한다. 하지만 노드의 메인 스레드는 하나뿐이므로 그 하나를 소중히 보호해야 한다. 메인 스레드가 에러로 인해 멈춘다는 것은 스레드를 갖고 있는 프로세스가 멈춘다는 뜻이고, 전체 서버도 멈춘다는 뜻과 같다. 따라서 에러 로그가 기록되더라도 작업은 계속 진행될 수 있도록 에러 처리를 해야한다.
+
+```js
+// 예시 1
+// error1.js
+setInterval(() => {
+  console.log("시작");
+
+  try {
+    throw new Error("서버를 고장내주마!");
+  } catch (error) {
+    console.error(error);
+  }
+}, 1000);
+
+// 실행 결과, 멈추지 않고 계속 반복 실행 됨
+```
+
+에러는 발생했지만 try/catch로 잡을 수 있고 setInterval도 직접 멈추기 전까지 계속 실행된다. try 내부에서 throw로 에러를 던질 때 catch에서 잡기 때문에 setInterval가 멈추지 않는다. throw로 에러를 던질 때는 반드시 try/catch로 감싸야 throw한 에러를 잡을 수 있으므로 주의해야한다. 만약 try/catch로 감싸지 않았다면 에러가 잡히지 않아 프로세스가 죽는다. 하지만 try/catch로 감싸 에러가 발생해도 프로세스가 살아있는다.
+
+```js
+const fs = require("fs");
+
+setInterval(() => {
+  fs.unlink("./abcdefg.js", (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}, 1000);
+
+// 실행 결과, 멈추지 않고 계속 반복 실행 됨
+```
+
+fs.unlink로 존재하지 않는 파일을 지우고 있다. 에러가 발생하지만 다행히 노드 내장 모듈의 에러는 실행 중인 프로세스를 멈추지 않는다. 에러 로그를 기록해두고 나중에 원인을 찾아 수정하면 된다.
+
+프로미스의 에러는 catch하지 않아도 알아서 처리된다. 다만 프로미스의 에러를 알아서 처리하는 동작은 노드 버전이 올라감에 따라 바뀔 수 있다. 따라서 프로미스를 사용할 때는 항상 catch를 붙여주는 것이 좋다.
+
+```js
+const fs = require("fs").promises;
+
+setInterval(() => {
+  fs.unlink("./abcdefg.js");
+}, 1000);
+// 실행 결과, 멈춤 -> 위에서 말한대로 노드 버전에 따라 자동으로 처리되지 않는 듯
+```
+
+이번에는 정말 예측이 불가능한 에러를 처리하는 방법을 알아보자.
+
+```js
+process.on("uncaughtException", (err) => {
+  console.error("예기치 못한 에러", err);
+});
+
+setInterval(() => {
+  throw new Error("서버를 고장내주마!");
+}, 1000);
+
+setTimeout(() => {
+  console.log("실행됩니다.");
+}, 2000);
+
+// 콘솔 실행 결과
+// 예기치 못한 에러 Error: 서버를 고장내주마!
+// 실행됩니다.
+// 예기치 못한 에러 Error: 서버를 고장내주마!
+// 예기치 못한 에러 Error: 서버를 고장내주마!
+// ...반복
+```
+
+process 객체에 uncaughtException 이벤트 리스너를 달았다. 처리하지 못한 에러가 발생했을 때 이벤트 리스너가 실행되고 프로세스가 유지된다. 이 부분이 없다면 위 예제에서는 setTimeout이 실행되지 않는다. 실행 후 1초 만에 setInterval에서 에러가 발생하여 프로세스가 멈추지 때무이다. 하지만 uncaughtException 이벤트 리스너가 연결되어 있으므로 프로세스가 멈추지 않는다.
+
+try/catch로 처리하지 못한 에러가 발생했지만 코드가 제대로 실행되었다. 어떻게 보면 uncaughtException 이벤트 리스너로 모든 에러를 처리할 수 있을 것처럼 보인다. 실제로 uncaughtException의 콜백 함수에 에러 발생 시 복구 작업을 하는 코드를 넣어둔 사람도 있다. 하지만 노드 공식 문서에서는 uncaughtException 이벤트를 최후의 수단으로 사용할 것을 명시하고 있다. 노드는 uncaughtException 이벤트 발생 후 다음 동작이 제대로 동작하는지를 보증하지 않는다. 즉, 복구 작업 코드를 넣어 두었더라도 그것이 동작하는지 확신할 수 없다. 따라서 uncaughtException은 단순히 에러 내용을 기록하는 정도로 사용하고, 에러를 기록한 후 process.exit()으로 프로세스를 종료하는 것이 좋다. 에러가 발생하는 코드를 수정하지 않는 이상, 프로세스가 실행되는 동안 에러는 계속 발생할 것이다.
+
+서버 운영은 에러와의 싸움이다. 모든 에러 상황에 대비하는 것이 최선이지만 시간이나 비용, 인력 등의 제약으로 미처 대비하지 못한 에러가 발생할 수 있다. 따라서 에러 발생 시 철저히 기록(로깅)하는 습관을 들이고, 주기적으로 로그를 확인해보면서 보완해나가야 한다.
+
+<br>
+
+### # 자주 발생하는 에러들
+
+- node: command not found
+
+  노드를 설치했지만 이 에러가 발생하는 경우는 환경 변수가 제대로 설정되지 않은 것이다. 환경 변수에는 노드가 설치된 경로가 포함되어야 한다. node 외의 다른 명령어도 마찬가지이다. 그 명령어를 수행할 수 있는 파일이 환경 변수에 들어 있어야 명령어를 콘솔에서 사용할 수 있다.
+
+- ReferenceError: 모듈 is not defined
+
+  모듈을 require 했는지 확인한다.
+
+- Error: Cannot find module 모듈명
+
+  해당 모듈을 require 했지만 설치하지 않았다. npm i 명령어로 설치해야한다.
+
+- Error: Can't set headers after they are sent
+
+  요청에 대한 응답을 보낼 때 응답을 두 번 이상 보냈다. 요청에 대한 응답은 한 번만 보내야 한다. 응답을 보내는 메서드를 두 번 이상 사용하지 않았는지 확인해야한다.
+
+- FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - Javascript heap out of memory
+
+  코드를 실행할 메모리가 부족하여 스크립트가 정상 동작하지 않는 경우이다. 코드가 잘못되었을 확률이 높으므로 코드를 점검해야한다. 만약 코드는 정상이지만 노드가 활용할 수 있는 메모리가 부족한 경우라면 노드의 메모리를 늘릴 수 있다. 노드를 실행할 때 node --max-old-space-size=4096 파일명과 같은 명령어를 사용하면 된다. 4096은 4GB를 의미한다. 원하는 요량을 적으면 된다.
+
+- UnhandlePromiseRejectionWarning: Unhandled promise rejection
+
+  프로미스 사용 시 catch 메서드를 붙이지 않으면 발생한다. 항상 catch를 붙여 에러가 나는 상황에 대비해야한다.
+
+- EADDRINUSE 포트 번호
+
+  해당 포트 번호에 이미 다른 프로세스가 연결되어 있다. 그 프로세스는 노드 프로세스일 수도 있고 다른 프로그램일 수도 있다. 그 프로세스를 종료하거나 다른 포트 번호를 사용해야 한다.
+
+- EACCES 또는 EPERM
+
+  노드가 작업을 수행하는데 권한이 충분하지 않다. 파일/폴더 수정, 삭제, 생성 권한을 확인해보는 것이 좋다. 맥이나 리눅스 운영체제라면 명령어 앞에 sudo를 붙이는 것도 방법이다.
+
+- EJSONPARSE
+
+  package.json 등의 JSON 파일에 문법 오류가 있을 때 발생한다. 자바스크립트 객체와는 형식이 조금 다르니 쉼표 같은 게 빠지거나 추가되지는 않았는지 확인해봐야한다.
+
+- ECONNREFUSED
+
+  요청을 보냈으나 연결이 성립하지 않을 때 발생한다. 요청을 받는 서버의 주소가 올바른지, 꺼져 있지는 않은지 확인해봐야 한다.
+
+- ETARGET
+
+  package.json에 기록한 패키지 버전이 존재하지 않을 때 발생한다. 해당 버전이 존재하는지 확인해야한다.
+
+- ETIMEOUT
+
+  요청을 보냈으나 응답이 일정 시간 내에 오지 않을 때 발생한다. 역시 요청을 받는 서버의 상태를 점검해봐야한다.
+
+- ENOENT: no such file or directory
+
+  지정한 폴더나 파일이 존재하지 않는 경우이다. 맥이나 리눅스 운영체제에서는 대소문자도 구별하므로 확인해봐야 한다.
+
+<br>
