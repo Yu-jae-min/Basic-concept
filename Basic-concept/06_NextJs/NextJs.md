@@ -1,6 +1,354 @@
-## # Next.js
+## # Next.js(13버전 이전)
 
-### # NextJs - 코딩앙마 강좌 2022.08.14 (13버전 이전)
+### # **Next.js 사용 이유**
+
+<br>
+
+1. 다양한 렌더링 전략 : CSR, SSR, SSG, ISR 등 다양한 렌더링 전략을 선택해서 사용할 수 있다.
+
+2. 프리 렌더링 : 기본적으로 모든 페이지를 프리 렌더한다. 프리 렌더를 통해 빌드 타임에 필요한 페이지들을 미리 생성한다. 또한 Link 컴포넌트 사용 시 해당 컴포넌트가 뷰포트에 포함되는 경우 프리 페치하여 클라이언트 사이드 라우팅 시 빠르게 페이지를 전환할 수 있다.
+
+3. 자동 코드스플리팅 : 페이지 디렉토리 내의 페이지들을 빌드 타임에 자동으로 코드스플리팅한다.
+
+4. 디렉토리 기반 자동 라우팅 : 페이지 하위 디렉토리를 기반으로 자동 라우팅된다.
+
+5. 이미지 최적화 : sqooush와 같은 이미지 최적화 모듈을 통해 자동으로 이미지를 최적화한다.
+
+<br>
+
+### # **`_app`과 `_document`**
+
+<br>
+
+- `_app`
+
+  (1) 가장 먼저 실행되는 컴포넌트입니다. (`_app` -> page component -> `_documnet(Server side)`)
+
+  (2) 모든 페이지는 이 컴포넌트를 통합니다. (각 Route 구성 요소를 래핑하는 역할)
+
+  (2) 페이지에 적용할 공통 레이아웃 역할을 합니다. (ex header, footer, layout component 등)
+
+  (3) 페이지 전환 시 전체 레이아웃을 유지할 수 있습니다.
+
+  (4) 페이지 전환 후 상태를 유지시킬 수 있습니다.
+
+  (5) 글로벌 CSS를 적용시킬 수 있습니다.
+
+  (6) 추가적인 데이터를 페이지로 주입시켜주는게 가능합니다.
+
+  (7) 각종 Provider 설정할 수 있습니다. (ex Redux, Apollo 등)
+
+  (8) props로 받는 Component는 페이지에 보여줄 컴포넌트이며, 페이지 전환 시 이 props의 값이 변경됩니다.
+
+  (9) props로 받는 pageProps는 데이터 패칭 메소드를 통해 가져온 초기 객체입니다.
+
+  (10) `_app` 내부에서는 getStaticProps 또는 getServerSideProps 메서드를 지원하지 않습니다.
+
+  (11) `_app` 내부에 getInitialProps가 있는 경우 자동 정적 최적화가 비활성화 됩니다. 자동 정적 최적화란 요구사항이 없는 경우 자동으로 페이지를 정적으로 생성하는 것을 말합니다.
+
+<br>
+
+- `_document`
+
+  (1) `_document`는 `_app` 다음에 실행되며, 공통적으로 활용할 head(ex meta태그)나 body 태그 안에 들어갈 내용들을 커스텀할 때 활용합니다.
+
+  (2) 폰트 import, CDN 등을 연결하여 사용할 수 있습니다.
+
+  (3) Document 클래스를 상속받는 클래스 컴포넌트로 작성해야한다는 규칙이 있습니다.
+
+  (4) 렌더 함수는 꼭 Html, Head, Main, NextScript를 포함해야 합니다.
+
+  (5) 페이지 별 공통적인 사항이 아닌 title같은 경우 app에서 처리합니다.
+
+  (6) 서버 사이드에서 동작하기 때문에 onClick과 같은 이벤트나, CSS 스타일 파일은 작동하지 않습니다. 테스트해보기 위해 useEffect hook을 사용하여 console에 문자열이 찍히는지 확인해보았는데 역시 `_document`는 찍히지 않고 `_app`은 찍힙니다.
+
+  (7) 커스텀이 필수는 아니며 커스텀하지 않을 경우 Next 모듈에 존재하는 document.js을 실행하게 됩니다.
+
+  (8) Head 컴포넌트 조작 시 import 위치를 주의해야 합니다. `_document` 내부에 사용하는 모든 페이지에 공통적으로 적용시킬 Head의 경우 next/document에서 가져온 Head를 사용해야 합니다. 또 title 태그와 같이 페이지별로 다른 Head 설정을 할 경우에는 next/head에서 가져온 Head를 사용해야 합니다.
+
+  (9) `_app`과 마찬가지로 `_document` 내부에서는 getStaticProps 또는 getServerSideProps 메서드를 지원하지 않습니다.
+
+  (10) `_document`는 페이지 별 오버라이딩이 가능합니다. 하지만 공통으로 사용하고 있는 `_document`가 있다면 페이지 별로 지정 된 `_document`로 대체되어 문제가 발생할 수 있습니다.
+
+<br>
+
+### # **CRS, SSR, SSG, ISR**
+
+<br>
+
+- CRS (Client Side Rendering)
+
+  - CRS이란?
+
+    클라이언트 사이드 렌더링이다. react.js는 기본적으로 클라이언트 사이드 렌더링을 사용한다.
+
+  - 동작 방식
+
+    빈 html을 먼저 받아온 후 js을 통해 컴포넌트를 렌더링한다. HTML이 하나이기 때문에 SPA 특징이라고 볼 수 있다. 유저와의 상호작용이 잦은 경우 적합하다.
+
+  - 장점
+
+    - 페이지 전환 : 페이지 전환에 필요한 js 번들을 초기에 다운로드 하므로 페이지 전환 시 매우 빠르다.
+
+    - TTV와 TTI 차이 : 하이드레이션(Hydration: 정적인 HTML에 js이벤트 및 상태를 연결하여 인터렉션이 가능하도록 하는 과정) 과정이 필요없으므로 바로 인터렉션이 가능하다.
+
+  - 단점
+
+    - 초기 로딩 속도 및 빈 화면 노출 : js를 통해 컴포넌트를 전환하여 view를 렌더링하므로 js 번들 크기가 크면 초기 로딩 속도가 느릴 수 있고 로딩하는 동안 사용자가 빈 화면을 보게 된다.
+
+    - SEO 불리 : 빈 HTML을 사용하므로 SEO에 불리하다. 하지만 이 부분은 검색엔진마다 다를 수 있다. 일부 검색엔진의 크롤러는 Javascript를 지원하지 않지만 구글 크롤러는 ES5+ Javasciprt를 지원한다. 그렇기 때문에 CRS는 SEO가 불가능한 것이 아닌 상대적으로 불리한 것이다.
+
+<br>
+
+- SSR (Server Side Rendering)
+
+  - SSR이란?
+
+    서버 사이드 렌더링이다. next.js는 기본적으로 서버 사이드 렌더링을 사용한다. 비교적 인터렉션이 적고 데이터가 요청마다 한 번만 처리되어도 충분한 경우에 적합하다.
+
+  - 동작 방식
+
+    전통적인 방식으로 서버에서 데이터가 포함된 정적인(non-interactive) HTML을 받아와 우선적으로 view를 보여준 뒤 js 번들 다운 후 하이드레이션하여 interaction이 가능하도록 한다. 다만 SSR은 고전적인 static wep site와 같은 MPA에서 사용하던 렌더링 방식은 맞지만 SSR로 렌더링 되는 페이지가 무조건 MPA는 아니다. 페이지 요청 시 매번 페이지를 다시 생성하여 데이터를 넘겨주는 렌더링 방식이 SSR이다.
+
+  - Next.js에서 SSR 동작 방식
+
+    서버 사이드 렌더링은 완성된 HTML을 클라이언트에 전송해주는 것이라고 알고 있다. 여기서 HTML을 완성해서 보내주는 서버는 프론트엔드 정적 페이지를 배포하는 웹서버가 아닌 Next.js 자체 Node.js 서버를 말한다. Next.js는 이와 같이 Node.js 기반의 서버에서 동작하며 React.js와 달리 서버 사이드 렌더링을 지원할 수 있다. 결론은 Next.js 애플리케이션을 실행하면 자체 Node.js 서버도 함께 구동되고 이 곳에서 서버 사이드 렌더링을 처리한다. 즉 서버 사이드 렌더링 페이지 요청 시 브라우저 환경이 아닌 곳에서 자바스크립트를 실행할 수 있게 해주는 Node.js 자체 서버에서 서버 사이드 렌더링을 수행하며 컴포넌트가 return하는 React.createElement를 호출하여 React DOM을 생성하고 runtime CSS in js의 경우 CSS를 심어주는 것이다. 그렇기 때문에 렌더링의 일부분, 즉 DOM트리와 CSSOM 트리를 생성하는 파싱과 스타일 단계를 서버에게 위임하여 서버 사이드 렌더링이라고 지칭하는 것이다.
+
+  - 장점
+
+    - 초기 로딩 속도 및 사용자 경험 향상 : HTML을 먼저 받아오기 때문에 초기 로딩 속도가 빠르고 js 번들을 다운로드하며 병렬적으로 view를 보여주기 때문에 사용자 경험이 향상된다.
+
+    - SEO 유리 : HTML이 완성되어 있으므로 SEO에 유리하다.
+
+  - 단점
+
+    - 화면 깜빡임 : 페이지 전환 시 모든 데이터를 새로 받아오기 때문에 화면 깜빡임이 발생한다.
+
+    - TTV와 TTI 차이 : 서버에서 받아온 HTML을 우선 보여준 뒤 js 번들을 다운로드 받은 후 하이드레이션하는데 js 번들이 큰 경우 사용자가 뷰를 최초로 보는 시간(TTV)과 익터렉션이 가능한 시간(TTI)과의 간격이 벌어질 수 있다.
+
+<br>
+
+- SSG (Static Site Generation)
+
+  - SSG란?
+
+    pre-rendering이란 말 그대로 사전 렌더링을 말한다. 빌드 타임에 페이지를 미리 생성한다. next.js는 모든 페이지를 pre-rendering 하여 초기 렌더링 속도를 향상시킬 수 있다. 만약 외부 데이터 패칭이 필요 없는 경우 next.js의 컴포넌트를 그대로 사용하면 자동 정적 최적화를 통해 페이지를 미리 생성하고 해당 html을 엣지 서버에 캐싱하여 매 요청마다 재사용하여 제공한다. 만약 외부 데이터 패칭이 필요한 경우 getStaticProps를 사용하여 외부 데이터를 패칭한 후 pre-render 할 수 있다. 여기서 getStaticProps와 getServerSideProps의 차이점은 getServerSideProps 은 매 요청 시 호출되지만 getStaticProps 는 빌드 타임에 딱 한번만 호출된다. SSG 방식은 업데이트가 적거나 고정된 데이터를 사용하는 페이지에 적합하다.
+
+  - 동작 방식
+
+    빌드 타임에 페이지를 생성하며 모든 요청에서 미리 생성된 HTML을 재사용한다. 반면 SSR은 매 요청마다 서버에 HTML을 요청하고 생성하며 재사용하지 않는다.
+
+  - 장점
+
+    - 초기 로딩 속도 : 모든 페이지를 사전에 생성 및 엣지 캐싱하여 사용하므로 초기 페이지 로딩 속도가 매우 빠르다. (SSR과 다르게 빌드 시 페이지를 생성하므로 초기 로딩 속도는 더 빠르다.)
+
+    - SEO 유리 : 검색 엔진은 정적인 HTML 파일을 쉽게 인덱싱할 수 있으므로 SEO가 용이하다.
+
+  - 단점
+
+    - 빌드 타임 : 생성되는 정적파일의 개수가 많은 경우 빌드 시간이 오래 걸릴 수 있다. 이런 경우 SSR을 사용하는 것이 유리할 수 있다.
+
+    - 최신 데이터 미반영 : 페이지의 데이터가 변경되어도 다시 빌드 및 배포하지 않는 이상 반영되지 않는다.
+
+<br>
+
+- ISR (Incremental Static Regeneration)
+
+  - ISR이란?
+
+    pre-rendering 방식 중 하나로 정적 페이지 생성을 위해 말한다. next.js에서 getStaticProps 의 revalidate 를 통해 구현할 수 있다. getStaticProps 와의 차이점은 revalidate 시간마다 호출되어 정적 페이지를 재생성하여 업데이트할 수 있다. SSG의 단점을 보완한 방식으로, revalidate가 필요한 SSG 페이지(자주 변경되지 않는 동적인 컨텐츠를 일부 포함하는 경우)에 적합하다.
+
+  - 동작 방식
+
+    빌드 타임에 페이지를 생성하며 지정된 시간마다 페이지를 업데이트한다.
+
+  - 장점
+
+    - 초기 로딩 속도 : 모든 페이지를 사전에 생성 및 엣지 캐싱하여 사용하므로 초기 페이지 로딩 속도가 매우 빠르다. (SSR과 다르게 빌드 시 페이지를 생성하므로 초기 로딩 속도는 더 빠르다.)
+
+    - 최신 데이터 반영 : 일정 시간마다 페이지를 업데이트하여 최신 정보를 제공할 수 있다. 단, 실시간으로 적용되는 최신 데이터는 아니다.
+
+  - 단점
+
+    - 적절한 빌드 주기 : 콘텐츠가 변경된 후에 사이트를 다시 방문하게 되어도 이전의 콘텐츠를 보게 되기 때문에, 새로운 콘텐츠를 적절한 시점에 확인하지 못할 수 있다. 즉 리빌딩되는 주기를 특정하기 어렵다.
+
+<br>
+
+### # **getStaticProps, getStaticPath, getInitialProps, getServerSideProps**
+
+<br>
+
+- getStaticProps
+
+  getStaticProps는 정적 사이트 생성(SSG, Static Site Generation) 및 점진적 정적 생성(ISR, Incremental Static Regeneration)을 위해 사용되는 메소드로 빌드 타임에 호출되며 pre-rendering 시 외부 데이터를 받아오기 위해 사용한다.
+
+  SSG와 ISR을 나누는 기준은 return 객체의 revalidate 옵션이며 revalidate 없다면 SSG로 동작하여 빌드 시 딱 한번만 호출된다는 특징이 있다. 단, 데이터 업데이트를 위해서는 재빌드 및 배포가 필요하다는 단점이 있다.
+
+  revalidate가 존재하면 ISR로 동작하며 revalidate의 value 값에 따라 특정 주기마다 Next.js의 백그라운드에서 정적 페이지를 재생성한다. 만약 재생성 실패 시 기존 정적 페이지를 제공한다.
+
+<br>
+
+- getStaticPath
+
+  getStaticPaths는 getStaticProps와 마찬가지로 pre-rendering을 위해 사용하는 메소드이다. getStaticProps와의 차이점은 `pages/**/[id].tsx`과 같이 동적 라우팅 페이지 중 빌드 시 정적으로 생성할 페이지를 path 속성을 통해 결정할 수 있다. 또한 fallback 속성을 활용하여 프리 렌더하지 않은 동적 라우팅 페이지에 대해 후속 처리를 할 수 있다. 프리 렌더하지 않은 동적 라우팅 페이지에 접근 시 false인 경우 404페이지를 반환하고 true인 경우 fallback에 할당 된 엘리먼트를 먼저 보여주고 getStaticProps로 프리렌더하여 결과물이 생성되면 교체한 뒤 getStaticPaths에 path로 추가한다. blocking인 경우 SSR과 같이 동작하고 결과물이 생성되면 띄워준 뒤 getStaticPaths에 path로 추가한다.
+
+  ```jsx
+  const component = (props) => {
+    ...
+  };
+
+  export default component;
+
+  export const getStaticPath = async () => {
+    ... // API 호출 혹은 파일 시스템 접근 등의 코드 작성
+
+    return {
+      paths: [
+        { params: {} } // 빌드 시 생성할 동적 페이지의 params
+      ]
+      fallback: true | false | 'blocking' // 필수 값
+    };
+  };
+  ```
+
+<br>
+
+- getServerSideProps vs getInitialProps
+
+  getServerSideProps와 getInitialProps의 공통점은 서버 사이드 렌더링 시 사용, 요청이 들어올 때 마다 매번 호출, 중첩 컴포넌트 트리 중 최상위 컴포넌트에서 실행, 자동 정적 최적화가 지원되지 않아 프리렌더 하지 않는다는 것이며 차이점은 getInitialProps는 라우팅 방식에 따라 호출 사이드가 달라지고 getServerSideProps는 항상 서버 사이드에서 동작한다. getInitialProps는 클라이언트 사이드 라우팅 시 클라이언트 사이드에서 동작하고 서버 사이드 라우팅 시 서버 사이드에서 동작한다.
+
+<br>
+
+### # **PWA(Progressive Web Apps)**
+
+- PWA란?
+
+  PWA(Progressive Web Apps)란 모바일 기기에서 네이티브 앱과 같은 사용자 경험을 제공하는 웹 앱이다. 즉 어떤 기술이나 앱을 뜻하는 것이 아닌, 비슷한 개념으로 반응형 웹 앱을 예로 들 수 있는데 이와 같이 사용자 경험을 기준으로 나타낼 수 있는 개념이다. PWA를 사용하면 사용자가 앱을 다운로드하고 업데이트 할 필요 없이 웹 브라우저를 통해 앱을 바로 사용할 수 있다.
+
+- PWA 장단점
+
+  - 장점
+
+    - 훨씬 빠른 페이지 로딩 속도
+
+      Service Worker 의 Cache API를 사용하여 데이터를 캐싱시킬 수 있다.
+
+    - 오프라인 지원 (네트워크에 독립적)
+
+      Service Worker 에 캐싱된 데이터를 가져오게 되면 네트워크가 오프라인 상태라도 서비스를 사용할 수 있게 된다. 단, 우선 Service Worker에 캐싱을 해야되기 때문에 1, 2번은 페이지를 한 번이라도 방문 해야 한다.
+
+    - 검색 가능
+
+      웹 앱의 특성 그대로 검색이 가능하다.
+
+    - 설치 가능 (홈 화면에 추가)
+
+      PWA 는 모바일 브라우저를 사용하는 디바이스의 홈 화면에 추가 즉, 설치와 같이 등록 할 수 있다.
+
+    - 공유 가능 (링크를 통한)
+
+      웹 앱 이기 때문에 URL을 통한 공유도 가능하다.
+
+    - 푸시알림을 통한 지속적 참여 유도
+
+      최신 브라우저에서 Web API인 Push API 를 사용하여 서버로부터 알림을 push event로 받고, Notification API 을 이용해 브라우저에 시스템 알림을 보여 줄 수 있다.
+
+    - 반응형 웹 화면
+
+      PWA 의 가장 기본은 반응형 웹 앱 이기 때문에 웹 브라우저를 사용하는 다양한 디바이스의 화면에 모두 대응할 수 있다.
+
+    - 안전
+
+      PWA 을 구현하기 위한 기술은 HTTPS 에서만 사용이 가능하고 브라우저의 보안정책인 CORS 등을 따르기 때문에 보안적인 이점도 있다.
+
+    - 점진적, 구축이 쉬움
+
+      기존에 구축된 웹 앱에 Service Worker와 Manifest.json 파일을 만들어 PWA로 구축하는 것은 매우 쉽고 또, 점진적으로 PWA에 요구되는 기능들을 하나씩 점진적으로 추가해 갈 수 있다.
+
+  - 단점
+
+    - PWA에 대한 인지도 부족, 앱 설치의 애매함
+
+      사용자들에게 PWA는 익숙하지 않기 때문에 접근성이 낮을 수 있다. 스토어를 통해 설치된 앱은 그나마 안전하다는 인식을 가지고 있지만 PWA와 같이 홈 화면 추가 기능을 통한 앱 설치는 아니다.
+
+    - Non-native UI
+
+      네이티브 앱에서 느낄 수 있는 각 운영체제 고유의 UI와 사용자 경험을 제공할 수 없다.
+
+    - Apple의 소극적인 지원
+
+      Apple은 아이폰 11.3 버전(2018년)이 되어서야 PWA를 지원했다. PWA의 핵심 중 하나인 푸시 알림 기능의 경우 안드로이드에서는 오래전부터 가능했지만 iOS에서는 아직도 불가능한 상황이다. 하지만 Apple은 WWDC22(2022 연례 세계 개발자 콘퍼런스)에서 2023년에는 웹 푸시와 관련한 모든 API를 지원할 것이라고 알렸다.
+
+    - 게임과 같은 고사양 앱 개발 불가능
+
+      현재 웹 기술이 계속해서 발전하고 있지만 운영체제의 자원을 직접적으로 사용할 수 있는 네이티브 앱의 퍼포먼스는 따라잡을 수 없다. 높은 연산을 요구하는 작업, 그래픽 사용이 필수인 게임 앱 개발에는 한계가 있다.
+
+<br>
+
+### # **Next.js의 환경 변수**
+
+<br>
+
+- .env
+
+  가장 우선순위가 낮다. 모든 환경에서 공통으로 사용할 디폴트 키를 관리한다.
+
+- .env.development
+
+  개발 환경(process.env.NODE_ENV === 'development') 에서 적용된다. 개발환경일 경우, .env에 같은 환경변수가 있다면 덮어쓴다.
+
+- .env.production
+
+  배포/빌드 환경(process.env.NODE_ENV === 'production') 에서 적용된다. 배포환경일 경우, .env에 같은 환경변수가 있다면 덮어쓴다.
+
+- .env.local
+
+  모든 환경 변수보다 우선순위가 높다. 다른 환경 변수 파일에 동일한 환경 변수가 있다면 해당 값들을 덮어쓴다.
+
+- .env.test
+
+  테스트 환경(process.env.NODE_ENV === 'test') 에서 적용된다.
+
+<br>
+
+### # **컴포넌트 내부의 실행 순서**
+
+<br>
+
+app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부에는 로직단에 console.log, useEffect, useLayoutEffect, 렌더단에 console.log 즉시실행함수가 있다.
+
+1. 처음으로 최상위 컴포넌트 app의 로직단인 console.log 1과 console.2 가 실행된다.
+2. app의 로직단 실행 후 렌더단의 return 함수가 실행된다. 왜냐하면 화면을 렌더링 하기 위해 자식 컴포넌트가 필요하기 때문이다.
+3. app의 자식 컴포넌트인 outer 컴포넌트의 로직단인 console.log 1과 console.2 가 실행된다.
+4. outer의 로직단 실행 후 렌더단의 return 함수가 실행된다. 이유는 위와 동일하다.
+5. outer의 자식 컴포넌트인 inner 컴포넌트의 로직단인 console.log 1과 console.2 가 실행된다.
+6. inner의 로직단 실행 후 렌더단의 return 함수가 실행된다. 이유는 위와 동일하다.
+7. inner의 렌더단을 실행하여 컴포넌트의 상태를 가상 돔의 적용시키는 렌더 단계, 실제 돔의 적용시키는 커밋 단계가 완료된 후 브라우저가 실제 돔을 그리는 페인트 단계 전 useLayoutEffect가 실행된다.
+8. outer는 자식 컴포넌트 inner의 렌더링이 완료되었기 때문에 렌더 단계, 커밋 단계를 완료한 후 브라우저의 페인트 단계 전 useLayoutEffect가 실행된다.
+9. app은 자식 컴포넌트 outer의 렌더링이 완료되었기 때문에 렌더 단계, 커밋 단계를 완료한 후 브라우저의 페인트 단계 전 useLayoutEffect가 실행된다.
+10. 모든 useLayoutEffect가 실행된 후 페인트 단계가 이루어지고 페인트 단계가 끝난 후 자식 컴포넌트부터 순차적으로 useEffect가 실행된다.
+
+위 내용을 정리해보면 아래와 같다.
+
+1. 실행 순서는 정순으로 부모 컴포넌트부터 자식 컴포넌트의 순으로 실행되는 것을 알 수 있다. (위에 결과에서 console.log와 return은 app → outer → inner 순으로 실행된다.)
+2. 가상 DOM과 실제 DOM을 활용하여 DOM의 변경 사항을 적용시키는 렌더, 조정, 커밋 단계는 역순으로 자식 컴포넌트부터 부모 컴포넌트 순으로 이루어지는 것을 알 수 있다. 이유는 부모 컴포넌트의 페이지가 그려지기 위해서는 자식 컴포넌트가 필요하기 때문인 것 같다. (위에 결과에서 렌더, 조정, 커밋 단계 후 브라우저의 페인트 단계 전 실행되는 useLayoutEffect가 inner → outer → app 순으로 실행되었다.)
+3. 브라우저가 컴포넌트의 변경 사항이 적용된 DOM을 실제로 페이지에 그리는 페인트 단계 또한 역순으로 자식 컴포넌트부터 이루어지는 것을 알 수 있다. 이유는 위와 같이 부모 컴포넌트의 페이지가 그려지기 위해서는 자식 컴포넌트가 필요하기 때문인 것 같다. (위에 결과에서 브라우저의 페인트 단계 후 실행되는 useEffect가 inner → outer → app 순으로 실행되었다.)
+
+또한 추가로 컴포넌트가 app -> outer -> inner의 관계가 아닌 app -> outer -> outer의 children 과 같이 children props를 활용한 관계에서도 위와 동일한 순서로 코드가 실행된다.
+
+<br>
+
+### # Nextjs 13 변경점
+
+- data fetching
+
+  - getStaticProps : fetch(URL, { cache: 'force-cache' });
+
+  - getServerSideProps : fetch(URL, { cache: 'no-store' });
+
+  - getStaticProps + revalidate : fetch(URL, { next: { revalidate: 10 } });
+
+### # NextJs - 코딩앙마 강좌 2022.08.14
 
 - create-next-app 으로 설치하면?
 
@@ -122,6 +470,10 @@ export default function handler(req, res) {
 ```
 
 <br>
+<br>
+<br>
+
+## # Next.js(13버전 이후)
 
 ### # 클라이언트 컴포넌트와 서버 컴포넌트
 
@@ -324,26 +676,28 @@ export default function handler(req, res) {
 
 ### # Layout 파일
 
-layout.tsx는 특정 경로(/app/\*\*)에 공통적으로 적용될 레이아웃 UI를 정의하는 파일이다.
+- 정의
 
-```jsx
-// app/layout.tsx
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode,
-}) {
-  return (
-    <html lang="en">
-      <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
-}
-```
+  layout.tsx는 특정 경로(/app/\*\*)에 공통적으로 적용될 레이아웃 UI를 정의하는 파일이다.
+
+  ```jsx
+  // app/layout.tsx
+  export default function RootLayout({
+    children,
+  }: {
+    children: React.ReactNode,
+  }) {
+    return (
+      <html lang="en">
+        <body>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </body>
+      </html>
+    );
+  }
+  ```
 
 - /app 디렉토리 내에는 반드시 하나의 layout.tsx가 있어야 함 (최상위 루트)
 
@@ -408,5 +762,106 @@ export default function RootLayout({
   <title>홈페이지 - MyApp</title>
   <meta name="description" content="이곳은 MyApp의 홈페이지입니다." />
   ```
+
+<br>
+
+### # 데이터 패칭
+
+nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (브라우저 API인 fetch와 다르다)
+
+- 서버 컴포넌트에서의 fetch 사용
+
+  ```js
+  // app/page.tsx
+  export default async function Page() {
+    const res = await fetch("https://api.example.com/data");
+    const data = await res.json();
+
+    return (
+      <ul>
+        {data.map((item) => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    );
+  }
+  ```
+
+- fetch()의 캐싱 및 재검증 옵션
+
+  Next.js는 fetch() 함수에 cache 및 next 옵션을 제공하여 캐싱 전략을 제어할 수 있다.​
+
+  - `cache: 'force-cache'`: 기본값으로, 빌드 시 데이터를 캐싱하여 정적 페이지를 생성합니다. (기존 getStaticProps와 유사)
+
+    ```jsx
+    // app/page.tsx
+    export default async function Page() {
+      const res = await fetch("https://api.example.com/products", {
+        cache: "force-cache", // 👈 기본값이지만 명시적으로 설정
+      });
+
+      const products = await res.json();
+
+      return (
+        <ul>
+          {products.map((p: any) => (
+            <li key={p.id}>{p.name}</li>
+          ))}
+        </ul>
+      );
+    }
+    ```
+
+  - `cache: 'no-store'`: 매 요청마다 데이터를 새로 가져와 SSR을 구현합니다. (기존 getServerSideProps와 유사)
+
+    ```jsx
+    // app/page.tsx
+    export default async function Page() {
+      const res = await fetch("https://api.example.com/products", {
+        cache: "no-store", // 👈 SSR처럼 매번 새 요청
+      });
+
+      const products = await res.json();
+
+      return (
+        <ul>
+          {products.map((p: any) => (
+            <li key={p.id}>{p.name}</li>
+          ))}
+        </ul>
+      );
+    }
+    ```
+
+  - `next: { revalidate: N(시간) }`: ISR(Incremental Static Regeneration)을 구현하여 N초마다 데이터를 재검증합니다.​ (기존 getStaticProps + revalidate와 유사)
+
+    ```jsx
+    // app/blog/[id]/page.tsx
+    import { notFound } from "next/navigation";
+
+    async function getPost(id: string) {
+      const res = await fetch(`https://api.example.com/posts/${id}`, {
+        next: { revalidate: 60 }, // 60초마다 재검증
+      });
+      if (!res.ok) return notFound();
+      return res.json();
+    }
+
+    export default async function Page({ params }: { params: { id: string } }) {
+      const post = await getPost(params.id);
+      return (
+        <article>
+          <h1>{post.title}</h1>
+          <p>{post.content}</p>
+        </article>
+      );
+    }
+    ```
+
+- Request Memoization
+
+  - Request Memoization은 같은 URL과 동일한 fetch 옵션을 가진 여러 fetch() 호출이 있을 때, 중복된 네트워크 요청을 하나로 합쳐서 실행하는 기능입니다.
+
+  - 즉, 한 페이지 내 여러 컴포넌트가 같은 API를 호출해도, 실제로는 한 번만 네트워크 요청이 발생하고, 그 결과를 공유합니다.
 
 <br>
