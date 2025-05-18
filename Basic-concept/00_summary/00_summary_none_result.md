@@ -258,10 +258,6 @@
 
 <br>
 
-### # 브라우저 스펙 차이에 따른 스타일링 이슈 처리
-
-<br>
-
 ### # CSS(Cascading Style Sheets)에서 Cascading에 의미
 
 <br>
