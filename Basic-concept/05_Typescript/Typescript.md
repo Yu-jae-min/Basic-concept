@@ -8,17 +8,17 @@
 
 - 타입스크립트란?
 
-  타입스크립트는 자바스크립트의 슈퍼셋이다. 자바스크립트 기본 문법에 타입스크립트의 문법을 추가한 언어이다.
+  타입스크립트는 자바스크립트의 슈퍼셋이다. 자바스크립트 기본 문법에 타입스크립트의 문법을 추가한 언어이다. 자바스크립트는 동적 언어로 런타임에 타입을 결정하는데 이와 같은 문제를 보완하고자 컴파일 타임에 타입을 결정하는 타입스크립트를 사용할 수 있다.
 
 <br>
 
 - 타입스크립트의 사용 이유
 
-  (1) 안정성 향상과 자동완성 등 개발 편리성 향상 : 타입스크립트는 코드에 목적을 명시하고 목적에 맞지 않는 타입의 변수나 함수들에서 에러를 발생시켜 버그를 사전에 제거한다. 또한 코드 자동완성이나 실행 전 피드백을 제공하여 작업과 동시에 디버깅이 가능해 생산성을 높일 수 있다.
+  (1) 안정성 향상 : 타입스크립트는 코드에 목적을 명시하고 목적에 맞지 않는 타입의 변수나 함수들에서 에러를 발생시켜 버그를 사전에 제거하여 안정성이 향상된다.
 
-  (2) 더 나은 개발자 경험 : 객체의 필드나 함수의 매개변수로 들어오는 값이 무엇인지 파악이 용이하고 변수의 이름뿐만 아니라 그 데이터의 타입까지 알 수 있게 해주기 때문에 코드 작성을 좀 더 쉽고 직관적이게 만들어준다.
+  (2) 더 나은 개발자 경험 제공 : 객체의 필드나 함수의 매개변수로 들어오는 값이 무엇인지 파악이 용이하고 변수의 이름뿐만 아니라 그 데이터의 타입까지 알 수 있게 해주기 때문에 코드 작성을 좀 더 쉽고 직관적이게 만들어준다.
 
-  (3) 메모리 절약 : 타입의 유무로 메모리 사용량이 달라지기때문에 메모리를 절약할 수 있다.
+  (3) 메모리 절약 : 타입의 유무로 메모리 사용량이 달라지기 때문에 메모리를 절약할 수 있다.
 
   (4) 크로스브라우징 문제 해결 : 타입스크립트는 컴파일 과정에서 ES6+ 문법들을 ES5(또는 ES3)로 바꿔주기 때문에 Babel의 도움 없이 구브라우저에도 대응 가능하다.
 
@@ -26,75 +26,73 @@
 
 ### # 타입스크립트 기본 타입
 
-<br>
+1. String : 문자열
 
-(1) String : 문자열
+   ```ts
+   let str: string = "hi";
+   ```
 
-```ts
-let str: string = "hi";
-```
+2. Number : 숫자
 
-(2) Number : 숫자
+   ```ts
+   let num: number = 10;
+   ```
 
-```ts
-let num: number = 10;
-```
+3. Boolean : 진위 값
 
-(3) Boolean : 진위 값
+   ```ts
+   let isLoggedIn: boolean = false;
+   ```
 
-```ts
-let isLoggedIn: boolean = false;
-```
+4. Array : 배열
 
-(4) Array : 배열
+   ```ts
+   let arr: number[] = [1, 2, 3];
+   let arr: Array<number> = [1, 2, 3]; // 제네릭 사용
+   ```
 
-```ts
-let arr: number[] = [1, 2, 3];
-let arr: Array<number> = [1, 2, 3]; // 제네릭 사용
-```
+5. Tuple : 고정 된 길이와 각 요소의 타입이 지정되어 있는 배열, 만약 정의하지 않은 타입, 인덱스로 접근할 경우 오류 발생
 
-(5) Tuple : 고정 된 길이와 각 요소의 타입이 지정되어 있는 배열, 만약 정의하지 않은 타입, 인덱스로 접근할 경우 오류 발생
+   ```ts
+   let arr: [string, number] = ["hi", 10];
+   arr[1].concat("!"); // 에러
+   arr[5] = "hello"; // 에러
+   ```
 
-```ts
-let arr: [string, number] = ["hi", 10];
-arr[1].concat("!"); // 에러
-arr[5] = "hello"; // 에러
-```
+6. Enum : 특정 값(상수)들의 집합, 인덱스 번호로도 접근할 수 있고 다른 문자열로 지정할 수도 있다. 일반 객체와 차이점은 수정이 불가하다.
 
-(6) Enum : 특정 값(상수)들의 집합, 인덱스 번호로도 접근할 수 있고 인덱스를 변경할 수도 있다.
+   ```ts
+   enum Avengers {
+     Capt = 2,
+     IronMan,
+     Thor,
+   }
+   let hero: Avengers = Avengers[2]; // Capt
+   let hero: Avengers = Avengers[4]; // Thor, IronMan과 Thor에 자동으로 인덱스 번호가 부여된다.
+   ```
 
-```ts
-enum Avengers {
-  Capt = 2,
-  IronMan,
-  Thor,
-}
-let hero: Avengers = Avengers[2]; // Capt
-let hero: Avengers = Avengers[4]; // Thor, IronMan과 Thor에 자동으로 인덱스 번호가 부여된다.
-```
+7. Any : 모든 타입에 대해서 허용
 
-(7) Any : 모든 타입에 대해서 허용
+   ```ts
+   let str: any = "hi";
+   let num: any = 10;
+   let arr: any = ["a", 2, true];
+   ```
 
-```ts
-let str: any = "hi";
-let num: any = 10;
-let arr: any = ["a", 2, true];
-```
+8. Void : 변수에 사용 시 undefined와 null만 할당을 허용하고, 함수에 사용 시 반환 값이 없다는 것을 의미하는 타입
 
-(8) Void : 변수에 사용 시 undefined와 null만 할당을 허용하고, 함수에 사용 시 반환 값이 없다는 것을 의미하는 타입
+   ```ts
+   let unuseful: void = undefined;
+   function notuse(): void {
+     console.log("sth");
+   }
+   ```
 
-```ts
-let unuseful: void = undefined;
-function notuse(): void {
-  console.log("sth");
-}
-```
+9. Null
 
-(9) Null
+10. Undefined
 
-(10) Undefined
-
-(11) Never : 함수의 끝에 절대 도달하지 않는다는 의미를 지닌 타입
+11. Never : 함수의 끝에 절대 도달하지 않는다는 의미를 지닌 타입, 예시로 무한 루프를 발생시키는 함수나 항상 에러를 반환하는 함수의 출력 값으로 지정할 수 있다. void와의 차이점은 void는 null 혹은 undefined 값의 반환을 허용한다는 것이고 never는 never 이외에는 허용하지 않는다.
 
 ```ts
 // 항상 오류 발생
@@ -114,8 +112,6 @@ function infiniteAnimate(): never {
 
 ### # 함수 타입
 
-<br>
-
 - 타입스크립트에서는 함수의 인자를 모두 필수 값으로 간주한다. 따라서, 함수의 매개변수를 설정하면 undefined나 null이라도 인자로 넘겨야하며 컴파일러에서 정의된 매개변수 값이 넘어 왔는지 확인한다. 달리 말하면 정의된 매개변수 값만 받을 수 있고 추가로 인자를 받을 수 없다는 의미이다.
 
   ```ts
@@ -131,9 +127,39 @@ function infiniteAnimate(): never {
 
 ### # 인터페이스 타입
 
-<br>
+- 여러 타입을 합쳐서 사용하는 타입, AND 연산자와 같이 모든 타입을 만족해야한다.
 
-- 여러타입을 합쳐서 사용하는 타입, AND연산자와 같이 인터페이스 타입을 활용하는 경우 모든 타입을 만족해야한다. 하지만 옵션 속성(?)을 이용하여 해결할 수 있다. 또한 확장도 가능하다.
+- 옵셔널(?) 속성을 활용하여 특정 타입을 옵셔널하게 사용할 수 있다.
+
+- extends 키워드를 사용해 기존 인터페이스를 확장(상속) 하여 새로운 인터페이스를 만들 수 있다.
+
+- 인터페이스끼리 합칠 때는 & (교차 타입, Intersection Type)를 사용하여 여러 타입을 동시에 만족하도록 할 수 있다.
+
+- 선언 병합이 가능하다.
+
+  ```ts
+  interface Person {
+    name: string;
+    age: number;
+  }
+
+  interface Employee {
+    employeeId: string;
+    department?: string; // 옵셔널 속성
+  }
+
+  // Person과 Employee 타입을 모두 만족하는 타입 만들기 (교차 타입)
+  type Staff = Person & Employee;
+
+  const staffMember: Staff = {
+    name: "Alice",
+    age: 30,
+    employeeId: "E123",
+    // department는 선택적이라 안 적어도 됨
+  };
+  ```
+
+- 기타 예시
 
   ```ts
   // 예제1: 기본 사용
@@ -197,13 +223,26 @@ function infiniteAnimate(): never {
   fe.name = "josh";
   fe.skill = "TypeScript";
   fe.drink = "Beer";
+
+  // 예제7: 선언 병합
+  interface Person {
+    name: string;
+  }
+
+  // 같은 이름의 인터페이스가 또 선언됐지만, 타입스크립트가 두 선언을 합쳐서 처리
+  interface Person {
+    age: number;
+  }
+
+  const p: Person = {
+    name: "Lee",
+    age: 30, // age 프로퍼티가 정상적으로 인식됨
+  };
   ```
 
 <br>
 
 ### # 클래스에서의 타입스크립트 활용
-
-<br>
 
 - readonly : 클래스의 속성에 readonly 키워드를 사용하면 아래와 같이 접근만 가능합니다.
 
@@ -217,8 +256,6 @@ function infiniteAnimate(): never {
   let john = new Developer("John");
   john.name = "John"; // error! name is readonly.
   ```
-
-<br>
 
 - Accessor : 타입스크립트는 객체의 특정 속성의 접근과 할당에 대해 제어할 수 있다.
 
@@ -243,8 +280,6 @@ function infiniteAnimate(): never {
   josh.name = "Josh Bolton"; // Error
   josh.name = "Josh";
   ```
-
-<br>
 
 - Abstract Class : 추상 클래스(Abstract Class)는 인터페이스와 비슷한 역할을 하면서도 조금 다른 특징을 갖고 있다. 추상 클래스는 특정 클래스의 상속 대상이 되는 클래스이며 좀 더 상위 레벨에서 속성, 메서드의 모양을 정의한다.
 
@@ -276,11 +311,9 @@ function infiniteAnimate(): never {
 
 ### # 제네릭(Generic) 타입
 
-<br>
-
 - 제네릭이란?
 
-  제네릭(Generic) 재사용을 목적으로 함수나 클래스의 선언 시점이 아닌, 사용 시점에 타입을 선언할 수 있는 방법을 제공한다. 타입을 인수로 받아서 사용하는 개념이다.
+  함수, 클래스, 인터페이스 등에서 타입을 고정하지 않고 사용하는 시점에 타입을 외부로부터 주입받아 사용하는 문법이다.
 
   ```ts
   function getText<T>(text: T): T {
@@ -292,50 +325,52 @@ function infiniteAnimate(): never {
   getText<boolean>(true);
   ```
 
-<br>
+- 제네릭 타입의 제한 (제네릭 타입 프로퍼티 접근 시 문제점)
 
-- 제네릭 프로퍼티 체크
-
-  제네릭 타입 사용 시 관련 메소드를 사용하려고 하면 컴파일러에서 에러를 발생시킬 수 있다. 왜냐하면 제네릭 타입의 경우 프로퍼티를 체크하는데 타입의 범위가 넓을 경우 관련 메소드가 있다는 단서를 찾을 수가 없기 때문이다. (아래와 같이 text에 .length가 있다는 단서는 어디에도 없다) 그렇기 때문에 타입가드나 명시적인 타입을 추가로 작성하여 타입 범위를 좁혀 사용해야한다.
+  제네릭 타입은 구체적인 타입이 정해지지 않았기 때문에, 타입에 따라 존재하지 않을 수도 있는 프로퍼티나 메서드에 접근하려고 하면 컴파일 에러가 발생한다. 그렇기 때문에 타입 가드 혹은 제네릭 타입에 제약(extends)를 걸어 타입 범위를 좁혀야한다.
 
   ```ts
-  // 에러 발생 : 명시적인 타입 미선언
+  // ❌ 에러: T 타입이 어떤 타입인지 알 수 없기 때문에 .length 사용 불가
   function logText<T>(text: T): T {
-    console.log(text.length); // Error: T doesn't have .length
+    console.log(text.length); // Error
     return text;
   }
 
-  // 에러 미발생 : 명시적인 타입 선언
+  // ✅ 제네릭 타입에 배열 제약을 걸면 length 사용 가능
   function logText<T>(text: T[]): T[] {
-    console.log(text.length); // 제네릭 타입이 배열이기 때문에 `length`를 허용합니다.
+    console.log(text.length);
+    return text;
+  }
+
+  // ✅ 제네릭에 string을 확장한 제약을 걸면 .length 사용 가능
+  function logText<T extends { length: number }>(text: T): T {
+    console.log(text.length);
     return text;
   }
   ```
-
-<br>
 
 - 제네릭 인터페이스
 
   ```ts
-  // 변형 전
-  function logText<T>(text: T): T {
-    return text;
-  }
-
-  let str: <T>(text: T) => T = logText; // #1
-  let str: { <T>(text: T): T } = logText; // #2
-
-  // 변형 후
+  // 함수 자체에 제네릭 정의
   interface GenericLogTextFn {
     <T>(text: T): T;
   }
+
   function logText<T>(text: T): T {
     return text;
   }
-  let myString: GenericLogTextFn = logText; // Okay
+
+  let myString: GenericLogTextFn = logText; // OK
   ```
 
-<br>
+  ```ts
+  interface GenericLogTextFn<T> {
+    (text: T): T;
+  }
+
+  const logText: GenericLogTextFn<string> = (text) => text;
+  ```
 
 - 제네릭 클래스
 
@@ -343,156 +378,299 @@ function infiniteAnimate(): never {
   class GenericMath<T> {
     pi: T;
     sum: (x: T, y: T) => T;
+
+    constructor(pi: T, sum: (x: T, y: T) => T) {
+      this.pi = pi;
+      this.sum = sum;
+    }
   }
 
-  let math = new GenericMath<number>();
+  const math = new GenericMath<number>(3.14, (a, b) => a + b);
   ```
 
 <br>
 
 ### # 타입 추론
 
-<br>
-
 - 타입 추론이란?
 
-  정적 타입 언의 단점은 타입을 정의하는데 많은 시간과 노력이 들기 때문에 생산성이 저하될 수 있다는 점이다. 하지만 타입스크립트의 경우 다양한 경우에 대해 타입 추론을 제공하기 때문에 꼭 필요한 경우에만 타입 정의를 할 수 있다. 여기서 말하는 타입 추론이란, 타입을 프로그래머가 따로 정의하지 않아도 자동으로 타입을 추론해주는 기능을 말한다. 타입 추론 덕분에 코드를 덜 작성하면서도 같은 수준의 타입 안정성을 유지할 수 있다는 점이 타입스크립트의 장점이다.
-
-<br>
+  타입 추론이란 타입을 따로 정의하지 않아도 자동으로 타입을 추론해주는 기능을 말한다. 정적 타입 언어의 단점은 타입을 정의하는데 많은 시간과 노력이 들기 때문에 생산성이 저하될 수 있다는 점이다.
+  하지만 타입스크립트의 경우 타입 추론을 제공하기 때문에 필요한 경우에만 타입 정의를 할 수 있어 코드를 덜 작성하면서도 같은 수준의 타입 안정성을 유지할 수 있다. (but 명시적인 타입 선언이 안전하다)
+  타입 추론은 몇 개의 표현식을 참고하여 최적의 공통 타입(베스트 커먼 타입 알고리즘)을 추론하거나 코드가 작성되는 흐름을 기반으로 타입(문맥상의 타이핑)을 추론한다.
 
 - 타입스크립트의 타입 추론 방법
 
-  (1) 최적의 공통 타입(Best Common Type) : 타입은 보통 몇 개의 표현식(코드)을 바탕으로 타입을 추론한다. 그리고 그 표현식을 이용하여 가장 근접한 타입을 추론하게 되는데 이 가장 근접한 타입을 Best Common Type(최적의 공통 타입)이라고 한다. Best Common Type 알고리즘으로 다른 타입들과 가장 잘 호환되는 타입을 선정한다.
+  1. 최적의 공통 타입(Best Common Type)
 
-  ```ts
-  let x = [0, 1, null]; // let x: (number | null)[]
-  ```
+     여러 표현식이 동시에 존재하는 경우, 모든 표현식에 공통으로 적용 가능한 가장 일반적인 타입을 찾아서 추론한다.
 
-  (2) 문맥상의 타이핑(Contextual Typing) : 문맥상의 타이핑(타입 결정)은 코드의 위치(문맥)를 기준으로 일어난다.
+     ```ts
+     let x = [0, 1, null]; // let x: (number | null)[]
+     ```
 
-  ```ts
-  // 예제1 : Window.onmousedown 함수의 타입을 사용하여 오른쪽에 할당된 함수 표현식의 타입을 추론하고 mouseEvent의 프로퍼티가 아닌 kangaroo는 에러가 발생한다.
-  window.onmousedown = function (mouseEvent) {
-    console.log(mouseEvent.button); //<- OK
-    console.log(mouseEvent.kangaroo); //<- Error!
-  };
+  2. 문맥상의 타이핑(Contextual Typing)
 
-  // 예제2 : 변수에 할당되므로 함수가 명시적으로 any타입으로 추론되기 때문에 오류가 발생하지 않는다.
-  const handler = function (uiEvent) {
-    console.log(uiEvent.button); //<- OK
-  };
-  ```
+     문맥상의 타이핑(타입 결정)은 코드의 위치(문맥)를 기준으로 일어난다.
+
+     ```ts
+     // 예제1 : Window.onmousedown 함수의 타입을 사용하여 오른쪽에 할당된 함수 표현식의 타입을 추론하고 mouseEvent의 프로퍼티가 아닌 kangaroo는 에러가 발생한다.
+     window.onmousedown = function (mouseEvent) {
+       console.log(mouseEvent.button); //<- OK
+       console.log(mouseEvent.kangaroo); //<- Error!
+     };
+
+     // 예제2 : 변수에 할당되므로 함수가 명시적으로 any타입으로 추론되기 때문에 오류가 발생하지 않는다.
+     const handler = function (uiEvent) {
+       console.log(uiEvent.button); //<- OK
+     };
+     ```
 
 <br>
 
 ### # 타입 가드
 
-<br>
+- 타입 가드란?
 
-- 타입 가드는 컴파일러가 타입을 예측할 수 있도록 코드를 작성해서 버그가 발생하지 않도록 예방하는 방법이다.
+  타입 가드는 타입의 범위가 넓을 때 컴파일러가 타입을 추론할 수 있도록 타입의 범위를 축소시키는 것을 말한다.
 
-  ```ts
-  // 방법1: as(타입 단언)을 활용
-  function someFunc(val: string | number, isNumber: boolean) {
-    if (isNumber) {
-      (val as number).toFixed(2);
-      isNaN(val as number);
-    } else {
-      (val as string).split("");
-      (val as string).toUpperCase();
-      (val as string).length;
+- 타입 가드 방법
+
+  - 1. typeof 활용
+
+    ```ts
+    function printValue(value: string | number) {
+      if (typeof value === "string") {
+        console.log(value.toUpperCase()); // value는 string으로 좁혀짐
+      } else {
+        console.log(value.toFixed(2)); // value는 number로 좁혀짐
+      }
     }
-  }
+    ```
 
-  // 방법2: typeof 활용
-  function someFuncTypeof(val: string | number) {
-    if (typeof val === "number") {
-      val.toFixed(2);
-      isNaN(val);
-    } else {
-      val.split("");
-      val.toUpperCase();
-      val.length;
+  - 2. instanceof 활용
+
+    ```ts
+    class Dog {
+      bark() {
+        console.log("멍멍!");
+      }
     }
-  }
 
-  // 방법3: in연산자 활용
-  function someFuncIn(val: any) {
-    if ("toFixed" in val) {
-      val.toFixed(2);
-      isNaN(val);
-    } else if ("split" in val) {
-      val.split("");
-      val.toUpperCase();
-      val.length;
+    class Cat {
+      meow() {
+        console.log("야옹!");
+      }
     }
-  }
 
-  // 방법4: instanceof연산자 활용
-  class Cat {
-    meow() {}
-  }
-  class Dog {
-    woof() {}
-  }
-  function sounds(ani: Cat | Dog) {
-    if (ani instanceof Cat) {
-      ani.meow();
-    } else {
-      ani.woof();
+    function speak(animal: Dog | Cat) {
+      if (animal instanceof Dog) {
+        animal.bark(); // Dog로 좁혀짐
+      } else {
+        animal.meow(); // Cat으로 좁혀짐
+      }
     }
-  }
-  ```
+    ```
 
-<br>
+  - 3. in 연산자 활용
+
+    ```ts
+    type Developer = { name: string; skill: string };
+    type Designer = { name: string; tool: string };
+
+    function introduce(person: Developer | Designer) {
+      if ("skill" in person) {
+        console.log(
+          `${person.name}는 개발자입니다. 사용하는 기술은 ${person.skill}`
+        );
+      } else {
+        console.log(
+          `${person.name}는 디자이너입니다. 사용하는 도구는 ${person.tool}`
+        );
+      }
+    }
+    ```
+
+  - 4. 사용자 정의 커스텀
+
+    ```ts
+    // pet is Fish 형태의 반환 타입이 핵심. 이게 사용자 정의 타입 가드
+    // x is Y 문법 : 조건을 만족하면 타입스크립트가 자동으로 타입 좁힘, as 보다 안전하다. 조건에 부합하지 않는 경우 타입을 좁히지 않음.
+    type Fish = { swim: () => void };
+    type Bird = { fly: () => void };
+
+    function isFish(pet: Fish | Bird): pet is Fish {
+      return (pet as Fish).swim !== undefined;
+    }
+
+    function move(pet: Fish | Bird) {
+      if (isFish(pet)) {
+        pet.swim(); // pet은 Fish로 좁혀짐
+      } else {
+        pet.fly(); // pet은 Bird로 좁혀짐
+      }
+    }
+    ```
+
+  - 5. 타입 단언 활용
+
+    ```ts
+    // 방법1: as(타입 단언)을 활용
+    function someFunc(val: string | number, isNumber: boolean) {
+      if (isNumber) {
+        (val as number).toFixed(2);
+        isNaN(val as number);
+      } else {
+        (val as string).split("");
+        (val as string).toUpperCase();
+        (val as string).length;
+      }
+    }
+    ```
 
 ### # 타입 단언
 
-<br>
+- 타입 단언이란?
 
-- as키워드를 통해 타입 단언을 할 수 있다. 예를 들어 var a;를 선언한 뒤 var b=a;와 같이 할당하게 되면 타입 추론을 통해 변수 b는 any타입을 갖게 된다. 이 때 var b에 a가 할당되기 전 a=20과 같이 어떠한 값이 a에 할당되어도 var b=a;는 처음과 같이 any타입을 가리키게 된다. 이럴 때 var b=a as number;와 같이 타입 단언을 통해 타입을 지정할 수 있다. 타입 단언은 Dom API 조작 시 많이 사용된다. var dom = document.querySelector('.container') as HTMLDivElement;와 같이 작성하게 되면 변수dom에 타입 추론이 HTMLDivElement | null 에서 HTMLDivElement로 변하게 된다. 그렇기 때문에 if(dom){…}과 같은 예외처리를 해주지 않아도 dom API(innerText 등)를 바로 사용할 수가 있다. 타입 단언의 경우 타입스크립트보다 개발자가 더욱 정확한 타입을 알 수 있을 때 사용된다.
+  타입 단언은 타입을 추론하지 못한 타입을 강제로 지정할 때 사용한다. as 키워드를 통해 타입 단언을 할 수 있다. 주의할 점은 잘못된 타입 단언은 컴파일 에러는 없지만 런타임 에러를 유발할 수 있으므로, 반드시 해당 값이 실제로 해당 타입임을 확신할 수 있을 때만 사용해야 한다. (ex API response type)
+
+- 예시
+
+  ```ts
+  // 예시 1. 변수의 복사
+  // 이 코드에서 a는 처음 선언 시 타입이 명시되지 않았기 때문에 any로 추론되고, b도 a의 타입을 그대로 따라가 any로 추론
+  var a;
+  a = 20;
+  var b = a as number;
+  ```
+
+  ```ts
+  // 예시 2. DOM API 조작
+  // getElementById는 HTMLElement | null을 반환하기 때문에 null이 아님을 확신할 수 있는 경우 as HTMLDivElement를 사용하여 타입 단언
+  const myDiv = document.getElementById("my-div") as HTMLDivElement;
+  myDiv.innerText = "Hello";
+  ```
 
 <br>
 
 ### # 타입 호환성
 
+- 타입 호환성이란?
+
+  타입 호환성이란 구조적 타이핑(Structural Typing) 기반으로 두 타입 간 멤버 구조를 비교해 한쪽 타입을 다른 쪽에 할당 가능한지를 결정하는 규칙이다.
+
+- 예시
+
+  - 인터페이스 호환성 예시
+
+    요구 타입을 모두 만족하는 경우 가능
+
+    ```tsx
+    interface A {
+      x: number;
+    }
+
+    interface B {
+      x: number;
+      y: number;
+    }
+
+    // A는 B로 할당 불가능 (요구 타입에 부족함)
+    const a: A = { x: 1 };
+    const b: B = a; // 오류! Property 'y'가 필요합니다.
+
+    // B는 A로 할당 가능 (요구 타입을 모두 가지고 있음)
+    const bb: B = { x: 1, y: 2 };
+    const aa: A = bb;
+    ```
+
+  - 함수 호환성 예시
+
+    매개변수가 적어지는건 가능, 함수 호출 시 매개변수를 초과하여 전달하여도 무시할 수 있으므로
+
+    ```tsx
+    type FuncA = (x: number) => number;
+    type FuncB = (x: number, y: number) => number;
+
+    // FuncA는 FuncB로 할당 가능 (필요한 매개변수가 적어지는건 가능)
+    // fnB(10, 20) 시 내부적으로 fnA가 호출되어 x=10, y=20은 무시됨
+    let fnA: FuncA = (x) => x * 2;
+    let fnB: FuncB = fnA; // 가능
+
+    // FuncB는 FuncA로 할당 불가능  (필요한 매개변수가 많아지는건 불가능)
+    let fnBB: FuncB = (x, y) => x + y;
+    let fnAA: FuncA = fnBB;
+    ```
+
+  - 제네릭의 호환성 예시
+
+    기본적으로 호환되지 않음, any 제외
+
+    ```tsx
+    interface Box<T> {
+      value: T;
+    }
+
+    let box1: Box<number>;
+    let box2: Box<string>;
+
+    box1 = box2; // 오류! 제네릭의 타입이 다르기 때문에 호환되지 않습니다.
+
+    // 하지만 제네릭 타입이 실제로 사용되는 경우에는 호환됩니다.
+    let numBox: Box<number>;
+    let anyBox: Box<any>;
+
+    numBox = anyBox; // 가능, 'any' 타입은 모든 타입과 호환됩니다.
+    ```
+
 <br>
 
-- 타입 호환이란 타입스크립트 코드에서 특정 타입이 다른 타입에 잘 맞는지를 의미한다. 타입스크립트의 타입 호환성은 구조적 서브 타이핑을 기반으로 한다. 구조적 서브 타이핑은 오직 멤버만으로 타입을 관계시키는 방법으로 알고 있다. 인터페이스 타입 호환 시에는 구조적으로 작은 부분에 큰 부분을 할당할 수 있다. 큰 부분에 작은 부분을 할당할 수는 없다. 우항(할당하는 값)이 좌항(할당받는 값)의 합집합이어야 한다. 함수 타입 호환시에는 파라미터의 갯수와 타입을 체크하여 호환할 수 있다. 단 인터페이스와 다른 관점에서 생각해야한다. 예를 들어 var add = function(a:number) { … }, var sum = function(a:number, b: number) { … } 이와 같은 함수가 있을 경우 add에는 sum을 할당할 수 없다. 왜냐하면 구조적으로 큰 sum은 add에 합집합이지만 인터페이스 같은 경우 객체의 프로퍼티는 부족해도 문제가 발생하지 않지만 함수에는 파라미터가 부족할 경우 문제가 발생할 수 있기 때문이다. 그렇기 때문에 함수 타입 호환시에는 구조적으로 큰 함수에 구조적으로 작은 함수를 할당하여야한다. 제네릭 타입 호환 시에 속성이 없다면 호환되고 제네릭 속성의 타입이 각각 다른 값으로 지정되어 있다면 호환이 불가능하다.
+### # 타입 별칭(타입 앨리어스)
 
-<br>
-
-### # strict 모드에서 null 에러
-
-<br>
-
-- strict모드 활성화 시 null 타입 관련 문제는 아래와 같은 타입 가드로 null 타입이 아닌 경우를 추가하여 해결할 수 있다.
-
-  (1) as : const confirmedTotal = $('.confirmed-total') as HTMLSpanElement;
-
-  (2) if문 : if (!rankList) return; rankList.addEventListener('click', handleListClick);
-
-  (3) 삼항연산자 : selectedId = event.target.parentElement ? event.target.parentElement.id : undefined;
-
-  (4) 옵셔널체이닝 : deathsList?.appendChild(li)
-
-  (5) ! (Non-null assertion operator) : deathsList!.appendChild(li);
-
-<br>
-
-### # 타입 별칭
-
-<br>
-
-- 타입 별칭은 인터페이스의 기능과 유사하다. 새로운 타입 값을 하나 생성하는 것이 아니라 정의한 타입에 대해 나중에 쉽게 참고할 수 있게 이름을 부여하는 것과 같다. 이러한 특징은 VSCode 상의 프리뷰 상태로 다른 타입과 어떤 차이점이 있는지 확인해볼 수 있다. 인터페이스 타입의 경우 프리뷰 상태로 인터페이스 타입명을 보여주는 반면 타입 별칭은 타입 별칭 구조를 그대로 보여준다. 단 타입 별칭은 인터페이스 타입과 다르게 확장이 불가능하다.
+- 타입 별칭은 특정 타입에 별칭을 부여하여 새로운 타입을 만들어내는 타입이다. 인터페이스와 같은 객체 타입, 원시 타입, 유니온, 튜플, 함수 타입 등 모든 타입을 별칭으로 만들 수 있다.
 
   ```ts
-  const name: string = "capt";
+  // 예시1 : 타입 앨리어스, 빈 객체를 Person 타입으로 지정
+  type Person = {
+    name: string;
+    age?: number;
+  };
 
-  // 타입 별칭을 사용할 때
-  type MyName = string;
-  const name: MyName = "capt";
+  const person = {} as Person;
+  person.name = "Lee";
+  person.age = 20;
+  person.address = "Seoul"; // Error
+
+  // 예시2 : 원시, 유니온, 함수 타입 등
+  type A = string;
+  type B = string | number;
+  type C = (name: string, age: number) => string;
   ```
+
+  ```ts
+  type A = { x: number };
+  type B = { y: string };
+
+  // 교차 타입을 사용해서 확장한 새로운 타입 만들기
+  type C = A & B;
+
+  const c: C = { x: 1, y: "hello" };
+  ```
+
+<br>
+
+### # 타입 별칭과 인터페이스 차이
+
+1. 확장성
+
+   타입 별칭은 직접적으로 확장(extends) 및 선언 병합이 불가능하고 인터페이스는 확장(extends) 및 선언 병합이 가능하다. 단 타입 별칭은 교차 선언을 통해 간접적으로 확장은 가능하다.
+
+2. 생성 타입 형태
+
+   타입 별칭은 객체 형태의 타입 외에도 원시 타입 혹은 값, 유니온 타입, 튜플 타입 등을 지정할 수 있고 인터페이스는 객체 형태의 타입을 지정한다.
+
+3. 프리뷰
+
+   타입 별칭은 프리뷰 시 타입 전체 구조를 보여주고 인터페이스는 타입 명을 보여준다.
 
 <br>
 
@@ -500,158 +678,200 @@ function infiniteAnimate(): never {
 
 - 유틸리티 타입이란?
 
-  유틸리티 타입은 이미 정의해 놓은 타입을 변환할 때 사용하기 좋은 타입 문법입니다. 유틸리티 타입을 꼭 쓰지 않더라도 기존의 인터페이스, 제네릭 등의 기본 문법으로 충분히 타입을 변환할 수 있지만 유틸리티 타입을 쓰면 훨씬 더 간결한 문법으로 타입을 정의할 수 있습니다.
-
-<br>
+  유틸리티 타입은 이미 정의해 놓은 타입을 변환하여 새로운 타입을 만들 때 사용하는 타입이다. 유틸리티 타입의 종류는 매우 다양하지만 대표적으로 파셜, 오밋, 픽 등의 타입이 있다.
 
 - 자주 사용되는 유틸리티 타입
 
-  (1) 파셜(Partial) : 파셜(Partial) 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의할 수 있다. 파셜을 사용하면 옵션 속성의 남발을 막을 수 있다.
+  - 파셜(Partial)
 
-  ```ts
-  interface Address {
-    email: string;
-    address: string;
-  }
+    파셜 타입은 특정 타입의 부분 집합을 만족하는 타입을 정의한다. 파셜을 사용하면 옵셔널 속성의 남발을 막을 수 있다.
 
-  type MayHaveEmail = Partial<Address>;
-  const me: MayHaveEmail = {}; // 가능
-  const you: MayHaveEmail = { email: "test@abc.com" }; // 가능
-  const all: MayHaveEmail = { email: "capt@hero.com", address: "Pangyo" }; // 가능
-  ```
+    ```ts
+    interface Address {
+      email: string;
+      address: string;
+    }
 
-  (2) 픽(Pick) : 픽(Pick) 타입은 특정 타입에서 몇 개의 속성을 선택(pick)하여 타입을 정의할 수 있습니다.
+    type MayHaveEmail = Partial<Address>;
+    const me: MayHaveEmail = {}; // 가능
+    const you: MayHaveEmail = { email: "test@abc.com" }; // 가능
+    const all: MayHaveEmail = { email: "capt@hero.com", address: "Pangyo" }; // 가능
+    ```
 
-  ```ts
-  interface Hero {
-    name: string;
-    skill: string;
-  }
-  const human: Pick<Hero, "name"> = {
-    name: "스킬이 없는 사람",
-  };
-  ```
+  - 픽(Pick)
 
-  (3) 오밋(Omit) : 오밋(Omit) 타입은 특정 타입에서 지정된 속성만 제거한 타입을 정의해 줍니다.
+    픽 타입은 특정 타입에서 몇 개의 속성을 선택하여 타입을 정의한다.
 
-  ```ts
-  interface AddressBook {
-    name: string;
-    phone: number;
-    address: string;
-    company: string;
-  }
-  const phoneBook: Omit<AddressBook, "address"> = {
-    name: "재택근무",
-    phone: 12342223333,
-    company: "내 방",
-  };
-  const chingtao: Omit<AddressBook, "address" | "company"> = {
-    name: "중국집",
-    phone: 44455557777,
-  };
-  ```
+    ```ts
+    interface Hero {
+      name: string;
+      skill: string;
+    }
+
+    const human: Pick<Hero, "name"> = {
+      name: "스킬이 없는 사람",
+    };
+    ```
+
+  - 오밋(Omit)
+
+    오밋 타입은 픽과 반대로 특정 타입에서 지정된 속성만 제거한 타입을 정의한다.
+
+    ```ts
+    interface AddressBook {
+      name: string;
+      phone: number;
+      address: string;
+      company: string;
+    }
+
+    const phoneBook: Omit<AddressBook, "address"> = {
+      name: "재택근무",
+      phone: 12342223333,
+      company: "내 방",
+    };
+
+    const chingtao: Omit<AddressBook, "address" | "company"> = {
+      name: "중국집",
+      phone: 44455557777,
+    };
+    ```
 
 <br>
 
 ### # 맵드 타입
 
-<br>
-
 - 맵드 타입이란?
 
-  맵드 타입이란 기존에 정의되어 있는 타입을 새로운 타입으로 변환해 주는 문법을 의미합니다. 마치 자바스크립트 map() API 함수를 타입에 적용한 것과 같은 효과를 가집니다.
+  맵드 타입(Mapped Types)은 keyof 연산자와 in 키워드를 이용해 기존 객체 타입의 모든 속성을 변환하여 새로운 타입을 생성하는 타입이다.
+  in 연산자를 활용하여 순회하며 in 연산자를 기준으로 좌항은 일반 변수(순회 대상이 순차적으로 반복 할당), 우항은 순회 대상(유니온 타입)이다.
+
+- 예시
+
+  - 예제1 : 기본 문법
+
+    ```ts
+    { [ P in K ] : T }
+    { [ P in K ] ? : T }
+    { readonly [ P in K ] : T }
+    { readonly [ P in K ] ? : T }
+    ```
+
+  - 예제2: 유니온 타입 기반 객체 정의
+
+    ```ts
+    type Heroes = "Hulk" | "Capt" | "Thor";
+    type HeroAges = { [K in Heroes]: number };
+
+    const ages: HeroAges = {
+      Hulk: 33,
+      Capt: 100,
+      Thor: 1000,
+    };
+    ```
+
+  - 예제3 : Partial 직접 구현
+
+    ```ts
+    // keyof T: Person의 키인 age, name을 유니온 타입으로 추출 -> "age" | "name"
+    // T[K]: T의 K 키에 해당하는 속성의 타입
+    type Subset<T> = {
+      [K in keyof T]?: T[K];
+    };
+
+    interface Person {
+      age: number;
+      name: string;
+    }
+
+    const ageOnly: Subset<Person> = { age: 23 };
+    const nameOnly: Subset<Person> = { name: "Tony" };
+    const ironman: Subset<Person> = { age: 23, name: "Tony" };
+    const empty: Subset<Person> = {};
+    ```
 
 <br>
 
-- 맵드 타입 사용법
+### # 유니온 타입, 인터섹션 타입
 
-  in operator를 활용하여 순회하며 in operator를 기준으로 좌항(위 P)은 일반 타입 변수, 우항(위 K)은 순회가 되는 대상이 된다. 타입은 콜론 뒤(위 T)에 지정해주면 된다.
+- 유니온 타입 (|)
+
+  유니온 타입이란 OR 연산자와 같이 A이거나 B다를 의미하는 타입이다.
 
   ```ts
-  // 예제1 : 기본 문법
-  { [ P in K ] : T }
-  { [ P in K ] ? : T }
-  { readonly [ P in K ] : T }
-  { readonly [ P in K ] ? : T }
+  let value: string | number;
 
-  // 예제2 : 기본 예제
-  type Heroes = "Hulk" | "Capt" | "Thor";
-  type HeroAges = { [K in Heroes]: number };
-  const ages: HeroAges = {
-    Hulk: 33,
-    Capt: 100,
-    Thor: 1000,
+  value = "hello"; // ✅ 가능
+  value = 123; // ✅ 가능
+  value = true; // ❌ 오류 - boolean은 해당 안 됨
+  ```
+
+  ```ts
+  interface A {
+    x: number;
+    y: number;
+  }
+
+  interface B {
+    x: number;
+    z: number;
+  }
+
+  type AB = A | B;
+
+  const obj: AB = { x: 10, y: 20 }; //  A 혹은 B 타입으로 초기화 되어야 함, 해당 코드는 A 타입으로 초기화
+
+  // 공통된 속성 x만 접근 가능
+  console.log(obj.x); // OK
+  console.log(obj.y); // OK
+  console.log(obj.z); // Error
+  ```
+
+- 인터섹션 타입 (&)
+
+  인터섹션 타입은 AND 연산자와 같이 A와 B를 모두 만족하는 하나의 타입이다. 인터섹션 타입으로 인터페이스 타입 혹은 타입 별칭을 연결하는 경우 두 타입이 가진 모든 속성에 접근이 가능하다.
+
+  ```ts
+  type User = { name: string };
+  type Admin = { role: string };
+
+  type AdminUser = User & Admin;
+
+  const person: AdminUser = {
+    name: "Alice",
+    role: "manager",
+  };
+  ```
+
+  ```ts
+  interface A {
+    x: number;
+    y: number;
+  }
+
+  interface B {
+    z: string;
+  }
+
+  type AB = A & B;
+
+  const obj: AB = {
+    x: 10,
+    y: 20,
+    z: "hello",
   };
 
-  // 예제3 : 실용 예제, 맵드 타입인 Subset은 키와 값이 있는 객체를 정의하는 타입을 받아 그 객체의 부분 집합을 만족하는 타입으로 변환해주는 문법이다. 예를 들면 Person과 같은 인터페이스가 있다고 할 때 Subset 타입을 적용하면 ageOnly, nameOnly, ironman, empty과 같은 객체를 모두 정의할 수 있다.
-
-  type Subset<T> = {
-    [K in keyof T]?: T[K];
-  }
-
-  interface Person {
-    age: number;
-    name: string;
-  }
-
-  const ageOnly: Subset<Person> = { age: 23 };
-  const nameOnly: Subset<Person> = { name: 'Tony' };
-  const ironman: Subset<Person> = { age: 23, name: 'Tony' };
-  const empty: Subset<Person> = {};
+  console.log(obj.x); // 10
+  console.log(obj.z); // hello
   ```
 
 <br>
 
-### # 타입스크립트 유니온 타입과 인터섹션 타입의 차이점에 대해 설명해달라
-
-<br>
-
-- 유니온 타입 : 유니온 타입(Union Type)이란 자바스크립트의 OR 연산자(||)와 같이 'A' 이거나 'B'이다 라는 의미의 타입이다. 유니온 타입으로 인터페이스 두 개를 연결할 경우 함수 내부에서 공통 된 속성만 접근할 수 있다.
-
-<br>
-
-- 인터섹션 타입 : 인터섹션 타입(Intersection Type)은 여러 타입을 모두 만족하는 하나의 타입을 의미한다. 인터섹션 타입으로 인터페이스 두 개를 연결할 경우 인터페이스가 가진 모든 속성에 접근이 가능하다. & 연산자를 이용한다.
-
-<br>
-
-- 유니온 타입과 인터섹션 타입 차이
-
-  유니온 타입은 다중 타입 중 하나를 선택하여 사용하는 개념이고, 인터섹션 타입은 다중 타입을 조합하여 새로운 타입을 만든다는 개념이다. 또한 유니온 타입으로 인터페이스 타입을 결합하는 경우 공통 된 속성만 접근 가능하고 인터섹션 타입은 모든 타입에 접근 가능하다.
-
-<br>
-
-### # 타입 별칭과 인터페이스 차이
-
-- 타입 별칭과 인터페이스의 가장 큰 차이점은 타입의 확장 가능 여부이다. 인터페이스는 확장이 가능한데 반해 타입 별칭은 확장이 불가능하다. 따라서, 가능한한 type 보다는 interface로 선언해서 사용하는 것을 좋다. 또한 프리뷰에서도 차이가 있다. 타입 별칭은 타입의 구조를 모두 보여주는 반면 인터페이스 타입은 타입명을 보여준다.
-
-<br>
-
-### # **never 타입**
-
-<br>
-
-- never 타입이란?
-
-  never는 절대 발생하지 않을 값을 나타내며, 모든 타입의 하위 타입으로 어떠한 타입도 할당할 수 없다. 예를 들어 무한 루프가 발생하는 함수(함수 내용에 while(true){}가 들어 있는 경우)의 경우나 항상 예외를 던지는 함수(function foo(){throw new Error('Not Implemented')의 리턴타입)가 있다.
-
-<br>
-
-- void와 never의 차이
-
-  아무것도 반환하지 않는 함수의 리턴타입은 void이고 영원히 리턴하지 않는 함수(또는 항상 throw하는 함수)의 리턴타입은 never이다. void는 할당이 가능한 타입이지만 (strictNullCheckings를 끄면) never는 절대 never 이외에는 할당할 수 없다. 즉 void는 null 혹은 undefined 값의 반환을 허용한다는 것이고 never는 never 이외에는 허용하지 않는다.
-
-<br>
-
-### # **타입스크립트 데코레이터**
-
-<br>
+### # 타입스크립트 데코레이터
 
 - 데코레이터란?
 
   데코레이터가 붙은 클래스, 메소드(함수) 및 변수 등에 데코레이터에서 정의된 기능이 동작하는 것을 의미한다.
-
-<br>
 
 - 메소드 데코레이터 : 메서드의 기능을 확장하는 역할을 한다.
 
@@ -669,8 +889,6 @@ function infiniteAnimate(): never {
   const person = new Person();
   person.hello();
   ```
-
-<br>
 
 - 프로퍼티 데코레이터 : 클래스의 프로퍼티 선언에 사용되는 프로퍼티 데코레이터는 두 개의 인자를 받는다. 그리고 프로퍼티 데코레이터에서 Property Descriptor 형식으로 객체를 반환할 때는, 프로퍼티에 적용이 된다.
 
@@ -697,8 +915,6 @@ function infiniteAnimate(): never {
   person.name = "zz";
   console.log(person.name);
   ```
-
-<br>
 
 - 파라미터 데코레이터 : 파라미터 안에 들어가는 파라미터 데코레이터는 3개의 인자를 받는다.
 
@@ -730,42 +946,47 @@ function infiniteAnimate(): never {
 
 <br>
 
-### # **타입스크립트가 실행되는 과정**
+### # 타입스크립트 실행 과정
+
+- 2-4번은 타입 스크립트 컴파일러(TSC)가 수행, 5-7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
+
+  1. 소스 코드 작성 : 프로그래머가 타입스크립트 코드 작성
+
+  2. 파싱 : 타입스크립트 컴파일러가 소스 코드를 읽어 추상 문법 트리(AST)로 변환
+
+  3. 타입 검사 : 타입스크립트 컴파일러가 추상 문법 트리(AST)를 기반으로 타입 규칙을 검사하여 오류 체크
+
+  4. 트랜스 파일 : 타입 정보는 제거하고 타입스크립트 코드를 순수한 자바스크립트로 변환
+
+  5. 런타임(자바스크립트 엔진) 실행 준비 : 브라우저, Nodejs 기타 자바스크립트 엔진이 코드를 받아서 다시 파싱 -> 추상 구문 트리 생성
+
+  6. 바이트 코드 변환 및 최적화 : 자바스크립트 엔진 내부에서 추상 구문 트리를 바이트 코드 등 저수준 코드로 변환
+
+  7. 코드 실행 : 런타임이 바이트 코드를 실행한다.
 
 <br>
 
-- 2-4번은 TSC가 수행, 5-7번은 브라우저, NodJS, 기타 자바스크립트 엔진 같은 자바스크립트 런타임이 실행
+### # keyof와 typeof
 
-  (1) 소스 코드 작성 by 프로그래머
+- keyof 타입
 
-  (2) 타입스크립트 소스 코드를 파싱하여 AST (추상문법트리)로 변환
-
-  (3) 타입 검사기가 AST를 확인 (여기서 타입 검사가 이루어짐)
-
-  (4) 컴파일러가 AST를 bytecode가 아닌 JavaScript로 변환한다.
-
-  (5) JavaScript 소스를 AST로 변환
-
-  (6) AST -> 바이트코드
-
-  (7) 런타임이 바이트코드를 평가
-
-<br>
-
-### # **keyof와 typeof**
-
-- keyof `example` : `example`의 모든 프로퍼티의 키값을 union 형태로 반환, “T extends keyof 인터페이스명”을 통해서 인터페이스의 있는 한 가지만 제네릭으로 설정한다. 인터페이스 내부의 key값으로 제네릭의 범위를 제한하는 것이다.
-
-<br>
-
-- typeof `example` : `example`(변수/함수등)의 type을 반환, enum 타입과 같은 객체를 반환하는 타입에 사용하면 이 객체 자체가 타입이 된다.
-
-<br>
-
-- 예제
+  타입(인터페이스, 객체 타입 등)의 모든 프로퍼티 키를 유니온 타입으로 추출한다.
 
   ```ts
-  // 예제1 : enum
+  interface BrandInterface {
+    Nike: "nike";
+    Adidas: "adidas";
+    Puma: "puma";
+  }
+
+  let type: keyof BrandInterface; // 마우스 오버 시 : 'Nike' | 'Adidas' | 'Puma'
+  ```
+
+- typeof 변수명
+
+  변수나 객체, 함수 등의 값(value) 에 대해 그 타입을 추출한다. 즉, typeof 변수명은 해당 변수의 타입을 가져오는 역할이다.
+
+  ```ts
   enum BrandEnum {
     Nike = "nike",
     Adidas = "adidas",
@@ -776,31 +997,13 @@ function infiniteAnimate(): never {
     Nike: BrandEnum.Nike,
     Adidas: BrandEnum.Adidas,
     puma: BrandEnum.puma,
-  }; // 마우스 오버 시 : let type1: typeof BrandEnum
-  let type2: keyof BrandEnum; // 마우스 오버 시 : let type2: number | typeof Symbol.iterator | "toString" | "charAt" ...
-  let type3: keyof typeof BrandEnum; // 마우스 오버 시 : let type3: "Nike" | "Adidas" | "Puma"
+  }; // let type1: typeof BrandEnum
+  let type2: keyof BrandEnum; // number | typeof Symbol.iterator | "toString" | "charAt" ...
+  let type3: keyof typeof BrandEnum; // let type3: "Nike" | "Adidas" | "Puma"
   ```
 
-  type1은 마우스를 올려보면 typeof BrandEnum가 찍힌다. enum은 객체로 변환되기 때문에 typeof를 사용하게 되면 그냥 그 객체 자체가 type이 되어버려 똑같이 사용해야만 한다. 그럼 이 typeof 를 했을 때 만들어진 type이 interface와 비슷하다고 생각된다.
-  type2의 마우스를 올려보면 객체의 프로퍼티들이 찍히는걸 볼 수 있다. Brand가 Object이기 때문에 나오는 것이다.
-  type3은 typeof Brand가 enum 객체 그 자체이고 그것의 key들을 뽑아냈기 때문에 key값이 유니온으로 반환된다.
-
   ```ts
-  // 예제2 : interface
-  interface BrandInterface {
-    Nike: "nike";
-    Adidas: "adidas";
-    Puma: "puma";
-  }
-
-  let type: keyof BrandInterface; // 마우스 오버 시 : 'Nike' | 'Adidas' | 'Puma'
-  ```
-
-  이런식으로 작성하고 type에 마우스를 올려보면 아까 위와 똑같이 'Nike' | 'Adidas' | 'Puma'로 나오는것을 확인할 수 있다.
-  즉, enum의 keyof typeof는 interface의 keyof와 똑같다고 볼 수 있을 것 같다. enum은 객체이기 때문에 keyof만 했을 때는 객체의 key들이 나오고 keyof typeof를 했을 때 원하는 값이 나왔다. interface는 객체가 아니기 때문에 keyof만 했을 때도 바로 원하는 값이 나온다.
-
-  ```ts
-  // 예제3 : 객체
+  // 객체의 경우에도 enum과 똑같이 작동하는 것을 볼 수 있었다. 즉 enum 객체로 변환 되기 때문이다. typeof으로 타입을 얻은 뒤 keyof로 추출한다.
   const object = {
     Nike: "nike",
     Adidas: "adidas",
@@ -810,51 +1013,87 @@ function infiniteAnimate(): never {
   let type: keyof typeof object;
   ```
 
-  객체의 경우에도 enum과 똑같이 작동하는 것을 볼 수 있었다. 즉 enum 객체로 변환 되기 때문이다.
-
 <br>
 
-### # **any와 Generic 차이**
+### # any와 Generic 차이
 
-<br>
+1. 반환 타입 유추
 
-(1) 반환 타입 유추 : 함수의 any타입의 경우 함수의 반환 타입을 알기 어렵지만 제네릭 타입의 경우 호출 시 명시적으로 타입을 선언해줌으로서 반환 타입을 유추하기 쉽다.
+   함수의 any타입의 경우 함수의 반환 타입을 알기 어렵지만 제네릭 타입의 경우 호출 시 명시적으로 타입을 선언해줌으로서 반환 타입을 유추하기 쉽다.
 
-```ts
-// any 타입
-function AnyReturnFunc(arg: any): any {
-  return arg;
-}
+   ```ts
+   // any 타입
+   function AnyReturnFunc(arg: any): any {
+     return arg;
+   }
 
-let numVar = AnyReturnFunc(123); // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
-let strVar = AnyReturnFunc("ABC"); // // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
+   let numVar = AnyReturnFunc(123); // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
+   let strVar = AnyReturnFunc("ABC"); // // number 타입의 값인 123을 전달하였지만, 무슨 타입을 return 받는지 유추하기 어려움
 
-// Generic 타입
-function GenericReturnFunc<T>(arg: T): T {
-  return arg;
-}
+   // Generic 타입
+   function GenericReturnFunc<T>(arg: T): T {
+     return arg;
+   }
 
-let numVar = GenericReturnFunc<number>(123); // 명시적인 타입 선언 사용, 반환 값을 유추할 수 있다.
-```
+   let numVar = GenericReturnFunc<number>(123); // 명시적인 타입 선언 사용, 반환 값을 유추할 수 있다.
+   ```
 
-(2) 프로퍼티 체크 : 함수의 any 타입은 매개변수의 프로퍼티를 체크하지 않고 제네릭 타입은 프로퍼티를 체크하므로 타입가드가 필요하기 때문에 사전에 에러를 방지할 수 있다.
+2. 프로퍼티 체크 유무
 
-```ts
-function AnyReturnFunc(arg: any): any {
-  return arg.length; // 에러가 발생하지 않는다.
-}
+   함수의 any 타입은 매개변수의 프로퍼티를 체크하지 않고 제네릭 타입은 프로퍼티를 체크하므로 타입가드가 필요하기 때문에 사전에 에러를 방지할 수 있다.
 
-function GenericReturnFunc<T>(arg: T): T {
-  return arg.length; // 제네릭 함수는 무슨 타입이 올지 모르기 때문에 length 프로퍼티를 사용할 수 없다는 에러 메시지를 노출한다.
-}
-```
+   ```ts
+   function AnyReturnFunc(arg: any): any {
+     return arg.length; // 에러가 발생하지 않는다.
+   }
+
+   function GenericReturnFunc<T>(arg: T): T {
+     return arg.length; // 제네릭 함수는 무슨 타입이 올지 모르기 때문에 length 프로퍼티를 사용할 수 없다는 에러 메시지를 노출한다.
+   }
+   ```
 
 <br>
 
 ### # 타입스크립트 설정 파일 (tsconfig.json)
 
-<br>
+- tsconfig.json은 타입스크립트 컴파일러의 설정을 정의하는 파일이다. 이 파일에서 컴파일 옵션, strict 모드 설정, 타입 검사 규칙, 출력 경로 등 다양한 컴파일 규칙과 동작 방식을 지정할 수 있다.
 
-- 타입스크립트 설정 파일은 타입스크립트를 자바스크립트로 변환할 때의 설정을 정의해놓는 파일이다. 프로젝트에서 tsc라는 명령어를 치면 타입스크립트 설정 파일에 정의된 내용을 기준으로 변환 작업(컴파일)을 진행한다.
+- tsconfig.json에서 strict: true 설정
 
-<br>
+  기본적으로 타입스크립트에서는 null과 undefined가 모든 타입의 하위 타입으로 간주되어서, 아무 변수나 null 또는 undefined 값을 가질 수 있다. strictNullChecks가 켜지면, null과 undefined는 오직 그 타입으로 명시적으로 지정된 변수에만 할당 가능하다. 즉, string 타입 변수에는 null이나 undefined를 할당할 수 없고, string | null 처럼 유니언 타입으로 명시해야만 할당할 수 있다.
+
+  ```ts
+  let name: string = "Alice";
+  name = null; // 오류! 'null'은 'string' 타입에 할당 불가
+
+  let age: number | null = null; // 가능: null을 포함하는 유니언 타입
+  ```
+
+  ```ts
+  interface User {
+    id: number;
+    name: string;
+    email?: string | null; // 이메일은 optional이고 null일 수도 있다
+  }
+
+  async function fetchUser(id: number): Promise<User | null> {
+    const response = await fetch(`/api/user/${id}`);
+    if (!response.ok) return null;
+    return await response.json();
+  }
+
+  async function showUser(id: number) {
+    const user = await fetchUser(id);
+
+    // strict 모드라면 user가 null일 수 있으니 반드시 체크해야 한다
+    if (user) {
+      console.log(user.name);
+      // email도 null일 수 있으니 옵셔널 체이닝으로 접근 가능
+      console.log(user.email ?? "이메일 정보 없음");
+    } else {
+      console.log("유저를 찾을 수 없습니다.");
+    }
+  }
+  ```
+
+<br><br><br>
