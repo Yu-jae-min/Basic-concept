@@ -314,8 +314,6 @@
 
 - 가상 요소를 만들 때 사용하며 태그를 직접 추가하지 않고 장식 요소를 추가할 때 사용한다. 해당 속성을 사용함으로써 의미없는 태그를 추가하지 않아도 된다.
 
-- float은 블록 요소를 강제로 정렬할 때 쓰인다. clear: both 속성을 통해 float 정렬을 취소했었다.
-
 <br>
 
 ### # 이미지 파일 최적화 방법
@@ -394,7 +392,7 @@
 ### # CSS 적용 우선순위
 
 1. !important
-2. 인라
+2. 인라인
 3. id
 4. class
 5. 태그이름(ex div)
@@ -403,7 +401,8 @@
 
 ### # 네이밍 설계 규칙 BEM 방식
 
-- BEM은 Block, Element, Modifier를 뜻하며 이 세 가지를 활용하여 목적의 명확성, 재사용성, 클래스 충돌 방지를 위해 사용하는 규칙이다. `__`, `--`로 구분하며 재사용과 확장을 위해 id를 사용하지 않고 class만 사용한다. Block은 독립적으로 재사용 가능한 기본 단위 (ex button, card, form), Element는 Block 내부의 구성 요소 (ex `button__icon`, `form__label`), Modifier는 Block이나 Element의 변형/상태(ex `button--primary`, `form__label--error`)를 나타낸다.
+- BEM은 Block, Element, Modifier를 뜻하며 이 세 가지를 활용하여 목적의 명확성, 재사용성, 클래스 충돌 방지를 위해 사용하는 규칙이다. `__`, `--`로 구분하며 재사용과 확장을 위해 id를 사용하지 않고 class만 사용한다. Block은 독립적으로 재사용 가능한 기본 단위 (ex button, card, form), Element는 Block 내부의 구성 요소 (ex `button__icon`, `form__label`),
+  Modifier는 Block이나 Element의 변형/상태(ex `button--primary`, `form__label--error`)를 나타낸다.
 
   ```html
   <div class="card">
@@ -493,7 +492,7 @@
 
 - 호환성
 
-  JS 애니메이션이 상대적으로 호환성이 높음
+  JS 애니메이션이 상대적으로 크로스 브라우징에 유리
 
 - 실행 스레드
 
@@ -508,6 +507,18 @@
   - `transform`, `opacity`, `will-change`
 
   - `translate3d`, `scale`, `backface-visibility: hidden`, `perspective`
+
+- CSS 애니메이션 관련 속성
+
+  - animation + @keyframes (로딩, 아이콘 등에 적합)
+
+  - transition (hover, 클릭 등에 적합)
+
+  - requestAnimationFrame (성능 최적화로 고해상도 애니메이션에 적합)
+
+  - JS 조작 (동적 제어 가능, 조건/이벤트 기반에 적합)
+
+  - 라이브러리 (생산성이 높아 실무, 프로젝트에 적합)
 
 <br>
 
@@ -527,15 +538,12 @@
 
 <br>
 
-### # 브라우저 스펙 차이에 따른 스타일링 이슈 처리
-
-- 브라우저마다 렌더링 엔진이 달라 디폴트 스타일이 다르기 때문에 reset.css 파일을 이용하여 모든 디폴트 스타일을 초기화한 후 프로젝트를 진행한다. reset 파일 내부에서 태그별 기본 margin, padding, border 등을 제거해주거나 list-style 혹은 line-height 등을 기본 값으로 할당한다. 또한 css 속성 사용 시 호환되는 브라우저를 확인한 후 사용한다.
-
-<br>
-
 ### # CSS(Cascading Style Sheets)에서 Cascading에 의미
 
-- 케스케이딩은 흐르는, 종속하는 의미를 가지고 있고 어떤 스타일로 브라우저에 표현할 지 결정해주는 시스템을 의미한다. 케스케이딩 시스템을 사용하였을 때의 장점은 부모 요소의 스타일이 자식 요소에게 상속되는 점을 활용하여 부모 요소에 적절한 스타일을 부여할 경우 되므로 코드의 양을 줄여 성능 향상에 기여할 수 있다. 일반적으로 박스 모델과 관련된 속성(margin, padding, border, witdh, height 등)은 상속되지 않고 폰트와 관련된 속성(color, font-family, font-size, text-align 등)들은 상속된다. 기본적으로 상속되지 않는 속성을 상속하기 위해서 inherit 값을 사용할 수 있다.
+- 케스케이딩은 흐르는, 종속하는 의미를 가지고 있고 어떤 스타일로 브라우저에 표현할 지 결정해주는 시스템을 의미한다.
+  케스케이딩 시스템을 사용하였을 때의 장점은 부모 요소의 스타일이 자식 요소에게 상속되는 점을 활용하여 부모 요소에 적절한 스타일을
+  부여할 경우 되므로 코드의 양을 줄여 성능 향상에 기여할 수 있다. 일반적으로 박스 모델과 관련된 속성(margin, padding, border, witdh, height 등)은 상속되지 않고 폰트와 관련된 속성(color, font-family, font-size, text-align 등)들은 상속된다.
+  기본적으로 상속되지 않는 속성을 상속하기 위해서 inherit 값을 사용할 수 있다.
 
 <br>
 
@@ -602,25 +610,104 @@
 
 - Runtime CSS-in-JS
 
-  Runtime CSS-in-JS는 런타임에서 javascript를 통해 동적으로 스타일을 생성한다. 대표적인 라이브러리로는 styled-components, emotion 등이 있다.
-  개발모드에서는 디버깅에 이점이 있는 `<style>` 태그에 style을 추가하는 방식을 사용하고 배포 모드에서는 성능상의 이점이 있는 stylesSheet을 CSSStylesSheet.insertRule 통해
-  바로 CSSOM에 주입하는 방식을 사용한다. CSS 파일을 생성하지 않기에 webpack에서 css-loader가 필요 없고 매우 복잡한 애니메이션 구현 시 런타임 오버헤드가 발생할 수 있다.
-  또한 SSR 사용 시에도 문제가 될 수 있다. 예를 들어 styled-components 사용 시 별도의 설정을 하지 않는 경우 SSR에서 FOUC(스타일 번쩍임) 문제가 발생한다.
-  이유는 styled-components는 Runtime CSS-in-JS로 런타임에 동적으로 스타일 시트를 생성하고 style 태그 내부에 추가된 뒤 DOM에 적용된다.
-  그렇기 떄문에 서버에서는 서버 사이드 렌더링 시 스타일 생성이 되지 않아 페이지가 사용자에게 보여진 뒤 javascript 로드 후 스타일이 적용되는 깜빡임 문제가 발생하는 것이다.
-  그렇기 떄문에 SSR에서 제대로 동작하게 하기 위해서는 별도의 설정이 필요하다. 이러한 문제로 인해 Zero Runtime CSS-in-js 라이브러리가 대체되어 사용되기도 한다.
+  - 동작 방식
+
+    런타임 시에 JavaScript를 통해 동적으로 스타일을 생성한다.
+
+  - 대표 라이브러리
+
+    styled-components, emotion
+
+  - 장점
+
+    - 동적 스타일링이 매우 자유롭다 (props/state 기반 스타일 적용 가능).
+
+    - 스타일을 컴포넌트와 함께 작성하여 높은 응집도.
+
+    - ThemeProvider 등으로 테마 관리가 용이하다.
+
+    - HMR(Hot Module Replacement) 시 개발 경험이 부드럽다.
+
+    - 고유한 className(hash)을 생성하여 CSS 충돌을 방지한다.
+
+  - 단점
+
+    - 스타일 생성 로직이 JS 번들에 포함되어 번들 사이즈가 커질 수 있다.
+
+    - 런타임에 DOM에 스타일을 삽입해야 하므로 초기 렌더링 퍼포먼스가 저하될 수 있다.
+
+    - SSR 시 빌드 도구 설정 변경과 같이 별도의 설정이 없으면 스타일 깜빡임 (FOUC(Flash of Unstyled Content)) 문제가 발생할 수 있다.
 
 - Zero Runtime CSS-in-JS
 
-  Zero Runtime CSS-in-js는 Runtime CSS-in-JS와 다르게 CSS를 빌드 타임에 정적으로 생성한다.
-  Webpack이나 Vite 같은 빌드 도구가 컴파일 타임(빌드 타임)에 Javascript를 실행(runtime)하지 않고 정적으로 파싱해서 정적 .css 파일을 추출하는 방식이다. 대표적인 라이브러리로는 vanilla-extract가 있다.
-  CSS가 JS와 동일한 번들에 있는 Runtime CSS-in-JS와 달리 CSS와 JavaScript를 병렬로 로드할 수 있으므로 페이지 로드 시간이 향상되고 CSS 구문 분석과 같은 추가 작업이 런타임에 수행될 필요가 없기 때문에 런타임 성능이 향상된다.
-  하지만 빌드 타임에 CSS를 생성하기 때문에 Babel이나 Webpack을 사용 시 직접 webpack 설정을 변경해줘야 하며 만약 CRA를 사용하고 있다면 eject를 해주고 loader를 설치해서 설정을 해줘야 하기 때문에 번거로울 수 있고 runtime에서 css polyfill를 사용할 수 없어 구형 브라우저에서 크로스 브라우징 이슈가 있을 수 있다.
-  또한 props를 활용한 동적 스타일링을 위해서는 CSS 변수를 활용하여 적용하거나 @vanilla-extract/dynamic와 같은 패키지를 함께 사용해주어야한다.
+  - 동작 방식
 
-- 오버헤드
+    빌드 타임에 JavaScript 코드를 파싱해 정적인 .css 파일을 생성한다.
 
-  프로그램(런타임 혹은 빌드타임)의 실행 흐름 도중에 특정 기능을 수행하기 위해 추가적인 연산, 메모리 접근, 또는 처리 과정을 거쳐야 할 때 추가적으로 시간, 메모리, 자원이 사용되는 현상이다.
-  한마디로 정의하자면, 오버 헤드는 특정 기능을 수행하는데 드는 간접적인 시간, 메모리 등 자원을 말한다. 예를 들어, 10초 걸리는 기능이 간접적인 원인으로 20초걸린다면 오버헤드는 10초가 되는것이다.
+  - 대표 라이브러리
+
+    vanilla-extract, Linaria
+
+  - 장점
+
+    - 스타일 관련 JS 로직이 번들에서 제거되어 번들 사이즈를 줄일 수 있다.
+
+    - CSS와 JS 번들을 병렬로 로딩하여 초기 렌더링 속도 및 퍼포먼스 (LCP, FCP 지표) 향상.
+
+    - SSR 시 별도 설정 없이 안정적으로 스타일 적용 가능 (FOUC 문제 없음).
+
+    - 정적 분석이 가능해 Dead Code Elimination(사용되지 않는 스타일 제거)이 용이하다.
+
+  - 단점
+
+    - Babel, Webpack 등의 빌드 설정을 추가로 커스터마이징해야 한다.
+
+    - 동적 스타일링이 제한적이다. 다만 CSS 변수 활용, @vanilla-extract/dynamic 라이브러리 사용 등으로 일부 해결 가능
+
+    - 구형 브라우저(IE 등)에서 CSS 변수 사용 제약으로 크로스 브라우징 이슈가 발생할 수 있다.
+
+<br>
+
+### # 디자인 토큰
+
+디자인 토큰(Design Tokens)은 UI 디자인 시스템의 스타일 값들을 코드화한 재사용 가능한 단위이다. 쉽게 말해, 색상, 폰트, 여백, 그림자, 반응형 브레이크포인트 등의 디자인 속성에 이름을 붙여 변수처럼 사용하는 것이다.
+
+- 디자인 토큰 적용 전 : 일반적인 CSS
+
+  ```css
+  .button {
+    color: #ffffff;
+    background-color: #007bff;
+    padding: 8px 16px;
+    border-radius: 4px;
+  }
+  ```
+
+- 디자인 토큰 적용 후
+
+  ```json
+  {
+    "color": {
+      "primary": "#007bff",
+      "text": "#ffffff"
+    },
+    "spacing": {
+      "sm": "8px",
+      "md": "16px"
+    },
+    "borderRadius": {
+      "default": "4px"
+    }
+  }
+  ```
+
+  ```css
+  .button {
+    color: var(--color-text);
+    background-color: var(--color-primary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--borderRadius-default);
+  }
+  ```
 
 <br><br><br>

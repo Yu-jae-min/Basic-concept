@@ -454,6 +454,8 @@
 
       - peerDependencies는 특정 패키지가 다른 패키지를 필요로 하지만, 그 패키지를 직접 포함하지 않고, 상위 프로젝트(패키지를 설치하는 프로젝트)에서 해당 의존성을 설치하도록 요구하는 방식
 
+      - 내부 패키지들이 해당 프로젝트에서 직접 사용되며, 빌드 및 실행에 필수적인 의존성이라면 dependencies에 포함시키는 것이 적절하다. 반면, 다른 프로젝트에서 해당 패키지를 사용할 때 특정 버전의 다른 패키지와 함께 사용될 때 호환성을 보장하기 위해 명시하는 의존성이라면 peerDependencies에 포함시키는 것이 적절하다.
+
   - turbo.json
 
     - tasks 내부에서 bookitnow-client#build와 같이 각 프로젝트 혹은 build로 공통 빌드 설정을 적용, dependsOn의 경우 ^build로 설정하여 부모 혹은 의존하는 패키지들의 build 작업을 먼저 실행
@@ -465,5 +467,9 @@
     - type의 경우 docker + openapitools/openapi-generator-cli를 통해 타입을 자동생성
 
   - 공통 apis, icons, logics, types, ui를 관리
+
+  - 터보레포의 빌드와 캐싱
+
+    - 각 서비스를 개별적으로 빌드하는데 turbo.json에 task에서 dependsOn": ["^build"] 를 통해 의존하는 내부 패키지가 있는 경우 우선적으로 빌드되게 처리하였다. 또한 outputs을 추가하여 빌드 결과물을 캐싱하여 재사용되도록 하였다.
 
 <br>
