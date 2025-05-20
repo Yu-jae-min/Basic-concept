@@ -970,4 +970,215 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
 
   - 즉, 한 페이지 내 여러 컴포넌트가 같은 API를 호출해도, 실제로는 한 번만 네트워크 요청이 발생하고, 그 결과를 공유합니다.
 
+<br>
+
+### # 서버 액션
+
+- 개념
+
+  - 서버 액션은 Next.js App Router에서 지원하는 기능으로, 서버에서만 실행되는 함수를 클라이언트에서 직접 호출하듯 사용할 수 있게 해줌.
+
+  - 주로 use server 지시문을 붙인 함수가 이에 해당하며,
+
+  - Next.js가 클라이언트 호출을 내부적으로 서버 요청으로 변환해서 처리한다.
+
+  - 특히 폼 제출에서 `<form action={서버액션}>`처럼 선언적으로 사용 가능하며, 서버에서 DB 접근, 인증 처리, 비즈니스 로직 실행 등을 안전하게 수행할 수 있다.
+
+- 장단점
+
+  - 장점
+
+    | 장점                           | 설명                                                      |
+    | ------------------------------ | --------------------------------------------------------- |
+    | API 라우트 불필요              | 별도의 API 엔드포인트 만들지 않아도 됨                    |
+    | 타입 안정성                    | 함수 시그니처 기반으로 타입스크립트 타입 자동 보장        |
+    | 간결한 코드                    | `fetch` 없이 마치 함수 호출하듯 서버 로직 실행 가능       |
+    | 보안성                         | 서버에서만 실행되므로 클라이언트에 민감한 정보 노출 안 됨 |
+    | 폼 제출과 자연스러운 통합      | `<form action={서버액션}>` 형태로 기본 폼 제출 활용 가능  |
+    | 서버 컴포넌트와 함께 사용 가능 | 서버 컴포넌트 내 함수로 자연스럽게 조합 가능              |
+
+  - 단점
+
+  | 단점 / 제한                 | 설명                                                          |
+  | --------------------------- | ------------------------------------------------------------- |
+  | Next.js App Router 전용     | `/app` 디렉터리 기반 프로젝트에서만 가능                      |
+  | 직접 API 호출 불가          | 내부적으로 자동 요청 처리, 수동으로 URL 호출 불가능           |
+  | 클라이언트 사이드 호출 제한 | 서버 함수이므로 브라우저에서 직접 실행 안 됨                  |
+  | 외부 API 호출 용도로 부적합 | 서버 내 비즈니스 로직 용도이며, 외부 API 호출엔 fetch 등 필요 |
+
+- 예시
+
+  1. prisma 스키마 정의
+
+  ```js
+  generator client {
+    provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+  }
+
+  // 투두 스키마
+  model Todos {
+    id        Int      @id @default(autoincrement())
+    title     String
+    createTododAt DateTime @default(now())
+  }
+  ```
+
+  2. 앱에서 사용할 prisma의 인스턴스를 생성
+
+  ```javascript
+  import { PrismaClient } from "@prisma/client";
+
+  declare global {
+    var prisma: PrismaClient | undefined;
+  }
+
+  const client = globalThis.prisma || new PrismaClient();
+
+  if (process.env.NODE_ENV !== "production") globalThis.prisma = client;
+
+  export default client;
+  ```
+
+  3. UI 및 서버 액션 정의하기 (폼 제출)
+
+  ```jsx
+  import { createTodo } from "@/action";
+
+  const page = () => {
+    return (
+      <section className="px-16 py-12">
+        <div className="container mx-auto flex flex-col gap-8">
+          <h1 className="text-lg text-gray-900">Todos</h1>
+          <form action={createTodo} className="flex max-w-sm flex-col gap-4">
+            <input
+              type="text"
+              name="title"
+              className="rounded-md border border-slate-300 px-2 py-1 outline-none"
+              required
+            />
+            <button className="rounded-md bg-slate-300 py-2 hover:shadow-sm">
+              submit
+            </button>
+          </form>
+        </div>
+      </section>
+    );
+  };
+  export default page;
+  ```
+
+  ```js
+  "use server";
+  import client from "@/lib/prisma";
+
+  export const createTodo = async (formData: FormData) => {
+    const title = formData.get("title") as string;
+
+    await client.todos.createTodo({
+      data: {
+        title,
+      },
+    });
+  };
+  ```
+
+  4. 추가된 투두 가져오기
+
+  ```js
+  // ...
+
+  export const getTodos = async () => {
+    const todos = await client.todos.findMany();
+
+    return todos;
+  };
+  ```
+
+  ```tsx
+  // 넥스트는 기본적으로 서버 컴포넌트이므로 컴포넌트 자체에서 비동기를 처리할 수 있습니다.
+  import { createTodo, getTodos } from "@/action";
+
+  const page = () => {
+    const todos = await getTodos();
+
+    return (
+      <section className="px-16 py-12">
+        <div className="container mx-auto flex flex-col gap-8">
+          {/* ... */}
+
+          <ul className="max-w-sm">
+            {todos.map((todo) => (
+              <li key={todo.id} className="mb-4 flex justify-between">
+                {todo.title} <DeleteButton id={todo.id} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  };
+  export default page;
+  ```
+
+- 관련 훅
+
+  1. useFormStatus()
+
+  서버 액션 실행 상태 추적을 위해 사용한다. pending 값을 통해 현재 서버 액션이 실행 중인지 알 수 있다. `<form>` 안에서만 작동하고, 서버 액션이 실행되는 동안 버튼 비활성화 등에 사용한다.
+
+  ```tsx
+  "use client";
+
+  import { useFormStatus } from "react-dom";
+
+  export function SubmitButton() {
+    const { pending } = useFormStatus();
+
+    return (
+      <button type="submit" disabled={pending}>
+        {pending ? "저장 중..." : "저장"}
+      </button>
+    );
+  }
+  ```
+
+  2. useFormState()
+
+  서버 액션 결과 상태 관리를 위해 사용한다. 서버 액션에 prevState와 formData를 넘겨줘서 서버에서 상태를 계산한 후 리턴. 폼 제출 후 결과 메시지나 에러 메시지 보여줄 때 유용
+
+  ```tsx
+  "use client";
+
+  import { useFormState } from "react-dom";
+  import { addTodo } from "../actions/addTodo";
+
+  const initialState = { message: "" };
+
+  export default function TodoForm() {
+    const [state, formAction] = useFormState(addTodo, initialState);
+
+    return (
+      <form action={formAction}>
+        <input name="title" />
+        <button type="submit">추가</button>
+        {state.message && <p>{state.message}</p>}
+      </form>
+    );
+  }
+  ```
+
+  ```ts
+  "use server";
+
+  export async function addTodo(prevState: any, formData: FormData) {
+    const title = formData.get("title")?.toString() || "";
+    return { message: `${title} 추가됨` };
+  }
+  ```
+
 <br><br><br>
