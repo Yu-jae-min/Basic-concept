@@ -1704,9 +1704,93 @@
 
 <br>
 
-### # ECMAScript 와 JavaScript 의 차이
+### # ECMAScript
 
-- ECMA 인터내셔널이라는 비영리 표준화 기구에서 정보 통신에 대한 표준을 제정하는데 ECMAScript는 ECMA 인터내셔널이 명세한 스크립트 언어를 어떻게 만들어야 하는지를 설명하는 일종의 표준화 설명서이고, JavaScript는 ECMAScript의 사양을 바탕으로 만들어진 언어이다.
+- ECMAScript
+
+  ECMA 인터내셔널이라는 비영리 표준화 기구에서 정보 통신에 대한 표준을 제정하는데 ECMAScript는 ECMA 인터내셔널이 명세한 스크립트 언어를 어떻게 만들어야 하는지를 설명하는
+  일종의 표준화 설명서이고, JavaScript는 ECMAScript의 사양을 바탕으로 만들어진 언어이다.
+
+- ECMAScript 버전별 차이
+
+  | 버전              | 발표년도 | 주요 기능                                                                                                                                       |     |                                                       |
+  | ----------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --- | ----------------------------------------------------- |
+  | **ES6 (ES2015)**  | 2015     | `let`, `const`, 클래스, 화살표 함수, 템플릿 리터럴, 디스트럭처링, `Promise`, `Map`/`Set`, `module (import/export)`, `Symbol`                    |     |                                                       |
+  | **ES7 (ES2016)**  | 2016     | `Array.prototype.includes`, 지수 연산자 `**`                                                                                                    |     |                                                       |
+  | **ES8 (ES2017)**  | 2017     | `async/await`, `Object.entries()`, `Object.values()`, `String.padStart`, `String.padEnd`                                                        |     |                                                       |
+  | **ES9 (ES2018)**  | 2018     | Rest/Spread 연산자 개선, 비동기 반복문 (`for await...of`), 정규식 개선 (lookbehind 등)                                                          |     |                                                       |
+  | **ES10 (ES2019)** | 2019     | `Array.flat()`, `Array.flatMap()`, `Object.fromEntries()`, `trimStart/trimEnd`                                                                  |     |                                                       |
+  | **ES11 (ES2020)** | 2020     | `optional chaining (?.)`, `nullish coalescing (??)`, `Promise.allSettled`, `globalThis`, BigInt                                                 |     |                                                       |
+  | **ES12 (ES2021)** | 2021     | `String.replaceAll`, `Promise.any`, `WeakRef`, \`logical assignment operators (&&=,                                                             |     | =, ??=)`, `structuredClone\` (브라우저는 약간 지연됨) |
+  | **ES13 (ES2022)** | 2022     | 클래스 필드, 정적 블록, `at()` 메서드 (`array.at()`), `Error.cause`, top-level await (모듈)                                                     |     |                                                       |
+  | **ES14 (ES2023)** | 2023     | `Array.prototype.findLast`, `findLastIndex`, `Symbol.prototype.description`, `hashbang`(`#!`), 정적 `Array.prototype.toSorted()` 등 불변 메서드 |     |                                                       |
+
+- ECMAScript 최신 버전 상세
+
+  - Array.prototype.findLast() & Array.prototype.findLastIndex()
+
+    기존의 find()는 앞에서부터 찾았지만, 이제 뒤에서부터도 찾을 수 있다.
+
+    ```js
+    const arr = [1, 2, 3, 4, 5, 6];
+
+    arr.findLast((n) => n % 2 === 0); // 6
+    arr.findLastIndex((n) => n % 2 === 0); // 5
+    ```
+
+  - Array.prototype.toSorted(), toReversed(), toSpliced(), with()
+
+    기존 배열을 변경하지 않고 새로운 배열을 반환한다. (불변성 유지)
+
+    ```js
+    // toSorted
+    const arr = [3, 1, 2];
+    const sorted = arr.toSorted(); // [1, 2, 3]
+    console.log(arr); // [3, 1, 2] (원본 그대로)
+    ```
+
+    ```js
+    // toReversed
+    const reversed = arr.toReversed(); // [2, 1, 3]
+    ```
+
+    ```js
+    // toSpliced
+    const arr = [1, 2, 3];
+    const newArr = arr.toSpliced(1, 1, 99); // [1, 99, 3]
+    ```
+
+    ```js
+    const arr = [0, 1, 2];
+    const newArr = arr.with(1, 100); // [0, 100, 2]
+    ```
+
+  - Symbol.prototype.description
+
+    기존에는 Symbol("foo").description이 명세상 없었지만, 이제는 표준적으로 접근 가능하다.
+
+    ```js
+    const sym = Symbol("example");
+    console.log(sym.description); // "example"
+    ```
+
+  - Hashbang(#!) 지원
+
+    Node.js에서 스크립트를 실행할 때 사용되는 #! 문법을 이제 JS 스펙으로 인정한다.
+
+    ```js
+    #!/usr/bin/env node
+
+    console.log("Hello from Node script");
+    ```
+
+  - 기타 개선 사항
+
+    - JSON.parse가 BOM(Byte Order Mark)을 무시하도록 명확히 정의됨
+
+    - RegExp 개선 사항 (정규식 엔진 명세 업데이트)
+
+    - Private 필드가 더 엄격하게 동작하도록 처리 (클래스 보안 향상)
 
 <br>
 
@@ -4425,66 +4509,216 @@ setState는 비동기로 동작한다. 비동기로 동작하는 이유는 일�
 - 리덕스 미들웨어란
 
   리덕스 미들웨어는 액션이 디스패치(dispatch) 된 후 리듀서가 해당 액션을 처리하기 전에 추가 작업(로깅, 비동기 처리, 에러 처리 등) 을 할 수 있도록 해주는 함수이다.
-
-  미들웨어는 기본적으로 디스패치 함수를 감싸서 확장하는 고차 함수(Higher-Order Function) 형태로 작동하며, 이를 통해 액션을 가로채거나 변형하거나 비동기 작업을 처리할 수 있따.
-
-  리듀서는 순수 함수여야 하므로 비동기 로직을 직접 처리할 수 없기 때문에, 미들웨어를 활용하여 비동기 작업이나 부수 효과(side effects)를 관리합니다.
-
+  Redux는 기본적으로 순수 함수인 리듀서를 기반으로 하기 때문에, 리듀서 안에서 직접 API 요청이나 타이머 같은 부수효과(side effect)를 처리할 수 없다.
+  즉, dispatch(fetchUser())와 같은 액션을 날렸을 때 내부에서 비동기 로직을 처리해 상태를 변경하려면 미들웨어가 필요하다.
+  미들웨어는 기본적으로 디스패치 함수를 감싸서 확장하는 고차 함수(Higher-Order Function) 형태로 작동하며, 이를 통해 액션을 가로채거나 변형하거나 비동기 작업을 처리할 수 있다.
   대표적인 리덕스 미들웨어 라이브러리로는 redux-thunk, redux-saga, redux-observable, redux-promise-middleware 등이 있습니다.
 
-- redux-thunk, redux-saga
+- redux-thunk
 
-  (1) redux-thunk : 리덕스 사용 시 비동기 작업을 처리할 때 사용하는 미들웨어 중 하나이다. 기존에는 액션 객체만 디스패치할 수 있었지만, redux-thunk를 사용하면 함수를 디스패치할 수 있게 된다. redux-thunk를 사용하는 주된 이유는 리덕스가 기본적으로 비동기 처리를 지원하지 않기 때문입니다. 또한 redux toolkit에서는 비동기 로직 처리 시 내장되어 있는 createAsyncThunk를 사용하여 처리할 수 있다.
+  - 개념
 
-  ```js
-  // 액션 크리에이터 (비동기 처리)
-  const fetchUser = (userId) => {
-    return async (dispatch, getState) => {
-      dispatch({ type: "FETCH_USER_START" });
-      try {
-        const response = await fetch(`https://api.example.com/users/${userId}`);
-        const data = await response.json();
-        dispatch({ type: "FETCH_USER_SUCCESS", payload: data });
-      } catch (error) {
-        dispatch({ type: "FETCH_USER_FAILURE", error });
+    redux-thunk는 액션 크리에이터가 객체가 아닌 함수를 반환할 수 있게 해주는 미들웨어이다. 이 함수는 dispatch, getState를 인자로 받아, 내부에서 비동기 작업을 처리하고,
+    필요에 따라 여러 개의 액션을 순차적으로 dispatch할 수 있게 해준다.
+
+  - 예시
+
+    dispatch -> 액션을 디스패치할 수 있는 함수, getState -> 현재 Redux 상태 트리를 가져오는 함수(const state = getState())
+
+    ```js
+    // 썽크 액션 크리에이터 (비동기 처리)
+
+    const fetchUser = (userId) => {
+      return async (dispatch, getState) => {
+        dispatch({ type: "FETCH_USER_REQUEST" }); // 1단계: 로딩 시작
+
+        try {
+          const res = await fetch(`/api/user/${userId}`); // 2단계: 비동기 API 호출
+          const data = await res.json(); // 3단계: 응답 파싱
+          dispatch({ type: "FETCH_USER_SUCCESS", payload: data }); // 4단계: 성공 액션
+        } catch (err) {
+          dispatch({ type: "FETCH_USER_FAILURE", error: err }); // 5단계: 실패 액션
+        }
+      };
+    };
+
+    store.dispatch(fetchUser(1)); // thunk 함수를 dispatch
+    ```
+
+- redux-saga
+
+  - 개념
+
+    redux-saga는 비동기 로직을 제너레이터 함수(generator function)를 사용해서 처리한다. 액션을 감지해서(take, takeLatest 등) 특정 사가(generator 함수)가 실행되고,
+    그 안에서 call, put, delay 같은 이펙트 유틸을 사용해 명령형으로 비동기 로직을 다룬다.
+
+  - 예시
+
+    1. 버튼 클릭 → FETCH_USER_REQUEST 액션 디스패치
+
+    2. 사가가 감지 → API 호출
+
+    3. 성공하면 FETCH_USER_SUCCESS → 리듀서가 상태 업데이트 → 화면에 표시
+
+    ```js
+    // actions.js
+    // 액션 타입
+    export const FETCH_USER_REQUEST = "FETCH_USER_REQUEST";
+    export const FETCH_USER_SUCCESS = "FETCH_USER_SUCCESS";
+    export const FETCH_USER_FAILURE = "FETCH_USER_FAILURE";
+
+    // 액션 생성자
+    export const fetchUserRequest = (userId) => ({
+      type: FETCH_USER_REQUEST,
+      payload: userId,
+    });
+
+    export const fetchUserSuccess = (user) => ({
+      type: FETCH_USER_SUCCESS,
+      payload: user,
+    });
+
+    export const fetchUserFailure = (error) => ({
+      type: FETCH_USER_FAILURE,
+      error,
+    });
+    ```
+
+    ```js
+    // reducers.js
+    import {
+      FETCH_USER_REQUEST,
+      FETCH_USER_SUCCESS,
+      FETCH_USER_FAILURE,
+    } from "./actions";
+
+    const initialState = {
+      loading: false,
+      data: null,
+      error: null,
+    };
+
+    export const userReducer = (state = initialState, action) => {
+      switch (action.type) {
+        case FETCH_USER_REQUEST:
+          return { ...state, loading: true, error: null };
+        case FETCH_USER_SUCCESS:
+          return { ...state, loading: false, data: action.payload };
+        case FETCH_USER_FAILURE:
+          return { ...state, loading: false, error: action.error };
+        default:
+          return state;
       }
     };
-  };
+    ```
 
-  // 사용법
-  store.dispatch(fetchUser(1));
-  ```
+    ```js
+    // sagas.js
+    import { call, put, takeLatest } from "redux-saga/effects";
+    import {
+      FETCH_USER_REQUEST,
+      fetchUserSuccess,
+      fetchUserFailure,
+    } from "./actions";
 
-  (2) redux-saga : 액션을 모니터링(감시)하다가 특정 액션이 발생하면, 제너레이터 함수를 활용해 비동기 작업이나 사이드 이펙트를 처리하는 미들웨어입니다.
-
-  ```js
-  import { call, put, takeEvery } from "redux-saga/effects";
-
-  // API 호출 함수
-  function fetchUserApi(userId) {
-    return fetch(`https://api.example.com/users/${userId}`).then((res) =>
-      res.json()
-    );
-  }
-
-  // 제너레이터 함수 (사이드 이펙트)
-  function* fetchUser(action) {
-    try {
-      const user = yield call(fetchUserApi, action.payload);
-      yield put({ type: "FETCH_USER_SUCCESS", payload: user });
-    } catch (e) {
-      yield put({ type: "FETCH_USER_FAILURE", error: e.message });
+    // API 호출 함수
+    function fetchUserApi(userId) {
+      return fetch(`https://jsonplaceholder.typicode.com/users/${userId}`).then(
+        (res) => {
+          if (!res.ok) throw new Error("Failed to fetch user");
+          return res.json();
+        }
+      );
     }
-  }
 
-  // 액션 감시자
-  function* watchFetchUser() {
-    yield takeEvery("FETCH_USER_REQUEST", fetchUser);
-  }
+    // 제너레이터 함수 (사가)
+    function* fetchUserSaga(action) {
+      try {
+        const user = yield call(fetchUserApi, action.payload);
+        yield put(fetchUserSuccess(user));
+      } catch (e) {
+        yield put(fetchUserFailure(e.message));
+      }
+    }
 
-  // saga 미들웨어 등록 후
-  // store.dispatch({ type: 'FETCH_USER_REQUEST', payload: 1 });
-  ```
+    // 액션 감시자 함수, 루트 사가에 등록해서 실행해야 한다.
+    export function* rootSaga() {
+      yield takeLatest(FETCH_USER_REQUEST, fetchUserSaga);
+    }
+    ```
+
+    ```js
+    // store.js
+    import { createStore, applyMiddleware } from "redux";
+    import createSagaMiddleware from "redux-saga";
+    import { userReducer } from "./reducers";
+    import { rootSaga } from "./sagas";
+
+    // saga middleware 생성
+    const sagaMiddleware = createSagaMiddleware();
+
+    // store 생성
+    export const store = createStore(
+      userReducer,
+      applyMiddleware(sagaMiddleware)
+    );
+
+    // saga 실행
+    sagaMiddleware.run(rootSaga);
+    ```
+
+    ```jsx
+    // App.js
+    import React from "react";
+    import { useDispatch, useSelector, Provider } from "react-redux";
+    import { store } from "./store";
+    import { fetchUserRequest } from "./actions";
+
+    function App() {
+      const dispatch = useDispatch();
+      const user = useSelector((state) => state.data);
+      const loading = useSelector((state) => state.loading);
+      const error = useSelector((state) => state.error);
+
+      const handleClick = () => {
+        dispatch(fetchUserRequest(1)); // userId = 1
+      };
+
+      return (
+        <div>
+          <h1>User Info</h1>
+          <button onClick={handleClick}>Fetch User</button>
+          {loading && <p>Loading...</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {user && (
+            <div>
+              <p>Name: {user.name}</p>
+              <p>Email: {user.email}</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Provider로 감싸기
+    export default function Root() {
+      return (
+        <Provider store={store}>
+          <App />
+        </Provider>
+      );
+    }
+    ```
+
+- redux-thunk, redux-saga 비교
+
+  | 상황          | Thunk             | Saga                                    |
+  | ------------- | ----------------- | --------------------------------------- |
+  | 프로젝트 크기 | 소규모            | 중/대규모                               |
+  | 로직 복잡도   | 간단한 API 요청   | 복잡한 흐름 (요청 취소, 순차적 처리 등) |
+  | 학습 곡선     | 낮음              | 높음                                    |
+  | 코드 스타일   | 함수형, 간결      | 명령형, 유연                            |
+  | 테스트        | 상대적으로 어려움 | 테스트 용이                             |
 
 <br>
 
@@ -6946,7 +7180,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   - next.js
 
-    - Next.js 13 이상에서 app/ 디렉토리 기반의 서버 컴포넌트 + `<Suspense>` 사용만 해도 자동으로 스트리밍
+    - Next.js에서는 Streaming SSR 기능을 App Router + 서버 컴포넌트(Server Component) 중심으로 기본적으로 자동 적용
 
       ```jsx
       // app/page.tsx
@@ -8524,36 +8758,36 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
 - 관련 훅
 
   1. useFormStatus()
-  
-    서버 액션 실행 상태 추적을 위해 사용한다. pending 값을 통해 현재 서버 액션이 실행 중인지 알 수 있다. `<form>` 안에서만 작동하고, 서버 액션이 실행되는 동안 버튼 비활성화 등에 사용한다.
 
-    ```tsx
-    'use client';
+  서버 액션 실행 상태 추적을 위해 사용한다. pending 값을 통해 현재 서버 액션이 실행 중인지 알 수 있다. `<form>` 안에서만 작동하고, 서버 액션이 실행되는 동안 버튼 비활성화 등에 사용한다.
 
-    import { useFormStatus } from 'react-dom';
+  ```tsx
+  "use client";
 
-    export function SubmitButton() {
-      const { pending } = useFormStatus();
+  import { useFormStatus } from "react-dom";
 
-      return (
-        <button type="submit" disabled={pending}>
-          {pending ? '저장 중...' : '저장'}
-        </button>
-      );
-    }
-    ```
+  export function SubmitButton() {
+    const { pending } = useFormStatus();
+
+    return (
+      <button type="submit" disabled={pending}>
+        {pending ? "저장 중..." : "저장"}
+      </button>
+    );
+  }
+  ```
 
   2. useFormState()
 
   서버 액션 결과 상태 관리를 위해 사용한다. 서버 액션에 prevState와 formData를 넘겨줘서 서버에서 상태를 계산한 후 리턴. 폼 제출 후 결과 메시지나 에러 메시지 보여줄 때 유용
 
   ```tsx
-  'use client';
+  "use client";
 
-  import { useFormState } from 'react-dom';
-  import { addTodo } from '../actions/addTodo';
+  import { useFormState } from "react-dom";
+  import { addTodo } from "../actions/addTodo";
 
-  const initialState = { message: '' };
+  const initialState = { message: "" };
 
   export default function TodoForm() {
     const [state, formAction] = useFormState(addTodo, initialState);
@@ -8569,10 +8803,10 @@ nextjs에서는 데이터 패칭을 위해 내장 fetch API를 활용한다. (�
   ```
 
   ```ts
-  'use server';
+  "use server";
 
   export async function addTodo(prevState: any, formData: FormData) {
-    const title = formData.get('title')?.toString() || '';
+    const title = formData.get("title")?.toString() || "";
     return { message: `${title} 추가됨` };
   }
   ```
@@ -10997,6 +11231,87 @@ GraphQL 원격 스키마로부터 타입을 자동 생성하는 코드 제너레
     - 용도 예시: API 백엔드, 이미지 리사이징, 데이터 처리, 자동화 작업 등
 
     - 예시: AWS Lambda, Azure Functions, Google Cloud Functions
+
+- AWS Lambda 이미지 리사이징 예시 (nodejs)
+
+  ```js
+  // sharp 모듈을 불러옴 - 이미지 변환을 위해 사용
+  const sharp = require("sharp");
+
+  // aws-sdk 모듈을 불러옴 - AWS 서비스 접근을 위해 사용
+  const aws = require("aws-sdk");
+
+  // S3 서비스 객체 생성
+  const s3 = new aws.S3();
+
+  // 변환 옵션 배열 - 각 옵션에는 이름과 리사이즈할 폭(width)이 정의되어 있음
+  const tansformationOptions = [
+    { name: "w140", width: 140 },
+    { name: "w600", width: 600 },
+  ];
+
+  // Lambda 함수 핸들러 정의 - S3 이벤트를 처리함
+  exports.handler = async (event) => {
+    try {
+      // 이벤트에서 S3 객체 키를 추출
+      const Key = event.Records[0].s3.object.key;
+
+      // 키에서 파일 이름만 추출
+      const keyOnly = Key.split("/")[1];
+      console.log(`Image Resizing: ${keyOnly}`);
+
+      // S3에서 이미지를 읽어들이기 위한 스트림 생성
+      const imageStream = s3
+        .getObject({ Bucket: "na0man-image-upload-tutorial", Key })
+        .createReadStream();
+
+      // 변환 옵션 배열을 순회하며 각 옵션에 대해 비동기적으로 처리
+      await Promise.all(
+        tansformationOptions.map(async ({ name, width }) => {
+          // 새로운 키(경로) 생성
+          const newKey = `${name}/${keyOnly}`;
+
+          // sharp 변환기 생성 - 이미지를 회전하고 크기를 조정
+          const transformer = sharp()
+            .rotate()
+            .resize({ width, height: width, fit: "outside" });
+
+          // 이미지 스트림을 변환기에 파이핑하여 리사이즈된 이미지 버퍼를 생성
+          const resizedImageBuffer = await new Promise((resolve, reject) => {
+            const chunks = [];
+            imageStream
+              .pipe(transformer)
+              .on("data", (chunk) => chunks.push(chunk)) // 데이터를 청크 단위로 수집
+              .on("end", () => resolve(Buffer.concat(chunks))) // 모든 데이터가 수집되면 버퍼로 결합
+              .on("error", reject); // 오류 발생 시 reject 호출
+          });
+
+          // 리사이즈된 이미지를 S3 버킷에 저장
+          await s3
+            .putObject({
+              Bucket: "na0man-image-upload-tutorial",
+              Body: resizedImageBuffer,
+              Key: newKey,
+            })
+            .promise();
+        })
+      );
+
+      // 모든 작업이 성공하면 상태 코드 200과 함께 이벤트 데이터를 반환
+      return {
+        statusCode: 200,
+        body: JSON.stringify(event),
+      };
+    } catch (err) {
+      // 오류가 발생하면 콘솔에 로그를 남기고 상태 코드 500과 함께 이벤트 데이터를 반환
+      console.error(err);
+      return {
+        statusCode: 500,
+        body: JSON.stringify(event),
+      };
+    }
+  };
+  ```
 
 <br><br><br>
 

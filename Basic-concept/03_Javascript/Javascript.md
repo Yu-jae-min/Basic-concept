@@ -805,9 +805,93 @@
 
 <br>
 
-### # ECMAScript 와 JavaScript 의 차이
+### # ECMAScript
 
-- ECMA 인터내셔널이라는 비영리 표준화 기구에서 정보 통신에 대한 표준을 제정하는데 ECMAScript는 ECMA 인터내셔널이 명세한 스크립트 언어를 어떻게 만들어야 하는지를 설명하는 일종의 표준화 설명서이고, JavaScript는 ECMAScript의 사양을 바탕으로 만들어진 언어이다.
+- ECMAScript
+
+  ECMA 인터내셔널이라는 비영리 표준화 기구에서 정보 통신에 대한 표준을 제정하는데 ECMAScript는 ECMA 인터내셔널이 명세한 스크립트 언어를 어떻게 만들어야 하는지를 설명하는
+  일종의 표준화 설명서이고, JavaScript는 ECMAScript의 사양을 바탕으로 만들어진 언어이다.
+
+- ECMAScript 버전별 차이
+
+  | 버전              | 발표년도 | 주요 기능                                                                                                                                       |     |                                                       |
+  | ----------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --- | ----------------------------------------------------- |
+  | **ES6 (ES2015)**  | 2015     | `let`, `const`, 클래스, 화살표 함수, 템플릿 리터럴, 디스트럭처링, `Promise`, `Map`/`Set`, `module (import/export)`, `Symbol`                    |     |                                                       |
+  | **ES7 (ES2016)**  | 2016     | `Array.prototype.includes`, 지수 연산자 `**`                                                                                                    |     |                                                       |
+  | **ES8 (ES2017)**  | 2017     | `async/await`, `Object.entries()`, `Object.values()`, `String.padStart`, `String.padEnd`                                                        |     |                                                       |
+  | **ES9 (ES2018)**  | 2018     | Rest/Spread 연산자 개선, 비동기 반복문 (`for await...of`), 정규식 개선 (lookbehind 등)                                                          |     |                                                       |
+  | **ES10 (ES2019)** | 2019     | `Array.flat()`, `Array.flatMap()`, `Object.fromEntries()`, `trimStart/trimEnd`                                                                  |     |                                                       |
+  | **ES11 (ES2020)** | 2020     | `optional chaining (?.)`, `nullish coalescing (??)`, `Promise.allSettled`, `globalThis`, BigInt                                                 |     |                                                       |
+  | **ES12 (ES2021)** | 2021     | `String.replaceAll`, `Promise.any`, `WeakRef`, \`logical assignment operators (&&=,                                                             |     | =, ??=)`, `structuredClone\` (브라우저는 약간 지연됨) |
+  | **ES13 (ES2022)** | 2022     | 클래스 필드, 정적 블록, `at()` 메서드 (`array.at()`), `Error.cause`, top-level await (모듈)                                                     |     |                                                       |
+  | **ES14 (ES2023)** | 2023     | `Array.prototype.findLast`, `findLastIndex`, `Symbol.prototype.description`, `hashbang`(`#!`), 정적 `Array.prototype.toSorted()` 등 불변 메서드 |     |                                                       |
+
+- ECMAScript 최신 버전 상세
+
+  - Array.prototype.findLast() & Array.prototype.findLastIndex()
+
+    기존의 find()는 앞에서부터 찾았지만, 이제 뒤에서부터도 찾을 수 있다.
+
+    ```js
+    const arr = [1, 2, 3, 4, 5, 6];
+
+    arr.findLast((n) => n % 2 === 0); // 6
+    arr.findLastIndex((n) => n % 2 === 0); // 5
+    ```
+
+  - Array.prototype.toSorted(), toReversed(), toSpliced(), with()
+
+    기존 배열을 변경하지 않고 새로운 배열을 반환한다. (불변성 유지)
+
+    ```js
+    // toSorted
+    const arr = [3, 1, 2];
+    const sorted = arr.toSorted(); // [1, 2, 3]
+    console.log(arr); // [3, 1, 2] (원본 그대로)
+    ```
+
+    ```js
+    // toReversed
+    const reversed = arr.toReversed(); // [2, 1, 3]
+    ```
+
+    ```js
+    // toSpliced
+    const arr = [1, 2, 3];
+    const newArr = arr.toSpliced(1, 1, 99); // [1, 99, 3]
+    ```
+
+    ```js
+    const arr = [0, 1, 2];
+    const newArr = arr.with(1, 100); // [0, 100, 2]
+    ```
+
+  - Symbol.prototype.description
+
+    기존에는 Symbol("foo").description이 명세상 없었지만, 이제는 표준적으로 접근 가능하다.
+
+    ```js
+    const sym = Symbol("example");
+    console.log(sym.description); // "example"
+    ```
+
+  - Hashbang(#!) 지원
+
+    Node.js에서 스크립트를 실행할 때 사용되는 #! 문법을 이제 JS 스펙으로 인정한다.
+
+    ```js
+    #!/usr/bin/env node
+
+    console.log("Hello from Node script");
+    ```
+
+  - 기타 개선 사항
+
+    - JSON.parse가 BOM(Byte Order Mark)을 무시하도록 명확히 정의됨
+
+    - RegExp 개선 사항 (정규식 엔진 명세 업데이트)
+
+    - Private 필드가 더 엄격하게 동작하도록 처리 (클래스 보안 향상)
 
 <br>
 

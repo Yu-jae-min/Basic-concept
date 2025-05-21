@@ -252,4 +252,85 @@
 
     - 예시: AWS Lambda, Azure Functions, Google Cloud Functions
 
+- AWS Lambda 이미지 리사이징 예시 (nodejs)
+
+  ```js
+  // sharp 모듈을 불러옴 - 이미지 변환을 위해 사용
+  const sharp = require("sharp");
+
+  // aws-sdk 모듈을 불러옴 - AWS 서비스 접근을 위해 사용
+  const aws = require("aws-sdk");
+
+  // S3 서비스 객체 생성
+  const s3 = new aws.S3();
+
+  // 변환 옵션 배열 - 각 옵션에는 이름과 리사이즈할 폭(width)이 정의되어 있음
+  const tansformationOptions = [
+    { name: "w140", width: 140 },
+    { name: "w600", width: 600 },
+  ];
+
+  // Lambda 함수 핸들러 정의 - S3 이벤트를 처리함
+  exports.handler = async (event) => {
+    try {
+      // 이벤트에서 S3 객체 키를 추출
+      const Key = event.Records[0].s3.object.key;
+
+      // 키에서 파일 이름만 추출
+      const keyOnly = Key.split("/")[1];
+      console.log(`Image Resizing: ${keyOnly}`);
+
+      // S3에서 이미지를 읽어들이기 위한 스트림 생성
+      const imageStream = s3
+        .getObject({ Bucket: "na0man-image-upload-tutorial", Key })
+        .createReadStream();
+
+      // 변환 옵션 배열을 순회하며 각 옵션에 대해 비동기적으로 처리
+      await Promise.all(
+        tansformationOptions.map(async ({ name, width }) => {
+          // 새로운 키(경로) 생성
+          const newKey = `${name}/${keyOnly}`;
+
+          // sharp 변환기 생성 - 이미지를 회전하고 크기를 조정
+          const transformer = sharp()
+            .rotate()
+            .resize({ width, height: width, fit: "outside" });
+
+          // 이미지 스트림을 변환기에 파이핑하여 리사이즈된 이미지 버퍼를 생성
+          const resizedImageBuffer = await new Promise((resolve, reject) => {
+            const chunks = [];
+            imageStream
+              .pipe(transformer)
+              .on("data", (chunk) => chunks.push(chunk)) // 데이터를 청크 단위로 수집
+              .on("end", () => resolve(Buffer.concat(chunks))) // 모든 데이터가 수집되면 버퍼로 결합
+              .on("error", reject); // 오류 발생 시 reject 호출
+          });
+
+          // 리사이즈된 이미지를 S3 버킷에 저장
+          await s3
+            .putObject({
+              Bucket: "na0man-image-upload-tutorial",
+              Body: resizedImageBuffer,
+              Key: newKey,
+            })
+            .promise();
+        })
+      );
+
+      // 모든 작업이 성공하면 상태 코드 200과 함께 이벤트 데이터를 반환
+      return {
+        statusCode: 200,
+        body: JSON.stringify(event),
+      };
+    } catch (err) {
+      // 오류가 발생하면 콘솔에 로그를 남기고 상태 코드 500과 함께 이벤트 데이터를 반환
+      console.error(err);
+      return {
+        statusCode: 500,
+        body: JSON.stringify(event),
+      };
+    }
+  };
+  ```
+
 <br><br><br>
