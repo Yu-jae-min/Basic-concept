@@ -585,66 +585,216 @@ setState는 비동기로 동작한다. 비동기로 동작하는 이유는 일�
 - 리덕스 미들웨어란
 
   리덕스 미들웨어는 액션이 디스패치(dispatch) 된 후 리듀서가 해당 액션을 처리하기 전에 추가 작업(로깅, 비동기 처리, 에러 처리 등) 을 할 수 있도록 해주는 함수이다.
-
-  미들웨어는 기본적으로 디스패치 함수를 감싸서 확장하는 고차 함수(Higher-Order Function) 형태로 작동하며, 이를 통해 액션을 가로채거나 변형하거나 비동기 작업을 처리할 수 있따.
-
-  리듀서는 순수 함수여야 하므로 비동기 로직을 직접 처리할 수 없기 때문에, 미들웨어를 활용하여 비동기 작업이나 부수 효과(side effects)를 관리합니다.
-
+  Redux는 기본적으로 순수 함수인 리듀서를 기반으로 하기 때문에, 리듀서 안에서 직접 API 요청이나 타이머 같은 부수효과(side effect)를 처리할 수 없다.
+  즉, dispatch(fetchUser())와 같은 액션을 날렸을 때 내부에서 비동기 로직을 처리해 상태를 변경하려면 미들웨어가 필요하다.
+  미들웨어는 기본적으로 디스패치 함수를 감싸서 확장하는 고차 함수(Higher-Order Function) 형태로 작동하며, 이를 통해 액션을 가로채거나 변형하거나 비동기 작업을 처리할 수 있다.
   대표적인 리덕스 미들웨어 라이브러리로는 redux-thunk, redux-saga, redux-observable, redux-promise-middleware 등이 있습니다.
 
-- redux-thunk, redux-saga
+- redux-thunk
 
-  (1) redux-thunk : 리덕스 사용 시 비동기 작업을 처리할 때 사용하는 미들웨어 중 하나이다. 기존에는 액션 객체만 디스패치할 수 있었지만, redux-thunk를 사용하면 함수를 디스패치할 수 있게 된다. redux-thunk를 사용하는 주된 이유는 리덕스가 기본적으로 비동기 처리를 지원하지 않기 때문입니다. 또한 redux toolkit에서는 비동기 로직 처리 시 내장되어 있는 createAsyncThunk를 사용하여 처리할 수 있다.
+  - 개념
 
-  ```js
-  // 액션 크리에이터 (비동기 처리)
-  const fetchUser = (userId) => {
-    return async (dispatch, getState) => {
-      dispatch({ type: "FETCH_USER_START" });
-      try {
-        const response = await fetch(`https://api.example.com/users/${userId}`);
-        const data = await response.json();
-        dispatch({ type: "FETCH_USER_SUCCESS", payload: data });
-      } catch (error) {
-        dispatch({ type: "FETCH_USER_FAILURE", error });
+    redux-thunk는 액션 크리에이터가 객체가 아닌 함수를 반환할 수 있게 해주는 미들웨어이다. 이 함수는 dispatch, getState를 인자로 받아, 내부에서 비동기 작업을 처리하고,
+    필요에 따라 여러 개의 액션을 순차적으로 dispatch할 수 있게 해준다.
+
+  - 예시
+
+    dispatch -> 액션을 디스패치할 수 있는 함수, getState -> 현재 Redux 상태 트리를 가져오는 함수(const state = getState())
+
+    ```js
+    // 썽크 액션 크리에이터 (비동기 처리)
+
+    const fetchUser = (userId) => {
+      return async (dispatch, getState) => {
+        dispatch({ type: "FETCH_USER_REQUEST" }); // 1단계: 로딩 시작
+
+        try {
+          const res = await fetch(`/api/user/${userId}`); // 2단계: 비동기 API 호출
+          const data = await res.json(); // 3단계: 응답 파싱
+          dispatch({ type: "FETCH_USER_SUCCESS", payload: data }); // 4단계: 성공 액션
+        } catch (err) {
+          dispatch({ type: "FETCH_USER_FAILURE", error: err }); // 5단계: 실패 액션
+        }
+      };
+    };
+
+    store.dispatch(fetchUser(1)); // thunk 함수를 dispatch
+    ```
+
+- redux-saga
+
+  - 개념
+
+    redux-saga는 비동기 로직을 제너레이터 함수(generator function)를 사용해서 처리한다. 액션을 감지해서(take, takeLatest 등) 특정 사가(generator 함수)가 실행되고,
+    그 안에서 call, put, delay 같은 이펙트 유틸을 사용해 명령형으로 비동기 로직을 다룬다.
+
+  - 예시
+
+    1. 버튼 클릭 → FETCH_USER_REQUEST 액션 디스패치
+
+    2. 사가가 감지 → API 호출
+
+    3. 성공하면 FETCH_USER_SUCCESS → 리듀서가 상태 업데이트 → 화면에 표시
+
+    ```js
+    // actions.js
+    // 액션 타입
+    export const FETCH_USER_REQUEST = "FETCH_USER_REQUEST";
+    export const FETCH_USER_SUCCESS = "FETCH_USER_SUCCESS";
+    export const FETCH_USER_FAILURE = "FETCH_USER_FAILURE";
+
+    // 액션 생성자
+    export const fetchUserRequest = (userId) => ({
+      type: FETCH_USER_REQUEST,
+      payload: userId,
+    });
+
+    export const fetchUserSuccess = (user) => ({
+      type: FETCH_USER_SUCCESS,
+      payload: user,
+    });
+
+    export const fetchUserFailure = (error) => ({
+      type: FETCH_USER_FAILURE,
+      error,
+    });
+    ```
+
+    ```js
+    // reducers.js
+    import {
+      FETCH_USER_REQUEST,
+      FETCH_USER_SUCCESS,
+      FETCH_USER_FAILURE,
+    } from "./actions";
+
+    const initialState = {
+      loading: false,
+      data: null,
+      error: null,
+    };
+
+    export const userReducer = (state = initialState, action) => {
+      switch (action.type) {
+        case FETCH_USER_REQUEST:
+          return { ...state, loading: true, error: null };
+        case FETCH_USER_SUCCESS:
+          return { ...state, loading: false, data: action.payload };
+        case FETCH_USER_FAILURE:
+          return { ...state, loading: false, error: action.error };
+        default:
+          return state;
       }
     };
-  };
+    ```
 
-  // 사용법
-  store.dispatch(fetchUser(1));
-  ```
+    ```js
+    // sagas.js
+    import { call, put, takeLatest } from "redux-saga/effects";
+    import {
+      FETCH_USER_REQUEST,
+      fetchUserSuccess,
+      fetchUserFailure,
+    } from "./actions";
 
-  (2) redux-saga : 액션을 모니터링(감시)하다가 특정 액션이 발생하면, 제너레이터 함수를 활용해 비동기 작업이나 사이드 이펙트를 처리하는 미들웨어입니다.
-
-  ```js
-  import { call, put, takeEvery } from "redux-saga/effects";
-
-  // API 호출 함수
-  function fetchUserApi(userId) {
-    return fetch(`https://api.example.com/users/${userId}`).then((res) =>
-      res.json()
-    );
-  }
-
-  // 제너레이터 함수 (사이드 이펙트)
-  function* fetchUser(action) {
-    try {
-      const user = yield call(fetchUserApi, action.payload);
-      yield put({ type: "FETCH_USER_SUCCESS", payload: user });
-    } catch (e) {
-      yield put({ type: "FETCH_USER_FAILURE", error: e.message });
+    // API 호출 함수
+    function fetchUserApi(userId) {
+      return fetch(`https://jsonplaceholder.typicode.com/users/${userId}`).then(
+        (res) => {
+          if (!res.ok) throw new Error("Failed to fetch user");
+          return res.json();
+        }
+      );
     }
-  }
 
-  // 액션 감시자
-  function* watchFetchUser() {
-    yield takeEvery("FETCH_USER_REQUEST", fetchUser);
-  }
+    // 제너레이터 함수 (사가)
+    function* fetchUserSaga(action) {
+      try {
+        const user = yield call(fetchUserApi, action.payload);
+        yield put(fetchUserSuccess(user));
+      } catch (e) {
+        yield put(fetchUserFailure(e.message));
+      }
+    }
 
-  // saga 미들웨어 등록 후
-  // store.dispatch({ type: 'FETCH_USER_REQUEST', payload: 1 });
-  ```
+    // 액션 감시자 함수, 루트 사가에 등록해서 실행해야 한다.
+    export function* rootSaga() {
+      yield takeLatest(FETCH_USER_REQUEST, fetchUserSaga);
+    }
+    ```
+
+    ```js
+    // store.js
+    import { createStore, applyMiddleware } from "redux";
+    import createSagaMiddleware from "redux-saga";
+    import { userReducer } from "./reducers";
+    import { rootSaga } from "./sagas";
+
+    // saga middleware 생성
+    const sagaMiddleware = createSagaMiddleware();
+
+    // store 생성
+    export const store = createStore(
+      userReducer,
+      applyMiddleware(sagaMiddleware)
+    );
+
+    // saga 실행
+    sagaMiddleware.run(rootSaga);
+    ```
+
+    ```jsx
+    // App.js
+    import React from "react";
+    import { useDispatch, useSelector, Provider } from "react-redux";
+    import { store } from "./store";
+    import { fetchUserRequest } from "./actions";
+
+    function App() {
+      const dispatch = useDispatch();
+      const user = useSelector((state) => state.data);
+      const loading = useSelector((state) => state.loading);
+      const error = useSelector((state) => state.error);
+
+      const handleClick = () => {
+        dispatch(fetchUserRequest(1)); // userId = 1
+      };
+
+      return (
+        <div>
+          <h1>User Info</h1>
+          <button onClick={handleClick}>Fetch User</button>
+          {loading && <p>Loading...</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {user && (
+            <div>
+              <p>Name: {user.name}</p>
+              <p>Email: {user.email}</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Provider로 감싸기
+    export default function Root() {
+      return (
+        <Provider store={store}>
+          <App />
+        </Provider>
+      );
+    }
+    ```
+
+- redux-thunk, redux-saga 비교
+
+  | 상황          | Thunk             | Saga                                    |
+  | ------------- | ----------------- | --------------------------------------- |
+  | 프로젝트 크기 | 소규모            | 중/대규모                               |
+  | 로직 복잡도   | 간단한 API 요청   | 복잡한 흐름 (요청 취소, 순차적 처리 등) |
+  | 학습 곡선     | 낮음              | 높음                                    |
+  | 코드 스타일   | 함수형, 간결      | 명령형, 유연                            |
+  | 테스트        | 상대적으로 어려움 | 테스트 용이                             |
 
 <br>
 
@@ -3106,7 +3256,7 @@ react 18에서 useTransition, useDeferredValue 두 가지 hook이 추가되었�
 
   - next.js
 
-    - Next.js 13 이상에서 app/ 디렉토리 기반의 서버 컴포넌트 + `<Suspense>` 사용만 해도 자동으로 스트리밍
+    - Next.js에서는 Streaming SSR 기능을 App Router + 서버 컴포넌트(Server Component) 중심으로 기본적으로 자동 적용
 
       ```jsx
       // app/page.tsx
