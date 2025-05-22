@@ -85,6 +85,48 @@
 
 <br>
 
+### # CLI
+
+- CLI 개념
+
+  CLI(커맨드 라인 인터페이스) 도구는 터미널이나 명령 프롬프트에서 텍스트 명령어로 실행하는 프로그램들이다.
+
+- 대표적인 CLI 예시
+
+  - 개발 도구 관련 CLI
+
+    - Git — 버전 관리 도구 : git clone, git commit, git push 등 다양한 명령어 제공
+
+    - Node.js/npm/yarn — 자바스크립트 런타임과 패키지 매니저 : node app.js, npm install, yarn add
+
+    - Docker — 컨테이너 관리 : docker run, docker build, docker ps
+
+    - OpenAPI Generator CLI — API 클라이언트 코드 자동 생성 : openapi-generator-cli generate -i api.yaml -g typescript-fetch -o ./generated
+
+    - Webpack / Vite / Rollup CLI — 번들러 : webpack --config webpack.config.js
+
+  - 시스템 및 운영체제 CLI
+
+    - bash / zsh / PowerShell — 쉘 자체도 CLI : 기본 명령어: ls, cd, mkdir, rm 등
+
+    - curl / wget — HTTP 요청 보내기 : curl https://api.example.com
+
+    - ssh — 원격 서버 접속 : ssh user@hostname
+
+  - 데이터베이스 CLI
+
+    - psql — PostgreSQL CLI 클라이언트 : psql -U user -d database
+
+    - mysql — MySQL CLI 클라이언트 : mysql -u user -p
+
+  - 클라우드 / 배포 관련 CLI
+
+    - AWS CLI — AWS 자원 관리 : aws s3 ls, aws ec2 start-instances
+
+    - kubectl — 쿠버네티스 클러스터 관리 : kubectl get pods, kubectl apply -f deployment.yaml
+
+<br>
+
 ### # 웹 성능 최적화 방법 정리
 
 (1) 렌더링 최적화
