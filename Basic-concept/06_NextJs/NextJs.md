@@ -578,7 +578,7 @@ export default function handler(req, res) {
 
     - 서버 측
 
-      1. 서버에서 서버 컴포넌트를 렌더링하여 직렬화한 RSC Payload 생성
+      1. react server에서 서버 컴포넌트를 렌더링하여 직렬화한 RSC Payload 생성
 
          - RSC Payload에 포함되는 정보
 
@@ -588,7 +588,7 @@ export default function handler(req, res) {
 
            - 서버 컴포넌트가 클라이언트 컴포넌트에 넘기는 props 정보
 
-      2. RSC Payload + 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성
+      2. nextjs server에서 RSC Payload + 클라이언트 컴포넌트 자바스크립트 인스트럭션(최소한의 js, 예를 들면 state의 초기 값)을 조합하여 정적인 HTML을 생성 후 브라우저로 전달
 
     - 클라이언트 측
 
