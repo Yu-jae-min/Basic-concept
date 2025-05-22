@@ -214,7 +214,7 @@
 
     - 불필요한 패키지 정리를 통한 번들 사이즈 최적화
 
-      - 번들 사이즈 최적화를 위해 dependencies와 devDependencies를 명확히 구분하고 사용 빈도가 낮거나 불필요한 패키지를 정리하여 전체 번들 사이즈를 줄였습니다.
+      - 사용되지 않거나 대체 가능한 외부 라이브러리를 정리하고 자체 유틸 함수로 대체하여 불필요한 의존성을 제거하고 번들 사이즈를 최적화했습니다.
 
     - 폰트 최적화를 통한 페이지 로딩 속도 개선
       - 지연 없는 폰트 서빙을 위해 서브셋 폰트와 WOFF2 포맷을 적용하였고 크로스 브라우징 이슈에 대응하기 위해 WOFF 포맷도 함께 사용하여 다양한 환경에서 안정적인 폰트 렌더링을 구현하였습니다.
@@ -365,7 +365,7 @@
 
     - Context API과 HOC를 활용한 전역 상태 관리 및 가독성 향상
 
-      - Context API와 HOC를 활용하여 모달, 토스트 등 피드백 컴포넌트의 상태를 바텀업 방식으로 효율적으로 관리할 수 있도록 리팩토링하였고 이를 통해 생산성을 향상시켰습니다. 또한 app 디렉토리 내의 Provider를 HOC로 감싸 코드 라인을 줄여 전반적인 가독성을 향상시켰습니다.
+      - Context API와 HOC를 활용하여 모달, 토스트 등 피드백 컴포넌트의 상태를 탑다운 방식으로 효율적으로 관리할 수 있도록 리팩토링하였고 이를 통해 생산성을 향상시켰습니다. 또한 app 디렉토리 내의 Provider를 HOC로 감싸 코드 라인을 줄여 전반적인 가독성을 향상시켰습니다.
 
     - 쿼리 스트링을 활용한 필터 처리
 
@@ -416,7 +416,7 @@
 
 <br>
 
-### # 스토리북 구축 및 배포
+### # 구현 방법 상세 - 스토리북 구축 및 배포
 
 - 스토리북을 구성하기 위해 기본 애드온 사용
 
@@ -440,36 +440,146 @@
 
   - 공유를 위해 배포하는데 S3, cloudfront를 활용해서 배포
 
-- 모노레포 구축 및 배포
+<br>
 
-  - 터보레포의 book-it-now-shop에서 로컬 패키지가 dependencies인 이유, 그리고 peerDependencies
+### # 구현 방법 상세 - 모노레포 구축 및 배포
 
-    - apps/bookitnow-shop/package.json 분석
+- 터보레포의 book-it-now-shop에서 로컬 패키지가 dependencies인 이유, 그리고 peerDependencies
 
-      - peerDependencies : peerDependencies의 역할은 해당 라이브러리가 특정 버전으로 설치되어있어야함을 명시하는 것이다. 우리 프로젝트의 구조 중 book-it-now-shop의 경우 peerDependencies 내부 패키지들의 버전을 와일드 카드(`*`)로 설정하였는데 이런 경우에는 root package.json에 명시된 버전으로 설치되어있어야 함을 의미한다. 즉 root package.json에 의해 이미 설치되어 있는 패키지 버전을 따라간다는 것이다.
+  - apps/bookitnow-shop/package.json 분석
 
-      - dependencies : dependencies의 경우 운영 환경에서 필요한 패키지를 설치한다고 알고 있는데 터보레포에서 생성되는 로컬 패키지(`ex @repo/ui`) 또한 여기에 포함되어야한다. peerDependencies에 포함될 수 없는 이유는 외부 라이브러리와 같이 root package.json에 버전을 명시하여 설치하는 방식이 아닌 로컬에서 생성한 패키지이기 때문이다. 그렇기 떄문에 별도로 생성된 로컬 패키지의 package.json을 참고하여 설치하게 된다. `(ex { "name": "@repo/ui", "version": "1.0.0", … })`
+    - peerDependencies : peerDependencies는 이 라이브러리는 직접 설치하지 않고 사용하는 쪽에서 설치하라는 의미이다. 보통 라이브러리나 플러그인에서 사용한다. 그러므로 apps package.json에는 적합하지 않다. 앱은 최종 실행 주체이기 때문에 peerDependencies를 쓰면 안 되고 실제로 사용하는 외부 라이브러리는 dependencies로 직접 설치해야 한다. 또한 dependencies 내부에서도 와일드 카드(`*`) 대신 명확한 버전을 지정해서 예기치 않은 충돌을 방지하는 것이 좋다. 왜냐하면 와일드 카드(`*`) 는 사실 상위 패키지 버전을 따라가는 것이 아닌 아무 버전이나 허용한다는 뜻이다. 그렇기 때문에 결론적으로 @repo/ui와 같이 터보레포 내부에서 생성되는 라이브러리에 적합하다. @repo/ui와 같은 패키지의 package.json에 peerDependencies를 사용하면 직접 설치하지 않고 사용하는 앱(apps 내 repo/ui를 사용하는 프로젝트)에서 설치하게 할 수 있다. 와일드카드(`*`)를 쓰면 루트 package.json 버전과 항상 맞추도록 강제할 수도 있다. 이렇게 하면 여러 앱에서 사용할 때 버전 충돌 방지에 효과적이다.
 
-    - peerDependencies vs dependencies 요약
+      ```json
+      // apps/프로젝트/package.json와 같은 앱(프로젝트)의 좋은 예시
+      "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "styled-components": "^5.3.6",
+        "@repo/ui": "*"
+      }
+      ```
 
-      - peerDependencies는 특정 패키지가 다른 패키지를 필요로 하지만, 그 패키지를 직접 포함하지 않고, 상위 프로젝트(패키지를 설치하는 프로젝트)에서 해당 의존성을 설치하도록 요구하는 방식
+      ```json
+      // @repo/ui/package.sjon와 같은 공통 패키지에서의 좋은 예시
+      "peerDependencies": {
+        "react": "*",
+        "react-dom": "*",
+        "styled-components": "*"
+      }
+      ```
 
-      - 내부 패키지들이 해당 프로젝트에서 직접 사용되며, 빌드 및 실행에 필수적인 의존성이라면 dependencies에 포함시키는 것이 적절하다. 반면, 다른 프로젝트에서 해당 패키지를 사용할 때 특정 버전의 다른 패키지와 함께 사용될 때 호환성을 보장하기 위해 명시하는 의존성이라면 peerDependencies에 포함시키는 것이 적절하다.
+    - dependencies : dependencies의 경우 운영 환경에서 필요한 패키지를 설치한다고 알고 있는데 터보레포에서 생성되는 로컬 패키지(`ex @repo/ui`) 또한 여기에 포함되어야한다. peerDependencies에 포함될 수 없는 이유는 외부 라이브러리와 같이 root package.json에 버전을 명시하여 설치하는 방식이 아닌 로컬에서 생성한 패키지이기 때문이다. 그렇기 떄문에 별도로 생성된 로컬 패키지의 package.json을 참고하여 설치하게 된다. `(ex { "name": "@repo/ui", "version": "1.0.0", … })`
 
-  - turbo.json
+  - peerDependencies vs dependencies 요약
 
-    - tasks 내부에서 bookitnow-client#build와 같이 각 프로젝트 혹은 build로 공통 빌드 설정을 적용, dependsOn의 경우 ^build로 설정하여 부모 혹은 의존하는 패키지들의 build 작업을 먼저 실행
+    - peerDependencies는 특정 패키지가 다른 패키지를 필요로 하지만, 그 패키지를 직접 포함하지 않고, 상위 프로젝트(패키지를 설치하는 프로젝트)에서 해당 의존성을 설치하도록 요구하는 방식
 
-  - packages
+    - 내부 패키지들이 해당 프로젝트에서 직접 사용되며, 빌드 및 실행에 필수적인 의존성이라면 dependencies에 포함시키는 것이 적절하다. 반면, 다른 프로젝트에서 해당 패키지를 사용할 때 특정 버전의 다른 패키지와 함께 사용될 때 호환성을 보장하기 위해 명시하는 의존성이라면 peerDependencies에 포함시키는 것이 적절하다.
 
-    - 공통 패키지 package.json 공통 요소
+- turbo.json
 
-    - type의 경우 docker + openapitools/openapi-generator-cli를 통해 타입을 자동생성
+  - tasks 내부에서 bookitnow-client#build와 같이 각 프로젝트 혹은 build로 공통 빌드 설정을 적용, dependsOn의 경우 ^build로 설정하여 부모 혹은 의존하는 패키지들의 build 작업을 먼저 실행
 
-  - 공통 apis, icons, logics, types, ui를 관리
+- packages
 
-  - 터보레포의 빌드와 캐싱
+  - 공통 패키지 package.json 공통 요소
 
-    - 각 서비스를 개별적으로 빌드하는데 turbo.json에 task에서 dependsOn": ["^build"] 를 통해 의존하는 내부 패키지가 있는 경우 우선적으로 빌드되게 처리하였다. 또한 outputs을 추가하여 빌드 결과물을 캐싱하여 재사용되도록 하였다.
+  - type의 경우 docker + openapitools/openapi-generator-cli를 통해 타입을 자동생성
+
+- 공통 apis, icons, logics, types, ui를 관리
+
+- 터보레포의 빌드와 캐싱
+
+  - 각 서비스를 개별적으로 빌드하는데 turbo.json에 task에서 dependsOn": ["^build"] 를 통해 의존하는 내부 패키지가 있는 경우 우선적으로 빌드되게 처리하였다. 또한 outputs을 추가하여 빌드 결과물을 캐싱하여 재사용되도록 하였다.
+
+<br>
+
+### # 구현 방법 상세 - 자동 pr 템플릿
+
+gitactions 활용, github/workflows/ 디렉토리와 .yml 형식의 워크플로 파일을 통해 구현
+
+<br>
+
+### # 구현 방법 상세 - commit 템플릿
+
+gitmessage로 구현
+
+<br>
+
+### # 구현 방법 상세 - husky
+
+1. 패키지 설치
+
+2. .your-project/.husky/pre-commit <- 이 파일 추가
+
+   - pre-commit의 경우 커밋 생성 시 실행
+
+   - script에서 실행 시 CI 환경이 아닐 때만 실행
+
+   - npx lint-staged
+
+     - 지금 위 설명한 세팅까지만 하면 commit 할때마다 linter or formatter가  모든 파일을 검사하기 때문에 상당한 시간이 소요된다. 이때 staged되어있는 파일에만 linter or formatter를 사용하기 위해 lint-staged를 사용할 수 있다.
+
+<br>
+
+### # 구현 방법 상세 - Webhook Slack 알림
+
+1. 슬랙 내부에서 GitHub App 추가 -> 앱 홈페이지 이동 후 깃헙 계정 로그인 -> 레파지토리 권한 설정
+
+2. 알림받길 원하는 채널 이동 -> 구독 명령어 입력 (ex `/github subscribe {org}/{repo} {feature}`)-> 레파지토리 연결
+
+<br>
+
+### # 구현 방법 상세 - OpenAPI Generator 타입 자동 공유
+
+0. 스웨거 url 준비 (예: https://api.example.com/) 및 로컬에 도커 설치
+
+1. docker-build.js 실행 (도커 컨테이너 실행)
+
+   - build-scheme.sh(쉘 스크립트) 실행 권한 부여
+
+     ```bash
+     # build-scheme.sh
+     #!/bin/bash
+
+     URL=https://api-dev.bookitnow.site/api-docs/swagger/json
+     OUT_LANG=typescript-axios
+
+     # OpenAPI Generator 실행
+     docker run --rm --network=host --user $(id -u) -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+         -i $URL \
+         -g $OUT_LANG \
+         -o /local/src/ \
+         -c /local/scripts/config.json
+
+     echo "export * from './model';" > src/index.ts
+     tsup && npm run format
+     rm -rf src/index.ts src/model src/.openapi-generator
+     ```
+
+     - openapi-generator-cli 도커 컨테이너를 사용해 OpenAPI 스펙(JSON)에서 TypeScript Axios 클라이언트 코드 생성
+
+     - 출력 디렉토리는 /local/src/ → 현재 디렉토리의 src/에 해당
+
+     - 이후에:
+
+       - src/index.ts 파일 생성 (model export)
+
+       - tsup으로 번들링
+
+       - npm run format으로 코드 포맷팅
+
+       - 최종적으로 index.ts, model/, .openapi-generator 폴더 삭제 (정리 용도)
+
+   - Docker 실행 여부 확인 → 필요 시 실행
+
+   - OpenAPI → Axios TS 클라이언트 코드 생성 (도커 기반)
+
+   - 생성 후 빌드 및 포맷팅 → 임시 파일 정리
+
+2. copy-build.js 실행 : 빌드 후 타입 선언 파일만 따로 보존/배포용으로 복사하는 스크립트
+
+   - index.d.ts 파일을 build 디렉토리로 복사
 
 <br>
