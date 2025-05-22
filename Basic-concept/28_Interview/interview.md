@@ -611,3 +611,9 @@ gitmessage로 구현
    - index.d.ts 파일을 build 디렉토리로 복사
 
 <br>
+
+### # 지금예약 구현 방법 상세 - tsup 사용 이유
+
+webpack + ts-loader 보다 빌드 속도가 훨씬 빠르기 때문에
+
+<br>
