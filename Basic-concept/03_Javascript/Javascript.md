@@ -2093,45 +2093,132 @@
 
 ### # 싱글턴 패턴
 
-싱글턴 패턴(Singleton Pattern)은 전체 시스템에서 클래스의 인스턴스를 오직 하나만 생성하도록 제한하는 디자인 패턴이다. 이를 통해 전역 상태를 일관되게 공유할 수 있다.
+- 개념
 
-JavaScript에서는 객체 리터럴로 비슷한 동작을 흉내낼 수 있지만, 객체 리터럴은 생성 시점에 즉시 만들어지고 모든 속성이 외부에 노출된다는 단점이 있다. 또 지연 생성(lazy initialization)이나 캡슐화가 어렵다.
+  싱글턴 패턴(Singleton Pattern)은 전체 시스템에서 클래스의 인스턴스를 오직 하나만 생성하도록 제한하는 디자인 패턴이다. 이를 통해 전역 상태를 일관되게 공유할 수 있다.
 
-진정한 싱글턴 패턴은 인스턴스를 한 번만 생성하고, 필요할 때만 초기화하며, 내부 상태를 외부에 숨길 수 있는 구조를 가져야 한다. 이를 위해 즉시 실행 함수(IIFE)를 활용해 비공개 변수와 클로저를 통해 싱글턴을 구현할 수 있다.
+  JavaScript에서는 객체 리터럴로 비슷한 동작을 흉내낼 수 있지만, 객체 리터럴은 생성 시점에 즉시 만들어지고 모든 속성이 외부에 노출된다는 단점이 있다. 또 지연 생성(lazy initialization)이나 캡슐화가 어렵다.
 
-싱글턴을 통해 불필요한 인스턴스 생성을 막고, 항상 동일한 인스턴스를 공유한다. 실무에서는 전역 상태를 제어하거나, 설정/로그/DB 연결 등에 많이 사용된다.
+  진정한 싱글턴 패턴은 인스턴스를 한 번만 생성하고, 필요할 때만 초기화하며, 내부 상태를 외부에 숨길 수 있는 구조를 가져야 한다. 이를 위해 즉시 실행 함수(IIFE)를 활용해 비공개 변수와 클로저를 통해 싱글턴을 구현할 수 있다.
 
-```js
-const singleton = (() => {
-  let instance; // 인스턴스를 저장할 변수 (비공개)
-  const secret = "hello"; // 비공개 데이터
+  싱글턴을 통해 불필요한 인스턴스 생성을 막고, 항상 동일한 인스턴스를 공유한다. 실무에서는 전역 상태를 제어하거나, 설정/로그/DB 연결 등에 많이 사용된다.
 
-  const createInstance = () => {
-    // 인스턴스 내용
+  ```js
+  const singleton = (() => {
+    let instance; // 인스턴스를 저장할 변수 (비공개)
+    const secret = "hello"; // 비공개 데이터
+
+    const createInstance = () => {
+      // 인스턴스 내용
+      return {
+        secretValue: secret,
+        showSecret: () => {
+          alert(secret);
+        },
+      };
+    };
+
     return {
-      secretValue: secret,
-      showSecret: () => {
-        alert(secret);
+      getInstance: () => {
+        if (!instance) {
+          instance = createInstance(); // 최초 호출 시 인스턴스 생성
+        }
+        return instance; // 이후에는 기존 인스턴스 반환
       },
     };
-  };
+  })();
 
-  return {
-    getInstance: () => {
-      if (!instance) {
-        instance = createInstance(); // 최초 호출 시 인스턴스 생성
-      }
-      return instance; // 이후에는 기존 인스턴스 반환
-    },
-  };
-})();
+  // 사용 예시
+  const first = singleton.getInstance();
+  const second = singleton.getInstance();
 
-// 사용 예시
-const first = singleton.getInstance();
-const second = singleton.getInstance();
+  console.log(first === second); // true → 동일 인스턴스
+  ```
 
-console.log(first === second); // true → 동일 인스턴스
-```
+- 예시 (라인쓰리, AWS SDK 활용한 이미지 presignedURL S3 버킷 업로드)
+
+  AWS SDK의 클라이언트 객체(AWS.S3)는 내부적으로 다음과 같은 리소스를 유지한다.
+
+  1. HTTP 연결 풀 : 클라이언트는 HTTP keep-alive로 연결을 재사용하려고 함, 매번 만들면 연결 재사용이 안 되어 성능 저하
+  2. Credential 설정 : 클라이언트 객체가 생성될 때 IAM 키를 바탕으로 인증 설정, 반복 생성하면 이 설정 과정을 계속 반복함
+  3. Config 캐시 (리전, 서명 버전 등) : 매번 새로 만들면 config 파싱 비용 발생
+
+  getS3Client 내부 프로퍼티를 보면 싱글턴 패턴을 하고 있다. 즉 한 번 생성된 S3 인스턴스(S3 클라이언트)를 재사용하여 비용/성능 최적화하고 있다. 클라이언트 객체 재사용으로 설정/인증 비용 최소화, 연결 재사용으로 빠른 요청 처리 가능, 인스턴스를 1개만 유지하므로 메모리 절약, 동일한 클라이언트로 일관된 처리를 하기 때문에 안정성 증가 등에 장점이 있다.
+
+  ```ts
+  import AWS from "aws-sdk";
+  import { isUndefined } from "lodash";
+
+  const endpoint = process.env.NEXT_PUBLIC_S3_END_POINT;
+  const region = process.env.NEXT_PUBLIC_AWS_REGION;
+
+  const awsClient = (function () {
+    let s3Instance: AWS.S3 | undefined;
+    let cloudFrontInstance: AWS.CloudFront | undefined;
+
+    return {
+      getS3Client: function ({
+        accessKeyId,
+        secretAccessKey,
+      }: {
+        accessKeyId: string | undefined;
+        secretAccessKey: string | undefined;
+      }) {
+        if (isUndefined(accessKeyId) || isUndefined(secretAccessKey)) {
+          console.error("accessKeyId or secretAccessKey is not provided");
+        } else if (!s3Instance) {
+          // 인스턴스를 재사용
+          s3Instance = new AWS.S3({
+            signatureVersion: "v4",
+            endpoint,
+            region,
+            credentials: {
+              accessKeyId,
+              secretAccessKey,
+            },
+          });
+        }
+        return s3Instance;
+      },
+      getCloudFrontClient: function ({
+        accessKeyId,
+        secretAccessKey,
+      }: {
+        accessKeyId: string | undefined;
+        secretAccessKey: string | undefined;
+      }) {
+        if (isUndefined(accessKeyId) || isUndefined(secretAccessKey)) {
+          console.error("accessKeyId or secretAccessKey is not provided");
+        } else if (!cloudFrontInstance) {
+          cloudFrontInstance = new AWS.CloudFront({
+            signatureVersion: "v4",
+            region,
+            credentials: {
+              accessKeyId,
+              secretAccessKey,
+            },
+          });
+        }
+        return cloudFrontInstance;
+      },
+    };
+  })();
+
+  export { awsClient };
+  ```
+
+  만약 요청마다 S3 인스턴스를 다시 생성한다면 이건 마치 커피숍에서 매 주문마다 바리스타를 새로 고용하는 것과 같다. 싱글턴 패턴을 사용하면 한 명의 바리스타가 모든 주문을 처리하는 것과 같게 된다.
+
+  ```ts
+  // 매번 새로 생성
+  const s3 = new AWS.S3(); // 계속 객체 생성 -> 낭비
+
+  // 싱글턴
+  let s3Instance: AWS.S3;
+  if (!s3Instance) {
+    s3Instance = new AWS.S3(); // 최초 1회만 생성
+  }
+  ```
 
 <br>
 
