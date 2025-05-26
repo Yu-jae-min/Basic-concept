@@ -204,37 +204,161 @@
 
   웹 애플리케이션에서 데이터를 주고받을 때 사용하는 대표적인 데이터 포맷으로는 XML과 JSON이 있다. XML은 HTML과 유사한 마크업 언어이다. XML의 단점은 불필요한 태그들이 포함되어 파일의 사이즈가 크고 가독성도 좋지 않으며 배열을 파싱할 수 없기 때문에 배열을 사용할 수 없다는 단점이 있다. 반면 JSON은 자바스크립트의 객체와 같은 구조로 구성되어 있어 가독성도 높고 작성하기도 편리하며 호환성도 뛰어나고 배열도 사용할 수 있다는 장점이 있다.
 
-- 토큰 기반 인증 안전한 흐름
+- 토큰 기반 인증 방법
 
-  1. 최초 로그인 시 서버는 :
+  - 흐름 예시
 
-  - Access Token + Refresh Token 발급, Access Token은 유효 시간을 짧게 (5~15분), Refresh Token은 유효 시간을 길게 설정 (ex 1~2주 또는 그 이상)
+    1. 최초 로그인 시 서버는 :
 
-  - 서버는 Refresh Token를 해시 처리하여 인메모리 DB(Redis)에 저장 (원본 저장 X)
+       - 서버는 Access Token, Refresh Token Hash, CSRF Token 발급. Access Token은 유효 시간을 짧게 (5~15분), Refresh Token은 유효 시간을 길게 설정 (ex 1~2주 또는 그 이상)
 
-  - 서버는 클라이언트로 Access Token과 원본 Refresh Token을 전송
+       - 서버는 Refresh Token를 해시 처리하여 해시 값을 인메모리 DB(Redis)에 저장 (원본 저장 X)
 
-  2. 클라이언트에서는 :
+         - 서버는 원본이 아니라 hash만 저장 → DB 털려도 refresh token 복원 불가 (마치 비밀번호처럼)
 
-  - 전달받은 Access Token은 메모리에 저장 (변수, 상태관리 라이브러리)
+       - 서버는 클라이언트로 Access Token, Refresh Token 원본, CSRF Token을 전송
 
-    - 페이지를 새로고침하거나 닫으면 토큰이 사라지기 때문에 노출 위험 시간이 훨씬 짧아진다. 즉, XSS 공격자가 토큰에 접근할 기회가 줄어드는 셈이다.
+    2. 클라이언트에서는 :
 
-  - 전달받은 Refresh Token 원본은 쿠키에 저장
+       - 전달받은 Access Token은 로컬 변수(로컬 메모리, 상태관리 라이브러리)에 저장
 
-    - 이 때 HttpOnly, Secure, SameSite 등 적용
+         - 쿠키에 자동 포함되지 않기 때문에 Authorization 헤더로 수동 전송해야함 → CSRF 공격 대상 아님
 
-  - 인가가 필요한 요청 시 Access Token을 활용하여 요청
+         - JS에서 접근 가능하긴 하지만, 유효시간 짧게 설정하면 XSS에 당해도 피해 최소화 가능
 
-  - Access Token 재발급 시 쿠키에 있는 Refresh Token을 활용 -> 서버는 해시 알고리즘을 통해 해시를 생성하여 저장되어 있는 해시와 동일한지 확인 후 재발급
+         - 페이지를 새로고침하거나 닫으면 토큰이 사라지기 때문에 노출 위험 시간이 훨씬 짧아진다. 즉, XSS 공격자가 토큰에 접근할 기회가 줄어드는 셈이다.
 
-  3. 로그아웃 시 :
+       - 전달받은 Refresh Token 원본은 쿠키에 저장
 
-  - Redis에서 Refresh Token 해시 삭제
+         - 이 때 HttpOnly, Secure, SameSite 등 적용
 
-  - 클라이언트 Access Token 상태 초기화
+         - HttpOnly 쿠키 → JS 접근 불가 → XSS에 강함
 
-  - 쿠키 Refresh Token 원본 삭제 (서버에서 Set-Cookie: expired)
+       - 전달받은 CSRF Token은 로컬 변수에 저장
+
+         - SameSite, HttpOnly, Secure 설정만으로 CSRF 공격을 “줄일 수는 있지만, 완전히 막을 수는 없다.” 그래서 CSRF 토큰을 사용한다.
+
+           - Strict는 너무 엄격해서 UX 문제 발생 (예: 사용자가 링크 클릭해서 이동해도 쿠키가 안 붙음 → 로그인 풀림), 그래서 보통 SameSite=Lax를 쓴다
+
+           - Lax는 GET 요청만 보호함, POST, PUT, DELETE 같은 “상태 변경 요청”은 보호 대상 아님. 이게 바로 CSRF가 노리는 요청
+
+           - 브라우저 호환성/버그, 일부 오래된 브라우저나 비표준 동작이 존재할 수 있음
+
+           - 프로그래밍 실수, 쿠키 설정 누락, 오용 등의 사람 실수를 커버하기 어려움
+
+         - 서버가 발급한 무작위 토큰을 클라이언트가 요청할 때 헤더나 body에 함께 실어서 보내는 방식이다.
+
+         - refresh token은 쿠키에 있으므로 자동 전송됨 → CSRF 공격에 노출, 이를 방지하기 위해 클라이언트가 따로 보유한 CSRF 토큰을 헤더에 실어 전송. 서버는 쿠키 + CSRF 토큰이 모두 맞아야 access token 재발급
+
+         - XSS에 약하기는 하지만 이 토큰은 JavaScript를 통해 요청 헤더에 직접 넣어야 하기 때문에, 제3자 사이트나 폼에서는 이 토큰을 알 수 없음 → 공격이 막힘. 왜냐하면 공격자가 쿠키는 전송할 수 있어도, 헤더는 조작 불가능하기 때문이다. 브라우저는 외부 사이트가 fetch로 보낼 때 커스텀 헤더(X-CSRF-Token)를 허용하지 않음 (CORS 정책 때문).
+
+           ```javascript
+           axios.post(
+             "/api/refresh",
+             {},
+             {
+               headers: {
+                 "X-CSRF-Token": csrfToken,
+               },
+             }
+           );
+           ```
+
+         - CSRF token은 로컬 변수(메모리) 저장 시 XSS에 약하지만, refresh token 원본을 httpOnly 쿠키로 관리하기 때문에 XSS에 안전하여 CSRF token이 XSS에 의해 접근가능하게 되더라도 refresh token에는 접근할 수 없으므로 안전하다. 라고 이해했다.
+
+       - 인가가 필요한 요청 시 Access Token을 Authorization 헤더에 포함하여 요청
+
+         - 서버는 Access Token 검증 후 정상 응답
+
+       - Access Token 만료 시 재발급을 위해 쿠키에 있는 Refresh Token, 로컬 변수(메모리)에 있는 CSRF Token 을 활용
+
+         - 서버에서 자동 전송된 refresh token (HttpOnly + Secure + SameSite 쿠키) 원본을 요청에 포함 (HttpOnly + Secure 쿠키를 자동으로 요청 헤더에 포함)
+
+         - 로컬 변수(메모리)에 있는 CSRF 토큰을 X-CSRF-Token 헤더에 포함하여 요청
+
+         - 서버에서는 클라이언트에서 받은 refresh token 원본을 해시 알고리즘을 통해 hash 처리해 DB에 저장된 것과 비교 및 CSRF Token 검증 -> access token 재발급 후 응답 (필요 시 새로운 refresh token도 재발급 + 쿠키에 다시 Set)
+
+    3. 로그아웃 시 :
+
+       - Redis에서 Refresh Token 해시 삭제
+
+       - 클라이언트 Access Token, CSRF Token 상태 초기화
+
+       - 쿠키 Refresh Token 원본 삭제 (서버에서 Set-Cookie: expired)
+
+  - 해당 구조의 장점
+
+    | 항목                                             | 이유                                                                |
+    | ------------------------------------------------ | ------------------------------------------------------------------- |
+    | ✅ **access token은 메모리 관리**                | CSRF에 안전하며, XSS에 노출돼도 짧은 만료 시간 덕분에 리스크 낮음   |
+    | ✅ **refresh token은 HttpOnly 쿠키**             | XSS로부터 완전 보호됨, 자동 전송되므로 별도 처리 필요 없음          |
+    | ✅ **CSRF 토큰은 메모리에서 직접 헤더로 보내기** | 쿠키 자동 전송만으로는 부족하므로 CSRF 토큰으로 위조 요청 차단 가능 |
+    | ✅ **refresh token 해시는 Redis 등에서 관리**    | 속도, TTL, 실시간 무효화에 유리하고 유출돼도 원본 노출 위험 없음    |
+
+  - Redis에 refresh token 해시를 저장하는 이유
+
+    - 이유
+
+      1. 속도 (Ultra-fast Lookup)
+
+         - Redis는 인메모리 DB라서 읽기/쓰기 속도가 매우 빠릅니다.
+
+         - 로그인 후 access token을 재발급할 때, refresh token의 해시를 비교하는 작업이 자주 일어남 → 성능 중요
+
+         - RDB(MySQL 등)보다 수천~수만 배 빠른 처리 속도가 가능
+
+      2. 만료 시간(TTL)을 쉽게 설정할 수 있음
+
+         - Redis는 키마다 TTL(Time To Live)을 줄 수 있음 → refresh token 만료시간을 Redis 수준에서 관리 가능
+
+           ```bash
+           SET refresh:hash:<userId> <hashedToken> EX 7d
+           ```
+
+         - 토큰이 만료되면 자동 삭제되므로, 불필요한 데이터 클린업 로직을 따로 짤 필요 없음
+
+      3. 로그아웃/재발급 관리가 편리함
+
+         - 사용자가 로그아웃하면 해당 키만 지우면 됨 → 단순한 키 삭제로 토큰 무효화 가능
+
+         - 탈취 의심 시, 특정 userId의 refresh token hash만 제거 → 해당 사용자만 로그아웃시킴
+
+      4. 세션 스토리지 역할도 겸함
+
+         - 서비스에 따라 refresh token을 세션처럼 다루는 경우도 있음
+
+         - Redis는 전통적으로 세션 관리용 저장소로도 많이 쓰이므로 활용도 높음
+
+      5. 스케일 아웃에 유리
+
+         - 서버가 여러 대로 늘어나도 Redis를 중앙화된 세션 스토리지로 쓸 수 있음
+
+         - 즉, 토큰 관리 로직을 수평 확장 환경에서도 유지할 수 있음
+
+    - 요약
+
+      | 항목                 | Redis (인메모리) | RDB (MySQL, Postgres 등) |
+      | -------------------- | ---------------- | ------------------------ |
+      | 속도                 | 매우 빠름 (ms)   | 상대적으로 느림          |
+      | TTL 관리             | 쉬움 (`EX` 설정) | 복잡함 (잡 돌려야 함)    |
+      | 실시간 삭제/로그아웃 | 쉬움             | 느림 / 복잡              |
+      | 수평 확장성          | 좋음             | 관리 복잡도 증가         |
+      | 영속성               | 낮음 (옵션)      | 높음 (기본)              |
+
+      - refresh token은 "영속성"보다는 속도 + 관리 편의성이 더 중요하므로 Redis가 적합한 선택인 경우가 많다.
+
+      - Redis에는 해시값만 저장 → 원본 토큰이 유출되지 않음
+
+      - Redis가 유출되더라도 원본 refresh token을 알 수 없음
+
+      - 해시 함수는 bcrypt, argon2, scrypt 등 느린 함수가 아니라 빠른 HMAC + SHA256 등을 써서 속도와 보안 모두 챙김
+
+        ```ts
+        // 예시
+        const tokenHash = HMAC_SHA256(refreshToken, SECRET_KEY);
+        ```
+
+      - Redis는 refresh token hash 저장에 매우 적합한 저장소이다. 속도, TTL, 실시간 삭제, 확장성 등 실무적인 장점이 많고 보안적으로도 안전한 방식이다.
 
 <br>
 
