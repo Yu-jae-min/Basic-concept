@@ -101,6 +101,37 @@
       | **DOM 기반 XSS 주의**              | 클라이언트에서 DOM을 조작할 때도 사용자 입력을 안전하게 처리                                                  |
       | **최신 보안 패치 적용**            | 웹서버, 라이브러리, 프레임워크 보안 업데이트를 항상 최신으로 유지                                             |
 
+    - CSP(Content Security Policy)
+
+      - 개념
+
+        - CSP(Content Security Policy)는 웹 애플리케이션에서 XSS(Cross-Site Scripting) 같은 공격을 방지하기 위해 사용하는 보안 정책이다.
+
+        - 쉽게 말하면, 어디서 로드된 콘텐츠만 허용할 것인지 브라우저에게 알려주는 규칙이다.
+
+        - 적용하면 악성 스크립트가 서버 응답에 삽입되는 경우 차단한다.
+
+      - 적용 방법
+
+        - 기본적으로 HTTP 응답 헤더에 설정해줘야 브라우저가 인식한다.
+
+        - 또는 `<meta>` 태그로도 설정할 수 있지만, 보안 강도나 유연성 면에서 HTTP 헤더 방식이 권장된다.
+
+          - 1. http 헤더로 설정
+
+            ```http
+            Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted.cdn.com ...
+            ```
+
+          - 2. 메타 태그로 설정(비권장)
+
+            ```html
+            <meta
+              http-equiv="Content-Security-Policy"
+              content="default-src 'self'; script-src 'self'"
+            />
+            ```
+
   - CSRF(Cross site request forgery)
 
     사용자의 인증 정보를 도용해, 의도치 않은 악성 요청을 서버에 보내는 공격이다.
