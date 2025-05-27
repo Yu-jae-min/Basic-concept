@@ -210,14 +210,43 @@ function render() {
     }, []);
     ```
 
-  - 의존성배열 값 o, return 함수 o : 내부 로직이 컴포넌트 마운트 시 실행, 의존성 배열 값 변경 시 실행, return 함수는 컴포넌트 언마운트 시 실행, 의존성 값 변경 직전에 이전 이펙트 정리를 위해 실행
+  - 의존성배열 값 o, return 함수 o : 내부 로직이 컴포넌트 마운트 시 실행, 의존성 배열 값 변경 시 실행, return 함수는 컴포넌트 언마운트 시 실행, 의존성 값 변경 직전에 이전 이펙트 정리를 위해 실행 (이전 이펙트 정리란, 리렌더링 후 useEffect 본문을 실행하는 것이 아닌 clean up 먼저 실행 후 본문을 실행함)
 
     ```javascript
     useEffect(() => {
       ...
 
       return () => {...};
-    }, [abc]);
+    }, []);
+    ```
+
+    ```javascript
+    // 예시
+    import { useEffect, useState } from "react";
+
+    function App() {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        console.log("🟢 effect 실행:", count);
+
+        return () => {
+          console.log("🔴 cleanup 실행:", count);
+        };
+      }, [count]);
+
+      return (
+        <div>
+          <p>{count}</p>
+          <button onClick={() => setCount((c) => c + 1)}>증가</button>
+        </div>
+      );
+    }
+
+    // effect 실행: 0      ← 최초 마운트
+    // cleanup 실행: 0     ← count = 1로 변경되어 리렌더링된 후
+    // effect 실행: 1      ← 새로운 값 기준으로 effect 실행
+    // 결론 : 리렌더링 → 화면 반영 → 그 이후에 cleanup → 본문 실행
     ```
 
   - 의존성배열 x : 컴포넌트 리렌더링마다 실행
@@ -315,7 +344,7 @@ setState는 비동기로 동작한다. 비동기로 동작하는 이유는 일�
 
 2. Commit Phase (커밋 단계) – 실제 DOM 업데이트 수행
 
-   Render Phase에서 수집된 변경 사항(EffectList)을 기반으로 실제 DOM에 반영한다. 이때 React는 useLayoutEffect도 실행하고, DOM 트리에 컴포넌트를 마운트한다.
+   Render Phase에서 수집된 변경 사항(EffectList)을 기반으로 실제 DOM 트리에 컴포넌트를 마운트한다. 즉 실제 DOM 트리에 변경된 내용을 삽입하여 브라우저 HTML 요소로 표시하는 것이다. (컴포넌트 마운트 : 컴포넌트가 처음 렌더링되어 브라우저의 DOM에 추가되는 시점을 말한다.) 이 때 페인팅 단계 전 useLayoutEffect, 페인팅 단계 후 useEffect 등이 처리된다.
 
 3. 화면에 실제 반영 (최종 렌더링)
 
@@ -1026,6 +1055,18 @@ setState는 비동기로 동작한다. 비동기로 동작하는 이유는 일�
     - 디버깅 & DevTools : 상태 추적, 시간 이동 디버깅, 로깅 등 가능 (Redux DevTools 등)
 
     - 미들웨어 지원 : Redux의 middleware, Recoil effects 등으로 로깅, 인증 체크, 로컬 스토리지 연동 등 쉽게 구현 가능
+
+  - Context API 언제 사용?
+
+    - 정적인 전역 값 공유
+
+      - Context 값을 구독하는 컴포넌트는 Context 값 변경 시 리렌더링이 발생한다. 그렇기 때문에 자주 변경이 발생하는 값보다는 정적인 값을 공유할 때 적합하다.
+
+      - 예시 : 로그인한 사용자 정보 (auth, user), 테마 설정 (darkMode, theme), 언어 (locale, i18n) 등
+
+    - props dlilling을 피할 때
+
+      - 만약 Context 값을 직접 구독하지 않는 중간 컴포넌트 그 자체로는 안전함, 다만 부모가 리렌더링되면 자식도 같이 리렌더링될 수 있음. 이를 피하려면 React.memo, useMemo, useCallback 등의 최적화 도구를 적절히 써야 한다. 즉 부모의 Context 값 변경 시 리렌더링 발생을 막기 위해 메모이제이션 해야한다.
 
 <br>
 

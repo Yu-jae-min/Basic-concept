@@ -1058,6 +1058,30 @@ function infiniteAnimate(): never {
 
 - tsconfig.json은 타입스크립트 컴파일러의 설정을 정의하는 파일이다. 이 파일에서 컴파일 옵션, strict 모드 설정, 타입 검사 규칙, 출력 경로 등 다양한 컴파일 규칙과 동작 방식을 지정할 수 있다.
 
+  ```json
+  // 예시
+  {
+    "compilerOptions": {
+      "target": "ESNext", // 최신 JS로 트랜스파일
+      "lib": ["DOM", "DOM.Iterable", "ESNext"], // 브라우저와 최신 JS API 사용
+      "allowJs": true, // JS 파일도 컴파일 대상에 포함
+      "skipLibCheck": true, // @types 패키지 검사 생략 (속도 개선)
+      "esModuleInterop": true, // commonjs -> esmodule 호환성
+      "allowSyntheticDefaultImports": true, // default import 허용
+      "strict": true, // 모든 strict 옵션 활성화 (강력 추천)
+      "forceConsistentCasingInFileNames": true, // 파일명 대소문자 엄격하게
+      "module": "ESNext", // 모듈 시스템 (Next.js나 최신 번들러와 호환)
+      "moduleResolution": "Node", // Node 방식 모듈 탐색
+      "resolveJsonModule": true, // JSON import 허용
+      "isolatedModules": true, // 각 파일을 개별 모듈로 취급
+      "noEmit": true, // JS 파일을 실제로 생성하지 않음
+      "jsx": "react-jsx" // React 17+ JSX 트랜스폼 사용
+    },
+    "include": ["src"], // 컴파일 대상 폴더
+    "exclude": ["node_modules", "dist"] // 제외 폴더
+  }
+  ```
+
 - tsconfig.json에서 strict: true 설정
 
   기본적으로 타입스크립트에서는 null과 undefined가 모든 타입의 하위 타입으로 간주되어서, 아무 변수나 null 또는 undefined 값을 가질 수 있다. strictNullChecks가 켜지면, null과 undefined는 오직 그 타입으로 명시적으로 지정된 변수에만 할당 가능하다. 즉, string 타입 변수에는 null이나 undefined를 할당할 수 없고, string | null 처럼 유니언 타입으로 명시해야만 할당할 수 있다.
